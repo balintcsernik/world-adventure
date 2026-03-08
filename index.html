@@ -526,56 +526,197 @@ let savedChalkboardCanvas=null;
 let bookshelfActive=null;
 let bookReaderActive=null;
 function seededRng(seed){let s=seed|0;return function(){s=(s+0x6D2B79F5)|0;let t=Math.imul(s^(s>>>15),1|s);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
-// Story generation pools
-const S_CHARS=['Benny','Milo','Ziggy','Pepper','Bubbles','Sparkle','Nugget','Pickle','Waffles','Captain Socks'];
-const S_ANIMALS=['cat','dog','hamster','penguin','frog','dragon','llama','octopus','bunny','parrot'];
-const S_PLACES=['treehouse','cloud castle','candy cave','volcano island','moon base','pirate ship','jungle gym','giant shoe','mushroom village','underwater cave'];
-const S_OBJECTS=['glowing sock','talking banana','magic pencil','invisible hat','singing rock','flying donut','golden key','tickle feather','rainbow jar','bouncing shoe'];
-const S_ADJECTIVES=['sparkly','wobbly','giggly','stinky','fuzzy','bouncy','squishy','grumpy','sneaky','silly'];
-const S_FOODS=['pizza','pancakes','spaghetti','cupcakes','tacos','ice cream','jelly beans','cheese','waffles','pickles'];
-const S_ACTIONS=['dancing','snoring','juggling','somersaulting','yodeling','skateboarding','painting','burping','moonwalking','doing cartwheels'];
-const STORY_TEMPLATES=[
-[{t:'Once upon a time, a {adj} little {animal} named {char} lived in a {place}. Every day, {char} loved {action} until the neighbors complained.',s:0},
-{t:'One morning, {char} found a {object} under the bed. The moment {char} touched it, everything in the {place} started floating! "Uh oh!" said {char}.',s:1},
-{t:'{char} floated all the way to a magical underwater world. A friendly {animal2} wearing a top hat swam over. "You must find the {food} of power!" it said.',s:2},
-{t:'After searching high and low, {char} found the {food} of power in a giant kitchen. But it was guarded by a {adj2} chef who only spoke in burps!',s:3},
-{t:'{char} shared the {food} with the chef, who was so happy he launched {char} home in a rocket. "What a {adj} adventure!" {char} laughed, landing safely back in the {place}. The End!',s:4}],
-[{t:'Nobody believed {char} the {animal} when {char} said there was a {object} hidden in the {place}. "You are being {adj}!" they all said.',s:0},
-{t:'So {char} set off alone, armed with nothing but a {food} sandwich and a brave heart. The path was full of {adj2} puddles and singing mushrooms.',s:1},
-{t:'{char} fell into an underground lake! Luckily, a school of {adj} fish showed {char} a secret tunnel that led deeper into the earth.',s:2},
-{t:'At the end of the tunnel was a giant kitchen where a {animal2} was cooking {food}. "I have been waiting for you," it said. "Take this {object}!"',s:3},
-{t:'{char} brought the {object} back to the {place} and everyone cheered! From that day on, nobody ever called {char} {adj} again. Well, maybe just on Tuesdays. The End!',s:4}],
-[{t:'{char} the {animal} woke up one morning and everything was upside down! The {place} was on the ceiling and breakfast was {action} on the floor.',s:0},
-{t:'"I need to fix this!" said {char}, grabbing a {object}. But every time {char} used it, something got even sillier. The chairs started {action}!',s:1},
-{t:'{char} asked a wise old {animal2} for help. "You must dive into the Silly Sea and find the {adj} pearl," it croaked. So {char} jumped in!',s:2},
-{t:'Under the sea, {char} found a kitchen where fish were making {food}. "The pearl is in the last {food}!" they said. {char} had to eat them ALL.',s:3},
-{t:'With a very full tummy, {char} found the {adj2} pearl and everything flipped right-side up! "I am never eating {food} again," groaned {char}, falling asleep in the {place}. The End!',s:4}],
-[{t:'In a {adj} {place} far far away, {char} the {animal} was the best cook in the land. {char} could make {food} that would make anyone smile.',s:0},
-{t:'One day, a {adj2} {animal2} showed up and challenged {char} to a cook-off! "Whoever makes the best {food} wins the golden {object}!" it declared.',s:1},
-{t:'{char} needed a secret ingredient from the bottom of the ocean. Down, down, down {char} swam, past colorful fish and a very confused crab.',s:2},
-{t:'Back in the kitchen, {char} mixed and stirred and added a pinch of {adj} spice. The {food} was so good it made the judges start {action}!',s:3},
-{t:'{char} won the golden {object} and the {animal2} clapped. "You truly are the best!" From that day on, {char} cooked {food} for everyone in the {place}. The End!',s:4}],
-[{t:'{char} the {animal} always dreamed of going to space. "If only I had a {object}," {char} sighed, staring at the stars from the {place}.',s:0},
-{t:'Then one day, a {adj} spaceship crashed in the backyard! Out climbed a tiny {animal2} who said, "I need {food} to fuel my ship. Can you help?"',s:1},
-{t:'{char} and the {animal2} searched the ocean for the legendary {adj2} {food}. They dove deep, past jellyfish and a very polite octopus.',s:2},
-{t:'They found the {food} in a sunken kitchen and rushed back. {char} cooked it up perfectly while {action}. "Delicious!" said the {animal2}.',s:3},
-{t:'The ship blasted off and {char} saw the whole world from space! "This is {adj}!" {char} shouted. The {animal2} dropped {char} home and waved goodbye. "See you next Tuesday!" The End!',s:4}],
-[{t:'{char} the {animal} was {action} in the {place} when suddenly — POOF! A {adj} cloud appeared and out fell a {object}.',s:0},
-{t:'The {object} started talking! "Take me to the {adj2} mountain or I will turn everything into {food}!" it squeaked. {char} had no choice.',s:1},
-{t:'On the way, they had to cross a vast ocean. A {animal2} offered them a ride. "Hold on tight!" it said, diving under the waves.',s:2},
-{t:'They arrived at a mountain made entirely of {food}! {char} was so hungry from the journey that {char} ate half the mountain while {action}.',s:3},
-{t:'{char} placed the {object} on top of what was left of the mountain. FLASH! Everything turned {adj} and sparkly! {char} rode the {animal2} back to the {place}, a true hero. The End!',s:4}]
-];
-function generateStory(seed){
-  const rng=seededRng(seed);
-  const pick=(arr)=>arr[Math.floor(rng()*arr.length)];
-  const ch=pick(S_CHARS),an=pick(S_ANIMALS),an2=pick(S_ANIMALS),pl=pick(S_PLACES);
-  const ob=pick(S_OBJECTS),adj=pick(S_ADJECTIVES),adj2=pick(S_ADJECTIVES),fd=pick(S_FOODS),act=pick(S_ACTIONS);
-  const tmpl=STORY_TEMPLATES[Math.floor(rng()*STORY_TEMPLATES.length)];
-  return tmpl.map(p=>{
-    let t=p.t.replace(/\{char\}/g,ch).replace(/\{animal\}/g,an).replace(/\{animal2\}/g,an2).replace(/\{place\}/g,pl).replace(/\{object\}/g,ob).replace(/\{adj\}/g,adj).replace(/\{adj2\}/g,adj2).replace(/\{food\}/g,fd).replace(/\{action\}/g,act);
-    return{text:t,sceneType:p.s};
-  });
+// Title-specific story content — each book gets its own cohesive 5-page story
+const BOOK_STORIES={
+'My Cat Ate My Homework':[
+{t:'Whiskers was not a normal cat. While most cats chased mice or napped in the sun, Whiskers had a very unusual hobby. He ate paper. Not just any paper though. Whiskers only ate the most important papers he could find, especially homework.',s:0},
+{t:'One Monday morning, I left my math homework on the kitchen table. When I came back, Whiskers was licking his lips and my homework was gone. Every single page! I tried to explain to my teacher, but she just laughed and said she had heard that excuse before.',s:1},
+{t:'The next day, I hid my science report inside a locked box at the bottom of the fish tank. Somehow Whiskers dove in, picked the lock, and ate every word. The goldfish just stared in shock. Even they could not believe what they had just seen.',s:2},
+{t:'I decided to write my homework on a pizza. Surely a cat would not eat pizza! But Whiskers ate the whole thing, pepperoni and all. He burped out the letter A and purred. My mom said he was the best-fed cat on the entire block.',s:3},
+{t:'Finally I had an idea. I wrote my homework on the inside of a rocket ship. Whiskers climbed aboard and ate it anyway, but the rocket blasted off! Now Whiskers is the first homework-eating cat in outer space. My teacher finally believes me. The End!',s:4}],
+'Why Boogers Are Green':[
+{t:'Professor Snotwhistle was the world\'s greatest nose scientist. She had studied noses for forty years. Big noses, small noses, and everything in between. But one question kept her up at night: why on earth are boogers green? She had to find the answer.',s:0},
+{t:'She packed her magnifying glass and her adventure hat and set off to find the legendary Booger Mountain. The path was long and slimy. She slipped and slid through puddles of goo, but nothing could stop a determined nose scientist on a mission.',s:1},
+{t:'Inside Booger Mountain, she discovered an underground lake of bright green slime. Tiny creatures called Mucus Monsters swam happily in the goo. They explained that they paint every single booger green because it is their favorite color in the whole wide world.',s:2},
+{t:'The Mucus Monsters invited Professor Snotwhistle to lunch. They served green spaghetti, green cupcakes, green juice, and even green ice cream. Everything was green and surprisingly delicious. She ate three plates of green pancakes and asked for the recipe.',s:3},
+{t:'Professor Snotwhistle wrote her findings in a big book. She became famous across the galaxy. Aliens came from every planet to read her research. It turns out aliens have purple boogers, which is a whole different mystery. She started packing for her next adventure. The End!',s:4}],
+'101 Fart Jokes':[
+{t:'Benny loved telling jokes more than anything. But not just any jokes. Benny only told fart jokes. His dog would howl, his cat would hide, and his goldfish would blow tiny bubbles every time Benny told one. He dreamed of collecting exactly one hundred and one of the best fart jokes ever.',s:0},
+{t:'Benny traveled far and wide with his joke notebook. He climbed the tallest hill in town and asked the old wise owl for a fart joke. The owl hooted, ruffled its feathers, and told him the funniest one he had ever heard. That made joke number fifty.',s:1},
+{t:'Benny sailed across the ocean to ask the dolphins for jokes. The dolphins were excellent joke tellers. They squeaked and splashed and told him twenty new ones. A whale nearby laughed so hard that a giant wave washed Benny all the way back to shore.',s:2},
+{t:'At joke number one hundred, Benny celebrated with a huge feast. He ate beans, cabbage, broccoli, and fizzy soda. His tummy rumbled so loudly that the whole restaurant started giggling. The chef gave him a trophy shaped like a whoopee cushion.',s:3},
+{t:'For joke one hundred and one, Benny told the funniest fart joke ever on live TV from a space station. Astronauts laughed so hard they floated upside down. The whole world giggled at once. Benny smiled. His collection was finally complete. The End!',s:4}],
+'How to Train Your Goldfish':[
+{t:'Goldie was the laziest goldfish in the world. While other fish swam in circles, Goldie just floated and stared. Her owner, a kid named Max, was determined to train Goldie to do tricks. Everyone said it was impossible, but Max never gave up on anything.',s:0},
+{t:'Max started with simple commands. He held up a tiny sign that said SIT. Goldie just blinked. He tried ROLL OVER. Goldie blew a bubble. He tried SHAKE. Goldie yawned. Training a goldfish was much harder than any adventure Max had ever been on before.',s:1},
+{t:'Max read that fish learn better underwater, so he put on his goggles and stuck his whole head in the tank. He and Goldie stared at each other nose to nose. Suddenly Goldie did a backflip! Max was so excited he accidentally drank half the fish tank water.',s:2},
+{t:'Max rewarded Goldie with fancy fish food shaped like tiny pizzas. Goldie loved them so much she learned to jump through a hoop made of a pretzel. Then she learned to push a tiny basketball. Max fed her fish food tacos as a special celebration treat.',s:3},
+{t:'Goldie became the world\'s most famous trained goldfish. She appeared on TV and even performed in a special zero-gravity fish tank on a space station. Astronauts cheered as Goldie did triple backflips in the air. Max was so proud of his little golden superstar. The End!',s:4}],
+'The Secret Life of Socks':[
+{t:'Have you ever wondered where your missing socks go? Tommy had lost seventeen socks this year. One from every pair! His mom blamed the washing machine, but Tommy knew something sneaky was going on. He decided to stay up all night and watch his sock drawer very carefully.',s:0},
+{t:'At exactly midnight, Tommy\'s sock drawer creaked open. A stripy sock peeked out, looked both ways, then tiptoed across the floor! Tommy followed it down the hallway, through a tiny door behind the bookshelf, and into an amazing hidden underground world.',s:1},
+{t:'The socks had built an entire city underground! There were sock houses, sock shops, and even a sock swimming pool filled with warm soapy water. Tommy\'s favorite blue sock was the mayor. It waved at Tommy with its toe end and smiled warmly.',s:2},
+{t:'The socks threw Tommy a welcome feast. They served sock-shaped cookies, foot-long sandwiches, and toe-tally awesome cake. Everything tasted surprisingly good. Tommy ate so much he had to loosen his belt. The socks cheered and did a little dance on the table.',s:3},
+{t:'The socks explained they leave because they dream of adventure beyond the drawer. Tommy promised to take his socks on trips if they stopped disappearing. The socks agreed and made Tommy an honorary sock citizen of their universe. He got a tiny crown made of lint. The End!',s:4}],
+'Diary of a Wimpy Hamster':[
+{t:'Dear Diary, my name is Herbert and I am the wimpiest hamster in the pet store. The other hamsters run on their wheels all night long. I get dizzy after three steps. They stuff their cheeks with seeds. I can barely fit one sunflower seed in mine. Life is tough.',s:0},
+{t:'Dear Diary, today a kid bought me and took me on the scariest car ride ever. Every bump made me squeak. When we got to my new home, I hid in my wood shavings for six hours. The family cat sat outside my cage staring at me. I did not sleep at all.',s:1},
+{t:'Dear Diary, I accidentally fell into the fish tank today! I paddled with my tiny legs as fast as I could. A goldfish looked at me like I was crazy. The kid fished me out with a soup ladle. I was soaking wet and very embarrassed about the whole thing.',s:2},
+{t:'Dear Diary, the family tried to cheer me up with a hamster feast. They gave me broccoli, carrots, cheese, tiny crackers, and a blueberry bigger than my head. I ate so much my cheeks finally puffed out properly. The kid took a photo and called me adorable.',s:3},
+{t:'Dear Diary, something amazing happened today. I finally ran on my wheel without falling off! I ran so fast the wheel spun me into the air and I flew across the room like a hamster astronaut! The family cheered. Maybe I am not so wimpy after all. The End!',s:4}],
+'Attack of the Killer Tomatoes':[
+{t:'It started on a quiet Tuesday in the town of Veggieville. Farmer Pete noticed his tomatoes were growing unusually large. By Wednesday they were the size of basketballs. By Thursday they had grown little arms and legs. By Friday they were marching out of the garden.',s:0},
+{t:'The tomatoes waddled through town, squirting juice at everyone! The mayor slipped on tomato goo. The librarian got splattered reading her book. A brave kid named Sam grabbed a tennis racket and tried to stop them, but the tomatoes just bounced right back every time.',s:1},
+{t:'The tomatoes marched to the lake and jumped in, turning the entire lake into tomato soup! Fish popped up wearing tiny life jackets. Ducks paddled through the red water looking very confused. Even the frogs turned pink from all the tomato juice around them.',s:2},
+{t:'Sam had a brilliant idea. If the tomatoes wanted to be in soup, then soup they would be! Sam set up the world\'s biggest cooking pot, added pasta, cheese, and garlic bread. The smell was so good the whole town came running with their bowls and spoons.',s:3},
+{t:'The tomatoes loved being in the soup so much they stopped attacking. Veggieville became famous for the best tomato soup in the universe. Aliens traveled from distant planets just to taste it. Farmer Pete won a golden trophy shaped like a giant tomato. The End!',s:4}],
+'The Day I Turned Into a Dog':[
+{t:'When I woke up on Saturday morning, something felt very wrong. My ears were pointy and furry. My nose was cold and wet. I had a tail! I looked in the mirror and barked in surprise. I had turned into a scruffy brown dog overnight! This was going to be a very weird day.',s:0},
+{t:'I tried to tell my mom, but all that came out was woof woof bark bark. She patted my head and gave me a dog biscuit. It actually tasted pretty good! I ran outside and discovered I could smell everything. The neighbor\'s garden smelled like a hundred different stories.',s:1},
+{t:'I chased a ball into the park pond and discovered I could swim really fast with my doggy paddle. The ducks were not impressed at all. A friendly fish poked its head up and said dogs were not allowed in the pond. I splashed him and kept swimming anyway.',s:2},
+{t:'Being a dog made me super hungry. I ate three bowls of kibble, a sandwich I found under the couch, leftover spaghetti from the trash, and a shoe. The shoe did not taste great but I could not help myself. My tail wagged the entire time I was eating.',s:3},
+{t:'By bedtime, I slowly changed back into a kid. My tail shrank, my ears got round again, and I could finally talk! My dog Rex looked at me knowingly. I think he had been a kid once too. We shared a knowing look and fell asleep side by side. The End!',s:4}],
+'Do Not Open This Book':[
+{t:'This book told you not to open it. But you did it anyway! Now a tiny purple monster named Gus is very upset. He was sleeping peacefully on page one and you woke him up. Gus yawned, stretched his three arms, and gave you a grumpy look with all five of his eyes.',s:0},
+{t:'Gus warned you not to turn to page two. But here you are! Now Gus has to go on an adventure he did not plan for. He grabbed his tiny backpack and stomped off down the path, muttering about how nobody ever listens to perfectly clear warning signs anymore.',s:1},
+{t:'You turned another page and now Gus fell into the ocean! He does not even like water! He paddled with his three arms while fish laughed at him. A helpful seahorse gave him a ride to shore. Gus is getting really annoyed with you and your page turning habit.',s:2},
+{t:'Oh great, another page. Now Gus landed in a giant kitchen where everything is alive. The pancakes are doing jumping jacks and the soup is singing opera. A dancing sandwich offered Gus a bite. He ate it and admitted it was actually really quite delicious.',s:3},
+{t:'This is the last page and Gus is actually kind of sad now. He had fun even though he complained the whole time. He made friends with a pancake, rode a seahorse, and saw amazing things. Maybe he will let you open the book again tomorrow. Maybe. The End!',s:4}],
+'Pirates Don\'t Take Baths':[
+{t:'Captain Stinkbeard was the smelliest pirate on all seven seas. He had not taken a bath in three years, four months, and sixteen days. His crew wore clothespins on their noses. Even the seagulls flew away screaming when his ship sailed by. He was very proud of his stink.',s:0},
+{t:'One day, the Pirate King sent a message: all pirates must take a bath or lose their pirate license forever! Captain Stinkbeard was horrified. He would rather walk the plank than touch soap! He decided to sail to the ends of the earth to avoid bath time.',s:1},
+{t:'A terrible storm knocked Captain Stinkbeard right into the ocean. He splashed and sputtered in the salty water. Fish swam away in all directions from the smell. An octopus fainted. When the crew pulled him out, he was slightly less stinky but still pretty bad.',s:2},
+{t:'The crew secretly put bubble bath in the captain\'s soup. Instead of smelling bad, Captain Stinkbeard started burping lavender-scented bubbles! The whole ship smelled like flowers. The cook served more bubble soup and everyone ate three bowls because it tasted amazing.',s:3},
+{t:'Captain Stinkbeard discovered that smelling nice had a surprising benefit. Other pirates gave him their treasure just to stand near him and enjoy the lovely scent. He became the richest pirate in the galaxy. He still hates baths, but he loves bubble soup. The End!',s:4}],
+'Aliens Love Underpants':[
+{t:'On planet Zoog, aliens had a big problem. They had spaceships, ray guns, and teleporters, but they had never invented underpants! Their space suits were itchy and uncomfortable. One day, an alien named Blix picked up a TV signal from Earth showing an underpants commercial.',s:0},
+{t:'Blix loaded up the spaceship and flew straight to Earth. She landed in a backyard where a family had hung their laundry out to dry. Blix saw underpants in every color and size flapping in the wind. Her three eyes went wide. It was the most beautiful thing ever.',s:1},
+{t:'Blix collected underpants from clotheslines across the world. She dove into the ocean to grab some that had blown into the sea. Fish watched in confusion as a green alien swam by clutching polka-dot boxer shorts and a pair of flowery bloomers tightly.',s:2},
+{t:'Back on the ship, Blix hosted an underpants fashion show. Aliens tried on underpants as hats, scarves, and shoes. They wore them on their heads and tentacles. One alien made underpants soup by accident. Surprisingly, it was the tastiest thing they had ever eaten.',s:3},
+{t:'Blix brought underpants back to planet Zoog and became a hero. Every alien in the galaxy wanted a pair. Earth started exporting underpants to outer space. It became the planet\'s biggest business. So if your underpants go missing, now you know exactly where they went. The End!',s:4}],
+'My Teacher Is an Alien':[
+{t:'Something was definitely weird about our new teacher, Mr. Zorp. He had green skin that he covered with makeup. His ears were pointy under his hat. And every time he sneezed, his eyes glowed bright purple. Nobody else seemed to notice, but I was watching very carefully.',s:0},
+{t:'I decided to investigate after school. I followed Mr. Zorp and saw him walk into the woods. He looked around to make sure nobody was watching, then pulled off his human disguise! Underneath he was bright green with four arms and antennae! I nearly fell out of my hiding tree.',s:1},
+{t:'Mr. Zorp walked to a hidden lake where a tiny submarine was parked. He dove underwater and I followed in my snorkel gear. Under the lake was a whole alien classroom where fish and aliens were learning together. Mr. Zorp was teaching them all about Earth kids!',s:2},
+{t:'Mr. Zorp spotted me and invited me to join the alien class. They were studying Earth food. He served pizza, tacos, and ice cream to the aliens. They loved it! One alien ate twelve slices of pizza and turned bright yellow. Another one burped out a rainbow.',s:3},
+{t:'Mr. Zorp explained he came to Earth to learn about humans so aliens and people could be friends. I promised to keep his secret. He gave me a special alien pencil that does homework by itself. Having an alien teacher is actually the coolest thing in the universe. The End!',s:4}],
+'The Butt Book':[
+{t:'Every animal has a butt, and every butt is special and different! This is a book about the most interesting butts in the whole animal kingdom. Monkey butts are red and round. They sit on branches all day and show off their colorful bottoms to everyone who walks by.',s:0},
+{t:'The bravest butt belongs to the skunk. When danger comes, the skunk turns around and lets its butt do all the talking! One spray and every creature runs away screaming. The skunk\'s butt is like a tiny superhero with the world\'s smelliest and most powerful superpower.',s:1},
+{t:'Fish have some of the fanciest butts in the sea. Some of them actually glow in the dark! Deep in the ocean, a fish called the flashlight fish uses its glowing bottom to find its way through the darkness. Other fish follow along like a sparkly underwater parade.',s:2},
+{t:'The hungriest butts belong to caterpillars. They eat and eat and eat until their butts grow ten times bigger. Then one day the caterpillar wraps itself up tight and its whole body, butt and all, magically transforms into a beautiful butterfly. Even the butt gets wings!',s:3},
+{t:'But the most amazing butt fact of all? In outer space, astronauts\' butts float! Without gravity, sitting down is totally impossible. Astronauts have to strap their butts into special space toilets. Being a butt in space is the silliest job in the whole galaxy. The End!',s:4}],
+'Unicorn Farts Rainbow':[
+{t:'Sparkle the unicorn had a magical secret. Every time she ate glitter grass and tooted, a beautiful rainbow shot out behind her! The other unicorns were jealous. Their farts were just regular farts. But Sparkle\'s farts painted the sky with red, orange, yellow, green, blue, and purple.',s:0},
+{t:'One day, the sky went completely gray and all the colors disappeared from the world. The Unicorn Queen said only a truly magical rainbow could fix it. Everyone looked at Sparkle. She gulped and said she would try her best, even though she was nervous about farting in public.',s:1},
+{t:'Sparkle needed special glitter seaweed that only grew at the bottom of the Rainbow Ocean. She dove deep underwater, past colorful coral and giggling mermaids. A friendly dolphin helped her gather baskets full of the sparkliest, most glittery seaweed anyone had ever seen.',s:2},
+{t:'Sparkle ate a huge feast of glitter seaweed, rainbow berries, sparkle soup, and colorful cupcakes. She ate and ate until her tummy was completely full and round. It rumbled and gurgled and glowed with all the colors of the rainbow. She was almost ready for the big moment.',s:3},
+{t:'Sparkle flew up to the highest cloud, closed her eyes, and let out the most magnificent rainbow fart in unicorn history! A giant rainbow exploded across the entire sky! Colors returned to the whole world and even outer space turned colorful. Sparkle was a hero forever. The End!',s:4}],
+'My Dad Is a Dinosaur':[
+{t:'I always knew my dad was a little different. He was really tall, his skin was kind of bumpy, and he could eat an entire pizza in one single bite. One morning I walked into the kitchen and saw a giant T-Rex tail sticking out of his bathrobe. My dad was a dinosaur!',s:0},
+{t:'Dad tried to act normal but it was really hard when you are a dinosaur. He broke the car door every morning with his tiny arms. At the grocery store, he accidentally ate the shopping cart. Walking the dog was a disaster because every animal in the neighborhood ran away.',s:1},
+{t:'Dad loved swimming at the beach, but he was so enormous he made tidal waves! Surfers rode the giant waves he created. Fish jumped out of the water in surprise. A lifeguard told him he was not allowed to cannonball anymore after he accidentally emptied half the ocean.',s:2},
+{t:'Cooking dinner was Dad\'s favorite thing ever. He breathed fire to heat up the grill instantly. He could chop vegetables with his sharp teeth. His famous dino-burgers were the best in town. Everyone came to our backyard barbecues, even though the neighbors were a little scared.',s:3},
+{t:'At my school talent show, Dad surprised everyone by singing a beautiful dinosaur song. His roar shook the whole auditorium but everyone loved it. He won first place! Scientists came from around the world to meet him. My dinosaur dad is the best dad in the universe. The End!',s:4}],
+'Zombies Eat School Lunch':[
+{t:'When zombies moved into our town, everyone was really scared. But the zombies were not interested in brains at all. They wanted something much scarier than brains: school cafeteria lunch! They shuffled to school every day at noon, moaning about mystery meat and soggy tater tots.',s:0},
+{t:'The lunch lady, Mrs. Splat, was delighted to finally have new customers. Nobody else ever wanted her food! The zombies lined up nicely, grabbed their trays, and shuffled to the tables. They had very good manners for undead creatures. They even said please and thank you.',s:1},
+{t:'One day, Mrs. Splat made fish stick surprise. The surprise was that the fish sticks were still alive! They jumped off the plates and flopped into the drinking fountain, turning it into a tiny aquarium. The zombies chased them around the cafeteria going splish splash splosh.',s:2},
+{t:'The zombies loved the mystery meatloaf the most. It was green, lumpy, and jiggled like jelly. Nobody knew what was in it. The zombies ate seventeen helpings each. Mrs. Splat was so happy she made them a special dessert: booger-flavored pudding with eyeball sprinkles on top.',s:3},
+{t:'Word spread across the universe about Mrs. Splat\'s amazing cooking. Aliens flew down from outer space just to try the mystery meatloaf. The school cafeteria became the most popular restaurant in the galaxy. Mrs. Splat won the Golden Spatula award. The zombies clapped very slowly. The End!',s:4}],
+'Never Let a Cat Drive':[
+{t:'Mr. Whiskers was a very confident cat. He could open doors, turn on the TV, and order fish online. One day he saw the car keys on the kitchen counter and thought how hard could driving possibly be? He hopped into the driver\'s seat and turned the key. Uh oh.',s:0},
+{t:'Mr. Whiskers zoomed down the street at top speed! He knocked over three trash cans, drove through Mrs. Henderson\'s flower garden, and ran over a garden gnome. He tried to use the turn signal but accidentally turned on the windshield wipers instead. Oops.',s:1},
+{t:'Mr. Whiskers drove straight off the pier and splashed into the harbor! The car started floating like a boat. Fish pressed their faces against the car windows in confusion. A seagull landed on the hood. Mr. Whiskers did not like getting wet one tiny little bit.',s:2},
+{t:'A tow truck pulled the car out and Mr. Whiskers landed in front of a drive-through restaurant. He ordered eleven fish burgers, three tuna milkshakes, and a side of shrimp fries through the window. He ate everything without leaving the driver\'s seat. Best meal of his life.',s:3},
+{t:'The police caught Mr. Whiskers and gave him a ticket. It said NO CATS ALLOWED TO DRIVE EVER. Mr. Whiskers was not sorry at all. He had seen the whole town, gone for a swim, and eaten the best lunch ever. He was already planning his next driving adventure. The End!',s:4}],
+'The Poop That Took a Walk':[
+{t:'One fine morning, a poop climbed out of the toilet and decided to go for a walk. He put on a tiny top hat, grabbed a small walking cane, and waddled out the front door. The dog saw him leave and fainted on the spot. The cat pretended nothing unusual was happening.',s:0},
+{t:'The poop strolled down Main Street, tipping his hat to everyone he passed. People screamed and ran away in every direction. A brave little girl named Lily thought he was funny and walked beside him. She asked where he was going and he said he wanted to see the world.',s:1},
+{t:'They walked to the beach and the poop wanted to go swimming. Lily explained that might not be a great idea. Instead they watched the waves and built a sandcastle together. Fish peeked out of the water curiously. Even the crabs came over to see the unusual visitor.',s:2},
+{t:'They stopped for lunch at a tiny cafe. The poop ordered chocolate ice cream because it matched his color perfectly. Lily had a pizza with extra cheese. The waiter looked nervous but served them politely. The poop left a generous tip and complimented the chef on the food.',s:3},
+{t:'As the sun set, the poop thanked Lily for the best day of his entire life. He had seen the ocean, eaten ice cream, and made a real friend. He waddled home to his toilet, feeling happy and tired. Lily waved goodbye. It had been the weirdest best day ever. The End!',s:4}],
+'Super Diaper Baby':[
+{t:'Baby Bean looked like an ordinary baby. She wore a diaper, drooled a lot, and cried when she was hungry. But Baby Bean had a super secret. Every time she filled her diaper, she gained amazing super powers! Her eyes would glow, her tiny fists would clench, and she could fly!',s:0},
+{t:'One day, a villain called the Toy Snatcher stole every single toy in town! Kids cried everywhere. Baby Bean heard the commotion, scrunched up her face, filled her diaper, and zoomed into action! She flew through the sky in her super diaper, tiny cape flapping behind her.',s:1},
+{t:'The Toy Snatcher tried to escape in a submarine! Baby Bean dove into the ocean and swam after him at super speed. Her super diaper worked like a propeller underwater. Fish cheered her on as she zoomed through the deep blue sea, leaving a trail of tiny bubbles.',s:2},
+{t:'Baby Bean cornered the Toy Snatcher in his underwater kitchen where he was stress-eating cookies. She used her super diaper to launch a barrage of baby food jars at him. Mashed peas, mushed carrots, and pureed bananas splattered everywhere. He surrendered immediately.',s:3},
+{t:'Baby Bean returned all the toys and the whole town threw her a big parade! The mayor gave her a golden pacifier medal. She celebrated by flying a victory lap around the moon in her super diaper. Every baby in the world looked up at the sky and gurgled with pride. The End!',s:4}],
+'How to Catch a Monster':[
+{t:'There was a monster under Mia\'s bed. She could hear it growling and grumbling every single night. Her parents said monsters were not real, but Mia knew better. She could see its glowing yellow eyes peeking out from under the bed. Tonight, she was going to catch it.',s:0},
+{t:'Mia made a master plan. Step one: build a trap using a laundry basket, some string, her jump rope, and a flashlight. She set it up carefully beside her bed. Step two: lure the monster out. She put her stinkiest gym socks right next to the trap as bait.',s:1},
+{t:'The monster took the bait but escaped through a portal under the bed! Mia jumped in after it and landed in a monster world filled with swamps and underground rivers. Scary fish with googly eyes watched her swim through green glowing water to catch up with the monster.',s:2},
+{t:'She finally cornered the monster in a cozy kitchen. It turns out the monster was not scary at all. He was just hungry! He had been growling because his tummy was empty. Mia made him a giant peanut butter and jelly sandwich and he gobbled the whole thing up happily.',s:3},
+{t:'The monster, whose name was Gribble, promised to stop growling if Mia left him a snack each night. They became best friends forever. Gribble even helped Mia with her homework using his monster brain. Now Mia is the only kid with a pet monster from another dimension. The End!',s:4}],
+'My Mom Is a Pirate':[
+{t:'My mom seems totally normal. She packs my lunch, drives me to school, and helps with homework every night. But I discovered her secret. Hidden in the basement behind the washing machine is a treasure map, a parrot, and a pirate hat. My mom is secretly a pirate captain!',s:0},
+{t:'Every Tuesday night when I am supposed to be asleep, Mom sneaks out wearing her full pirate gear. I followed her once and saw her climb aboard a real pirate ship hidden behind the supermarket! Her crew of neighborhood moms raised the Jolly Roger and sailed into the night.',s:1},
+{t:'I stowed away on the ship and discovered they sailed to a secret underwater treasure cave! Mom dove into the glowing water and came back with handfuls of gold coins and sparkly jewels. The other pirate moms cheered and high-fived. I hid behind a barrel trying not to sneeze.',s:2},
+{t:'Mom caught me hiding and was not even mad! She made me an honorary junior pirate and we celebrated with a huge pirate feast. There was pirate pizza, cannonball meatballs, and treasure chest cake. The parrot stole my slice but Mom gave me an even bigger one.',s:3},
+{t:'Now I go on pirate adventures with Mom every single Tuesday. We have sailed to seven seas and three galaxies together. Mom is the best pirate captain in the universe. Dad still does not know about any of it. He thinks Mom goes to book club. Our secret is safe. The End!',s:4}],
+'The Bad Guys Are Back':[
+{t:'The Bad Guys were the naughtiest animals in town. There was Wolfgang the wolf, Crusher the bear, Sly the fox, and Tiny the enormous crocodile. They used to steal pies, pull pranks, and make a terrible mess. They had promised to be good. That lasted about one week.',s:0},
+{t:'Wolfgang could not resist howling at three in the morning, waking up the entire street. Crusher accidentally sat on the mayor\'s car and squished it completely flat. Sly kept tricking people into giving him their sandwiches. Tiny chased the mailman just for fun every single day.',s:1},
+{t:'The town sent them to a reform camp on a tiny island surrounded by deep water. But the Bad Guys escaped by building a raft out of coconuts! They sailed across the ocean singing pirate songs. Fish jumped alongside their raft like they were cheering them on.',s:2},
+{t:'They crash-landed in a town where the beloved bakery was about to close forever. The Bad Guys decided to help by baking the most amazing cakes anyone had ever tasted. Crusher was surprisingly great at decorating cupcakes. Tiny made wonderful chocolate chip cookies.',s:3},
+{t:'The bakery was saved and the Bad Guys became heroes! The whole town loved them. They realized being good actually felt pretty awesome when people thanked you and smiled. They opened bakeries across the galaxy and became the most famous baker animals in all of outer space. The End!',s:4}],
+'Ninja Cats vs Robots':[
+{t:'In the city of Meowville, cats were not ordinary pets. They were highly trained ninjas! They wore tiny black outfits, carried fish-shaped swords, and could sneak through any room without making a single sound. Their leader was a fluffy orange cat named Shadow.',s:0},
+{t:'One day, an army of shiny robots marched into Meowville! The robots wanted to replace all the cat beds with charging stations and all the scratching posts with metal poles. Shadow gathered the ninja cats on the rooftops for an emergency meeting. They would fight to save their city!',s:1},
+{t:'The robots had a secret underwater factory where they built more robot soldiers. Shadow and her ninja team dove into the harbor, swimming silently past robot guards. They planted catnip bombs on the factory machines. The underwater explosion made the funniest gurgling sound ever.',s:2},
+{t:'With the factory destroyed, the remaining robots got hungry without their power supply. The ninja cats offered them fish tacos as a peace offering. The robots loved the food so much their angry red eyes turned happy green. Everyone sat down together for a giant feast.',s:3},
+{t:'The ninja cats and robots decided to be friends and protect Meowville together as a team. Cats handled sneaking and the robots handled heavy lifting. Together they kept the whole galaxy safe from trouble. Shadow got a medal made of solid tuna. She ate it immediately. The End!',s:4}],
+'Llamas in Pyjamas':[
+{t:'The llamas of Llamatown had a big problem. They simply could not sleep! They tried counting sheep, but the sheep got offended and walked away. They tried warm milk, but it just made them burp. Then one clever llama named Larry had an amazing idea. Maybe they needed pyjamas!',s:0},
+{t:'Larry went on a quest to find the perfect pyjamas for llamas. He visited every clothing store in town, but absolutely nothing fit right. Llama necks were too long and llama legs were too fuzzy. Larry tried on seventeen pairs and ripped every single one of them.',s:1},
+{t:'Larry heard about a magical fabric that grew at the bottom of Sleepy Lake. He dove in and swam down past yawning fish and snoring turtles. At the very bottom he found the softest, most wonderful material he had ever touched. It was cloud-colored and warm as sunshine.',s:2},
+{t:'Larry brought the fabric to Grandma Llama, the best seamstress in all of Llamatown. She sewed pyjamas for every single llama in town. She made them in every color with pockets for midnight snacks. Larry\'s pair had little stars on them and came with a matching nightcap.',s:3},
+{t:'That night, every llama in Llamatown wore their new pyjamas and fell asleep instantly. They slept so well they snored in harmony, creating a song so beautiful it could be heard from outer space. Aliens came just to listen. Llamatown became the sleepiest happiest town ever. The End!',s:4}],
+'The World\'s Worst Pet':[
+{t:'Kevin wanted a pet more than anything in the world. His parents finally said yes and took him to the pet store. Kevin walked past the cute puppies, the fluffy kittens, and the friendly hamsters. Instead he picked Gerald, a grumpy blob creature that nobody else wanted.',s:0},
+{t:'Gerald was terrible at being a pet. He refused to learn any tricks at all. He ate the furniture, burped on guests, and left slime trails everywhere he went. He chased the mailman but was always too slow to catch anyone. Kevin\'s parents regretted saying yes.',s:1},
+{t:'One day Gerald fell into the fish pond and discovered he could breathe underwater! He spent three whole days at the bottom of the pond, making friends with the goldfish. Kevin had to put on goggles and swim down to bring him dinner every single night.',s:2},
+{t:'Gerald\'s one amazing talent was eating. He could eat anything and everything. Rocks, shoes, homework, and even the entire refrigerator. Kevin entered Gerald in a hot dog eating contest. Gerald ate four hundred hot dogs in one sitting and won first place easily.',s:3},
+{t:'Gerald became famous as the world\'s hungriest pet ever. He appeared on TV shows and even ate a satellite dish live on camera. NASA invited him to space to eat space junk and clean up the orbit. Gerald was finally the world\'s best worst pet in the universe. The End!',s:4}],
+'There\'s a Dragon in My Closet':[
+{t:'Last Tuesday a dragon moved into my closet. He was small, green, and very polite about the whole thing. He said his name was Dennis and asked if he could stay for a few days because his cave was being renovated. I said okay because what else do you say to a dragon?',s:0},
+{t:'Living with a dragon was really tricky. Dennis accidentally set my favorite jacket on fire when he sneezed. He kept all my clothes warm though, which was nice in winter. He ate my socks for breakfast and used my shoes as pillows. My closet smelled like campfire.',s:1},
+{t:'Dennis got bored and decided to take a bath. He filled the bathtub and pretended it was an ocean. He splashed around sending water everywhere, then dove under and blew fire bubbles that floated up to the ceiling. The bathroom looked like a swamp. Mom was going to be so mad.',s:2},
+{t:'Dennis was an amazing cook though. He could grill anything perfectly with his fire breath! He made the best grilled cheese sandwiches in the entire history of sandwiches. He roasted marshmallows perfectly every time. We had a barbecue in my bedroom. The food was incredible.',s:3},
+{t:'After a week, Dennis\'s cave was fixed and he had to go home. He promised to visit every weekend. He gave me a dragon scale that glowed in the dark as a goodbye present. Now I have the coolest night light in the universe and a dragon best friend. The End!',s:4}],
+'Pickle Rick Saves the Day':[
+{t:'Rick was just an ordinary pickle sitting in a jar in the fridge. He lived between the mustard and the leftover pasta. Life was cold, wet, and very boring. But Rick had big dreams. He wanted to be a hero! The other pickles thought he was completely crazy.',s:0},
+{t:'One day, the fridge door swung open and Rick rolled right out! He bounced off the counter, landed on the floor, and rolled out the front door into the sunshine. The adventure had begun! Rick rolled down the street, dodging feet and dog paws, heading toward trouble.',s:1},
+{t:'A tiny kitten was stuck on a toy boat floating across the park pond! Rick dove into the water without even thinking. Pickles float surprisingly well it turns out! He kicked his tiny pickle legs and pushed the boat safely to shore. The kitten licked Rick gratefully.',s:2},
+{t:'The whole town threw Rick a celebration feast! There were pickle pizzas, pickle ice cream, pickle burgers, and even a giant pickle cake. Rick ate nothing because eating pickles at a pickle party felt really weird. He gave a speech about being brave no matter how small you are.',s:3},
+{t:'Rick became the town\'s official hero. The mayor gave him a tiny cape and a pickle-shaped medal made of gold. He was featured on the news and even got fan mail from outer space. Rick proved that anyone can be a hero, even a small bumpy pickle from the fridge. The End!',s:4}],
+'Froggy Goes to School':[
+{t:'Froggy had never been to school before in his life. He lived in a nice pond with his family and spent his days catching flies and sitting on lily pads. But Froggy wanted to learn to read so he could understand the signs around the pond. Today was his very first day.',s:0},
+{t:'Froggy hopped to school wearing a tiny backpack. The other kids stared because a frog in school was very unusual! Froggy tried to sit at a desk but his legs were way too long so he sat on top of it instead. The teacher said that was fine as long as he behaved.',s:1},
+{t:'During swimming class, Froggy was the absolute star of the whole school! He could swim faster than any kid and do amazing flips and dives. He taught everyone the backstroke and the belly flop. Even the teacher was really impressed. The pool was Froggy\'s favorite place.',s:2},
+{t:'At lunch, Froggy opened his lunchbox. His mom had packed flies, beetles, and a mosquito sandwich. The other kids thought it was pretty gross, but Froggy happily offered to trade. Nobody wanted his lunch so the cafeteria gave him a grilled cheese instead. It was surprisingly yummy.',s:3},
+{t:'By the end of the year, Froggy could read, write, and do math. He was the best swimmer and the most popular kid in the whole school. He went home to his pond and read every sign perfectly. His frog family was so proud they threw a lily pad party under the moonlight. The End!',s:4}],
+'The Stinky Cheese Man':[
+{t:'In a tiny cheese shop on the corner, something magical happened one morning. A block of the stinkiest cheese in the world suddenly came to life! He grew little arms, little legs, and a cheerful smiling face. The Stinky Cheese Man hopped off the shelf and everyone covered their noses.',s:0},
+{t:'The Stinky Cheese Man ran out of the shop shouting catch me if you dare! A baker, a farmer, and a police officer all chased him through town. But nobody could get close because he was SO incredibly stinky. Even the dogs ran the other way from the smell.',s:1},
+{t:'He ran all the way to the river and jumped in to try swimming. But cheese does not swim very well at all! He floated like a smelly yellow boat while fish jumped out of the water holding their noses. A disgusted turtle reluctantly gave him a ride to the other side.',s:2},
+{t:'The Stinky Cheese Man was getting hungry from all that running. He walked into a restaurant and ordered a pizza. The chef accidentally put him ON the pizza! The Stinky Cheese Man jumped off just in time, but that pizza turned out to be the most delicious one ever made.',s:3},
+{t:'The Stinky Cheese Man decided to use his smelly power for good. He became a superhero who defeated bad guys just by standing near them. The mayor gave him a golden nose clip award. He travels the universe fighting crime one stink at a time. Nobody messes with cheese. The End!',s:4}],
+'Bug Soup for Breakfast':[
+{t:'Grandma Bugsworth was famous in her neighborhood for one special thing: her bug soup. Every morning she made a fresh pot with beetles, ladybugs, ants, and a sprinkle of butterfly wings. She had been eating bug soup for breakfast for sixty-seven years and she felt absolutely fantastic.',s:0},
+{t:'One morning, Grandma decided to enter her famous bug soup in the town cooking contest. She packed up her biggest pot and her special bug-catching net and set off on a hunt. She collected the juiciest bugs from every garden on the street. Beetles ran for their lives.',s:1},
+{t:'She needed a special secret ingredient: rainbow shrimp from the bottom of the lake. Grandma put on her snorkel and bravely dove right in! Underwater, she found the most beautiful colorful shrimp doing a little dance. She politely asked if they wanted to be in her soup.',s:2},
+{t:'At the cooking contest, the judges were terrified of Grandma\'s bug soup. But one brave judge took a tiny sip and his eyes went wide with surprise. It was the most delicious thing he had ever tasted! All the other judges agreed. Grandma\'s bug soup won first place!',s:3},
+{t:'Grandma Bugsworth became the most famous chef in the entire world overnight. Her bug soup recipe was requested by chefs on every continent. She even got invited to cook on a space station for real astronauts. Bugs everywhere volunteered to be in her soup. It was a great honor. The End!',s:4}]
+};
+function generateStory(title){
+  const pages=BOOK_STORIES[title];
+  if(pages)return pages.map(p=>({text:p.t,sceneType:p.s}));
+  return[{text:'Once upon a time, this story began. It was going to be a great adventure full of wonderful surprises and amazing things that nobody could have predicted!',sceneType:0},
+  {text:'The hero set off on a grand journey across hills and valleys, meeting strange and wonderful creatures along the way. Every step brought a new discovery and a new friend.',sceneType:1},
+  {text:'Deep underwater, the hero found a hidden world full of colorful fish and ancient treasure waiting to be discovered. The water sparkled with magic and mystery all around.',sceneType:2},
+  {text:'After the big adventure, everyone sat down for the most delicious feast they had ever seen, with every kind of food imaginable piled high on the table. It was magnificent!',sceneType:3},
+  {text:'And so the hero returned home, a little older and a lot wiser, knowing that the greatest adventures are the ones shared with friends. Everyone lived happily ever after. The End!',sceneType:4}];
 }
 function wrapText(ctx,text,maxWidth){
   const words=text.split(' '),lines=[];let line='';
@@ -1977,7 +2118,7 @@ function handleBookshelfTap(px,py){
 function launchBookReader(title,color){
   let seed=0;for(let i=0;i<title.length;i++)seed=((seed<<5)-seed+title.charCodeAt(i))|0;
   const absSeed=Math.abs(seed);
-  const pages=generateStory(absSeed);
+  const pages=generateStory(title);
   bookReaderActive={title,color,page:0,totalPages:5,seed:absSeed,pages,_prevX:0,_prevY:0,_prevW:0,_prevH:0,_nextX:0,_nextY:0,_nextW:0,_nextH:0};
 }
 function closeBookReader(){if(!bookReaderActive)return;bookReaderActive=null}
