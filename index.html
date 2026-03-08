@@ -71,15 +71,25 @@
   #npc-dialog.show{display:block}
   #npc-dialog .npc-name{font-weight:700;color:#6366f1;margin-bottom:3px;font-size:14px}
   /* Splash */
-  #splash{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#a78bfa,#6366f1,#ec4899);z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s}
+  #splash{position:fixed;top:0;left:0;right:0;bottom:0;background:linear-gradient(135deg,#fbbf24 0%,#f472b6 20%,#a78bfa 40%,#6366f1 60%,#34d399 80%,#fbbf24 100%);background-size:300% 300%;animation:splashBg 8s ease infinite;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s;overflow:hidden}
+  @keyframes splashBg{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
   #splash.hidden{opacity:0;pointer-events:none}
-  #splash h1{color:#fff;font-size:36px;font-weight:900;text-shadow:0 3px 0 rgba(0,0,0,.2),0 6px 16px rgba(0,0,0,.25);margin-bottom:6px}
-  #splash p{color:rgba(255,255,255,0.8);font-size:15px;margin-bottom:28px}
-  #start-btn{background:#fff;color:#6366f1;border:none;padding:12px 44px;border-radius:28px;font-size:19px;font-weight:800;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.18),0 6px 20px rgba(0,0,0,.2);transition:transform .1s,box-shadow .1s}
-  #start-btn:active{transform:translateY(4px);box-shadow:0 1px 0 rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.15)}
-  #hc-brand{position:absolute;bottom:18px;width:100%;text-align:center;color:rgba(255,255,255,.45);font-size:10px;letter-spacing:1.5px;text-transform:uppercase}
-  #hc-logo{display:inline-block;font-size:26px;font-weight:900;color:#fff;letter-spacing:4px;transform:rotate(-3deg) skewX(-5deg);text-shadow:3px 3px 0 #ec4899,-2px -1px 0 #6366f1,0 0 20px rgba(236,72,153,.4),0 6px 14px rgba(0,0,0,.35);margin-top:4px;position:relative}
-  #hc-logo::after{content:'';position:absolute;bottom:-6px;left:18%;width:8px;height:10px;background:linear-gradient(180deg,#ec4899,transparent);border-radius:0 0 3px 3px;opacity:.7}
+  #splash h1{color:#fff;font-size:40px;font-weight:900;text-shadow:0 3px 0 rgba(0,0,0,.15),0 6px 16px rgba(0,0,0,.2),0 0 40px rgba(255,255,255,.3);margin-bottom:6px;animation:titleBounce 2s ease-in-out infinite;position:relative;z-index:2}
+  @keyframes titleBounce{0%,100%{transform:translateY(0) rotate(0deg)}25%{transform:translateY(-6px) rotate(-1deg)}75%{transform:translateY(-3px) rotate(1deg)}}
+  #splash p{color:#fff;font-size:17px;font-weight:700;margin-bottom:28px;text-shadow:0 2px 8px rgba(0,0,0,.2);letter-spacing:0.5px;position:relative;z-index:2}
+  #splash-deco{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:1}
+  #splash-deco::before{content:'🌍 ⭐ 🎮 🏫 ✈️ 🎨 🎵 🐾';position:absolute;top:12%;left:50%;transform:translateX(-50%);font-size:28px;letter-spacing:12px;opacity:.35;white-space:nowrap;animation:decoScroll 12s linear infinite}
+  #splash-deco::after{content:'🎒 🌟 🐠 🎪 🏔️ 🎭 🌈 🦋';position:absolute;bottom:22%;left:50%;transform:translateX(-50%);font-size:24px;letter-spacing:14px;opacity:.25;white-space:nowrap;animation:decoScroll 15s linear infinite reverse}
+  @keyframes decoScroll{0%{transform:translateX(0%)}100%{transform:translateX(-50%)}}
+  #start-btn{background:#fff;color:#6366f1;border:none;padding:14px 50px;border-radius:28px;font-size:21px;font-weight:800;cursor:pointer;box-shadow:0 5px 0 rgba(0,0,0,.18),0 6px 20px rgba(0,0,0,.2);transition:transform .15s,box-shadow .15s;position:relative;z-index:2;animation:btnPulse 2.5s ease-in-out infinite}
+  @keyframes btnPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+  #start-btn:active{transform:translateY(4px) scale(0.97);box-shadow:0 1px 0 rgba(0,0,0,.18),0 2px 6px rgba(0,0,0,.15);animation:none}
+  #hc-brand{position:absolute;bottom:0;left:0;right:0;height:20vh;display:flex;flex-direction:column;align-items:center;justify-content:center;color:rgba(255,255,255,.7);font-size:12px;letter-spacing:2px;text-transform:uppercase;gap:4px}
+  #hc-logo{display:inline-block;font-size:clamp(38px,8vw,64px);font-weight:900;letter-spacing:6px;background:linear-gradient(90deg,#fbbf24,#f472b6,#a78bfa,#34d399,#fbbf24);background-size:200% 100%;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:hcShine 3s linear infinite;transform:rotate(-2deg) skewX(-4deg);filter:drop-shadow(0 4px 8px rgba(0,0,0,.3));margin-top:4px;position:relative}
+  @keyframes hcShine{0%{background-position:0% 50%}100%{background-position:200% 50%}}
+  #hc-logo::before{content:'✨';position:absolute;top:-12px;left:-16px;font-size:18px;-webkit-text-fill-color:initial;animation:hcSpark 1.5s ease-in-out infinite}
+  #hc-logo::after{content:'🌟';position:absolute;bottom:-8px;right:-14px;font-size:16px;-webkit-text-fill-color:initial;animation:hcSpark 1.5s ease-in-out infinite .7s}
+  @keyframes hcSpark{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
   /* Character Select */
   #char-select{position:fixed;inset:0;background:linear-gradient(135deg,#a78bfa,#6366f1,#ec4899);z-index:998;display:none;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s;padding:16px;overflow-y:auto}
   #char-select.show{display:flex}
@@ -131,7 +141,7 @@
 </style>
 </head>
 <body>
-<div id="splash"><h1>World Adventure</h1><p>Explore the School!</p><button id="start-btn">Play!</button><div id="hc-brand">brought to you by<br><span id="hc-logo">HC Studios</span></div></div>
+<div id="splash"><div id="splash-deco" aria-hidden="true"></div><h1>World Adventure</h1><p>Explore Hannah's World!</p><button id="start-btn">Play!</button><div id="hc-brand">brought to you by<br><span id="hc-logo">HC Studios</span></div></div>
 <div id="char-select"><h1>Choose Your Character</h1><div id="char-cards"></div><button id="char-play-btn">Start Adventure!</button></div>
 <canvas id="game"></canvas>
 <div id="hud" class="ui-overlay">
