@@ -1864,10 +1864,23 @@ function renderBookshelf(){
       ctx.fillStyle='rgba(0,0,0,.1)';ctx.fillRect(bx+bw-3,by,3,bh);
       // Title text (vertical)
       ctx.save();ctx.translate(bx+bw/2,by+bh/2);ctx.rotate(-Math.PI/2);
-      ctx.fillStyle='#fff';ctx.font='bold '+Math.min(11,bw*.35)+'px '+FONT;ctx.textAlign='center';
+      const fontSize=Math.min(14,bw*.42);
+      ctx.fillStyle='#fff';ctx.font='bold '+fontSize+'px '+FONT;ctx.textAlign='center';
       const title=bs.titles[idx];
-      const maxW=bh-12;
-      ctx.fillText(title.length>22?title.substring(0,20)+'..':title,0,4,maxW);
+      const maxW=bh-16;
+      if(ctx.measureText(title).width>maxW){
+        // Split into two lines
+        const words=title.split(' ');let line1='',line2='';
+        for(let w=0;w<words.length;w++){
+          const test=line1+(line1?' ':'')+words[w];
+          if(ctx.measureText(test).width>maxW&&line1){line2=words.slice(w).join(' ');break}
+          else line1=test;
+        }
+        if(!line2){line2=line1.substring(Math.ceil(line1.length/2));line1=line1.substring(0,Math.ceil(line1.length/2))}
+        const lh=fontSize*1.15;
+        ctx.fillText(line1,0,-lh/2+2,maxW);
+        ctx.fillText(line2,0,lh/2+2,maxW);
+      }else{ctx.fillText(title,0,4,maxW)}
       ctx.restore();
       // Top/bottom decoration lines
       ctx.fillStyle='rgba(255,255,255,.2)';
