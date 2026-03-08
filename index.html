@@ -526,6 +526,62 @@ let savedChalkboardCanvas=null;
 let bookshelfActive=null;
 let bookReaderActive=null;
 function seededRng(seed){let s=seed|0;return function(){s=(s+0x6D2B79F5)|0;let t=Math.imul(s^(s>>>15),1|s);t=(t+Math.imul(t^(t>>>7),61|t))^t;return((t^(t>>>14))>>>0)/4294967296}}
+// Story generation pools
+const S_CHARS=['Benny','Milo','Ziggy','Pepper','Bubbles','Sparkle','Nugget','Pickle','Waffles','Captain Socks'];
+const S_ANIMALS=['cat','dog','hamster','penguin','frog','dragon','llama','octopus','bunny','parrot'];
+const S_PLACES=['treehouse','cloud castle','candy cave','volcano island','moon base','pirate ship','jungle gym','giant shoe','mushroom village','underwater cave'];
+const S_OBJECTS=['glowing sock','talking banana','magic pencil','invisible hat','singing rock','flying donut','golden key','tickle feather','rainbow jar','bouncing shoe'];
+const S_ADJECTIVES=['sparkly','wobbly','giggly','stinky','fuzzy','bouncy','squishy','grumpy','sneaky','silly'];
+const S_FOODS=['pizza','pancakes','spaghetti','cupcakes','tacos','ice cream','jelly beans','cheese','waffles','pickles'];
+const S_ACTIONS=['dancing','snoring','juggling','somersaulting','yodeling','skateboarding','painting','burping','moonwalking','doing cartwheels'];
+const STORY_TEMPLATES=[
+[{t:'Once upon a time, a {adj} little {animal} named {char} lived in a {place}. Every day, {char} loved {action} until the neighbors complained.',s:0},
+{t:'One morning, {char} found a {object} under the bed. The moment {char} touched it, everything in the {place} started floating! "Uh oh!" said {char}.',s:1},
+{t:'{char} floated all the way to a magical underwater world. A friendly {animal2} wearing a top hat swam over. "You must find the {food} of power!" it said.',s:2},
+{t:'After searching high and low, {char} found the {food} of power in a giant kitchen. But it was guarded by a {adj2} chef who only spoke in burps!',s:3},
+{t:'{char} shared the {food} with the chef, who was so happy he launched {char} home in a rocket. "What a {adj} adventure!" {char} laughed, landing safely back in the {place}. The End!',s:4}],
+[{t:'Nobody believed {char} the {animal} when {char} said there was a {object} hidden in the {place}. "You are being {adj}!" they all said.',s:0},
+{t:'So {char} set off alone, armed with nothing but a {food} sandwich and a brave heart. The path was full of {adj2} puddles and singing mushrooms.',s:1},
+{t:'{char} fell into an underground lake! Luckily, a school of {adj} fish showed {char} a secret tunnel that led deeper into the earth.',s:2},
+{t:'At the end of the tunnel was a giant kitchen where a {animal2} was cooking {food}. "I have been waiting for you," it said. "Take this {object}!"',s:3},
+{t:'{char} brought the {object} back to the {place} and everyone cheered! From that day on, nobody ever called {char} {adj} again. Well, maybe just on Tuesdays. The End!',s:4}],
+[{t:'{char} the {animal} woke up one morning and everything was upside down! The {place} was on the ceiling and breakfast was {action} on the floor.',s:0},
+{t:'"I need to fix this!" said {char}, grabbing a {object}. But every time {char} used it, something got even sillier. The chairs started {action}!',s:1},
+{t:'{char} asked a wise old {animal2} for help. "You must dive into the Silly Sea and find the {adj} pearl," it croaked. So {char} jumped in!',s:2},
+{t:'Under the sea, {char} found a kitchen where fish were making {food}. "The pearl is in the last {food}!" they said. {char} had to eat them ALL.',s:3},
+{t:'With a very full tummy, {char} found the {adj2} pearl and everything flipped right-side up! "I am never eating {food} again," groaned {char}, falling asleep in the {place}. The End!',s:4}],
+[{t:'In a {adj} {place} far far away, {char} the {animal} was the best cook in the land. {char} could make {food} that would make anyone smile.',s:0},
+{t:'One day, a {adj2} {animal2} showed up and challenged {char} to a cook-off! "Whoever makes the best {food} wins the golden {object}!" it declared.',s:1},
+{t:'{char} needed a secret ingredient from the bottom of the ocean. Down, down, down {char} swam, past colorful fish and a very confused crab.',s:2},
+{t:'Back in the kitchen, {char} mixed and stirred and added a pinch of {adj} spice. The {food} was so good it made the judges start {action}!',s:3},
+{t:'{char} won the golden {object} and the {animal2} clapped. "You truly are the best!" From that day on, {char} cooked {food} for everyone in the {place}. The End!',s:4}],
+[{t:'{char} the {animal} always dreamed of going to space. "If only I had a {object}," {char} sighed, staring at the stars from the {place}.',s:0},
+{t:'Then one day, a {adj} spaceship crashed in the backyard! Out climbed a tiny {animal2} who said, "I need {food} to fuel my ship. Can you help?"',s:1},
+{t:'{char} and the {animal2} searched the ocean for the legendary {adj2} {food}. They dove deep, past jellyfish and a very polite octopus.',s:2},
+{t:'They found the {food} in a sunken kitchen and rushed back. {char} cooked it up perfectly while {action}. "Delicious!" said the {animal2}.',s:3},
+{t:'The ship blasted off and {char} saw the whole world from space! "This is {adj}!" {char} shouted. The {animal2} dropped {char} home and waved goodbye. "See you next Tuesday!" The End!',s:4}],
+[{t:'{char} the {animal} was {action} in the {place} when suddenly — POOF! A {adj} cloud appeared and out fell a {object}.',s:0},
+{t:'The {object} started talking! "Take me to the {adj2} mountain or I will turn everything into {food}!" it squeaked. {char} had no choice.',s:1},
+{t:'On the way, they had to cross a vast ocean. A {animal2} offered them a ride. "Hold on tight!" it said, diving under the waves.',s:2},
+{t:'They arrived at a mountain made entirely of {food}! {char} was so hungry from the journey that {char} ate half the mountain while {action}.',s:3},
+{t:'{char} placed the {object} on top of what was left of the mountain. FLASH! Everything turned {adj} and sparkly! {char} rode the {animal2} back to the {place}, a true hero. The End!',s:4}]
+];
+function generateStory(seed){
+  const rng=seededRng(seed);
+  const pick=(arr)=>arr[Math.floor(rng()*arr.length)];
+  const ch=pick(S_CHARS),an=pick(S_ANIMALS),an2=pick(S_ANIMALS),pl=pick(S_PLACES);
+  const ob=pick(S_OBJECTS),adj=pick(S_ADJECTIVES),adj2=pick(S_ADJECTIVES),fd=pick(S_FOODS),act=pick(S_ACTIONS);
+  const tmpl=STORY_TEMPLATES[Math.floor(rng()*STORY_TEMPLATES.length)];
+  return tmpl.map(p=>{
+    let t=p.t.replace(/\{char\}/g,ch).replace(/\{animal\}/g,an).replace(/\{animal2\}/g,an2).replace(/\{place\}/g,pl).replace(/\{object\}/g,ob).replace(/\{adj\}/g,adj).replace(/\{adj2\}/g,adj2).replace(/\{food\}/g,fd).replace(/\{action\}/g,act);
+    return{text:t,sceneType:p.s};
+  });
+}
+function wrapText(ctx,text,maxWidth){
+  const words=text.split(' '),lines=[];let line='';
+  for(const w of words){const test=line+(line?' ':'')+w;if(ctx.measureText(test).width>maxWidth&&line){lines.push(line);line=w}else{line=test}}
+  if(line)lines.push(line);return lines;
+}
 const FUNNY_BOOKS=['My Cat Ate My Homework','Why Boogers Are Green','101 Fart Jokes','How to Train Your Goldfish','The Secret Life of Socks','Diary of a Wimpy Hamster','Attack of the Killer Tomatoes','The Day I Turned Into a Dog','Do Not Open This Book','Pirates Don\'t Take Baths','Aliens Love Underpants','My Teacher Is an Alien','The Butt Book','Unicorn Farts Rainbow','My Dad Is a Dinosaur','Zombies Eat School Lunch','Never Let a Cat Drive','The Poop That Took a Walk','Super Diaper Baby','How to Catch a Monster','My Mom Is a Pirate','The Bad Guys Are Back','Ninja Cats vs Robots','Llamas in Pyjamas','The World\'s Worst Pet','There\'s a Dragon in My Closet','Pickle Rick Saves the Day','Froggy Goes to School','The Stinky Cheese Man','Bug Soup for Breakfast'];
 function pickFunnyTitles(n){const a=[...FUNNY_BOOKS];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a.slice(0,n)}
 
@@ -1920,30 +1976,56 @@ function handleBookshelfTap(px,py){
 // ---- BOOK READER OVERLAY ----
 function launchBookReader(title,color){
   let seed=0;for(let i=0;i<title.length;i++)seed=((seed<<5)-seed+title.charCodeAt(i))|0;
-  bookReaderActive={title,color,page:0,totalPages:5,seed:Math.abs(seed),_prevX:0,_prevY:0,_prevW:0,_prevH:0,_nextX:0,_nextY:0,_nextW:0,_nextH:0};
+  const absSeed=Math.abs(seed);
+  const pages=generateStory(absSeed);
+  bookReaderActive={title,color,page:0,totalPages:5,seed:absSeed,pages,_prevX:0,_prevY:0,_prevW:0,_prevH:0,_nextX:0,_nextY:0,_nextW:0,_nextH:0};
 }
 function closeBookReader(){if(!bookReaderActive)return;bookReaderActive=null}
 function renderBookReader(){
-  const br=bookReaderActive;
+  const br=bookReaderActive,pg=br.pages[br.page];
+  // Parchment background
   const bg=ctx.createLinearGradient(0,0,0,H);bg.addColorStop(0,'#fef3c7');bg.addColorStop(1,'#fde68a');
   ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);
   drawMiniGameClose();
-  ctx.fillStyle=br.color;ctx.font='bold 16px '+FONT;ctx.textAlign='center';ctx.fillText(br.title,W/2,38);
-  const pad=16,bookX=pad+4,bookY=54,bookW=W-pad*2-8,bookH=H-130;
+  // Title
+  ctx.fillStyle=br.color;ctx.font='bold 15px '+FONT;ctx.textAlign='center';ctx.fillText(br.title,W/2,36);
+  const pad=16,bookX=pad+4,bookY=50,bookW=W-pad*2-8,bookH=H-110;
+  // Page background
   ctx.fillStyle='#fffbeb';rr(ctx,bookX,bookY,bookW,bookH,8,true,false);
   ctx.strokeStyle='rgba(0,0,0,.08)';ctx.lineWidth=1;rr(ctx,bookX,bookY,bookW,bookH,8,false,true);
-  drawBookPage(br.page,br.seed,bookX+8,bookY+8,bookW-16,bookH-16);
-  ctx.fillStyle='#92400e';ctx.font='bold 13px '+FONT;ctx.textAlign='center';
-  ctx.fillText('Page '+(br.page+1)+' of '+br.totalPages,W/2,bookY+bookH+18);
-  const arrowY=H-42,arrowH=34,arrowW=56;
+  // Small illustration area (top 35%)
+  const illX=bookX+10,illY=bookY+8,illW=bookW-20,illH=Math.floor(bookH*0.35);
+  ctx.save();ctx.beginPath();rr(ctx,illX,illY,illW,illH,6,false,false);ctx.clip();
+  const scenes=[drawSceneSillyAnimal,drawSceneStickAdventure,drawSceneUnderwater,drawSceneSillyFood,drawSceneSpace];
+  const rng=seededRng(br.seed+br.page*1000);
+  scenes[pg.sceneType](ctx,illX,illY,illW,illH,rng);
+  ctx.restore();
+  // Illustration border
+  ctx.strokeStyle='rgba(146,64,14,.15)';ctx.lineWidth=1.5;rr(ctx,illX,illY,illW,illH,6,false,true);
+  // Story text area (bottom 65%)
+  const txtX=bookX+14,txtY=illY+illH+10,txtW=bookW-28;
+  const txtMaxY=bookY+bookH-8;
+  ctx.fillStyle='#44270a';ctx.font='14px '+FONT;ctx.textAlign='left';
+  const lines=wrapText(ctx,pg.text,txtW);
+  const lineH=19;
+  for(let i=0;i<lines.length;i++){
+    const ly=txtY+i*lineH+14;
+    if(ly>txtMaxY)break;
+    ctx.fillText(lines[i],txtX,ly);
+  }
+  // Page number
+  ctx.fillStyle='#92400e';ctx.font='bold 12px '+FONT;ctx.textAlign='center';
+  ctx.fillText('Page '+(br.page+1)+' of '+br.totalPages,W/2,bookY+bookH+14);
+  // Navigation arrows
+  const arrowY=H-38,arrowH=30,arrowW=50;
   if(br.page>0){
     const lx=pad+10;ctx.fillStyle='rgba(146,64,14,.18)';rr(ctx,lx,arrowY,arrowW,arrowH,12,true,false);
-    ctx.fillStyle='#92400e';ctx.font='bold 22px '+FONT;ctx.textAlign='center';ctx.fillText('\u25C0',lx+arrowW/2,arrowY+24);
+    ctx.fillStyle='#92400e';ctx.font='bold 20px '+FONT;ctx.textAlign='center';ctx.fillText('\u25C0',lx+arrowW/2,arrowY+22);
     br._prevX=lx;br._prevY=arrowY;br._prevW=arrowW;br._prevH=arrowH;
   }else{br._prevW=0}
   if(br.page<br.totalPages-1){
     const rx=W-pad-10-arrowW;ctx.fillStyle='rgba(146,64,14,.18)';rr(ctx,rx,arrowY,arrowW,arrowH,12,true,false);
-    ctx.fillStyle='#92400e';ctx.font='bold 22px '+FONT;ctx.textAlign='center';ctx.fillText('\u25B6',rx+arrowW/2,arrowY+24);
+    ctx.fillStyle='#92400e';ctx.font='bold 20px '+FONT;ctx.textAlign='center';ctx.fillText('\u25B6',rx+arrowW/2,arrowY+22);
     br._nextX=rx;br._nextY=arrowY;br._nextW=arrowW;br._nextH=arrowH;
   }else{br._nextW=0}
 }
@@ -1955,13 +2037,7 @@ function handleBookReaderTap(px,py){
   if(br._nextW>0&&px>=br._nextX&&px<=br._nextX+br._nextW&&py>=br._nextY&&py<=br._nextY+br._nextH){if(br.page<br.totalPages-1){br.page++;sfxInteract()}return}
   if(py>60&&py<H-60){if(px<W/2&&br.page>0){br.page--;sfxInteract()}else if(px>=W/2&&br.page<br.totalPages-1){br.page++;sfxInteract()}}
 }
-function drawBookPage(pageIdx,seed,x,y,w,h){
-  const rng=seededRng(seed+pageIdx*1000);
-  ctx.save();ctx.beginPath();ctx.rect(x,y,w,h);ctx.clip();
-  const scenes=[drawSceneSillyAnimal,drawSceneStickAdventure,drawSceneUnderwater,drawSceneSillyFood,drawSceneSpace];
-  scenes[pageIdx](ctx,x,y,w,h,rng);
-  ctx.restore();
-}
+
 function drawSceneSillyAnimal(c,x,y,w,h,rng){
   const sky=c.createLinearGradient(x,y,x,y+h*0.65);sky.addColorStop(0,'#87CEEB');sky.addColorStop(1,'#b6e3f4');
   c.fillStyle=sky;c.fillRect(x,y,w,h*0.65);
