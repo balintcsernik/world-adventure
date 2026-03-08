@@ -523,6 +523,9 @@ let miniGameActive=null;
 let mgTouchStart=null;
 let chalkboardActive=null;
 let savedChalkboardCanvas=null;
+let bookshelfActive=null;
+const FUNNY_BOOKS=['My Cat Ate My Homework','Why Boogers Are Green','101 Fart Jokes','How to Train Your Goldfish','The Secret Life of Socks','Diary of a Wimpy Hamster','Attack of the Killer Tomatoes','The Day I Turned Into a Dog','Do Not Open This Book','Pirates Don\'t Take Baths','Aliens Love Underpants','My Teacher Is an Alien','The Butt Book','Unicorn Farts Rainbow','My Dad Is a Dinosaur','Zombies Eat School Lunch','Never Let a Cat Drive','The Poop That Took a Walk','Super Diaper Baby','How to Catch a Monster','My Mom Is a Pirate','The Bad Guys Are Back','Ninja Cats vs Robots','Llamas in Pyjamas','The World\'s Worst Pet','There\'s a Dragon in My Closet','Pickle Rick Saves the Day','Froggy Goes to School','The Stinky Cheese Man','Bug Soup for Breakfast'];
+function pickFunnyTitles(n){const a=[...FUNNY_BOOKS];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a.slice(0,n)}
 
 // ---- AUDIO ----
 let audioCtx=null;
@@ -1798,6 +1801,95 @@ function handleChalkboardPointerMove(px,py){
   cs.lastX=x;cs.lastY=y;
 }
 
+// ---- BOOKSHELF OVERLAY ----
+const BOOK_COLORS=['#ef4444','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#f97316','#6366f1','#e11d48'];
+function launchBookshelf(ob){
+  const titles=pickFunnyTitles(10);
+  const colors=[];for(let i=0;i<10;i++)colors.push(BOOK_COLORS[Math.floor(Math.random()*BOOK_COLORS.length)]);
+  const heights=[];for(let i=0;i<10;i++)heights.push(0.75+Math.random()*0.25);
+  bookshelfActive={ob,titles,colors,heights,books:[]};
+  document.getElementById('hud').style.display='none';
+  document.getElementById('interact-hint').style.display='none';
+  document.getElementById('grab-hint').style.display='none';
+  var mt=document.getElementById('mission-tracker');if(mt)mt.style.display='none';
+  document.getElementById('status-bar').style.display='none';
+}
+function closeBookshelf(){
+  if(!bookshelfActive)return;
+  bookshelfActive=null;
+  document.getElementById('hud').style.display='';
+  document.getElementById('interact-hint').style.display='';
+  document.getElementById('grab-hint').style.display='';
+  document.getElementById('status-bar').style.display='';
+  var mt=document.getElementById('mission-tracker');if(mt)mt.style.display='';
+}
+function renderBookshelf(){
+  const bs=bookshelfActive;
+  // Background
+  ctx.fillStyle='#92400e';ctx.fillRect(0,0,W,H);
+  const wg=ctx.createLinearGradient(0,0,0,H);wg.addColorStop(0,'#b45309');wg.addColorStop(1,'#78350f');ctx.fillStyle=wg;ctx.fillRect(0,0,W,H);
+  // Title
+  drawMiniGameClose();
+  ctx.fillStyle='#fef3c7';ctx.font='bold 18px '+FONT;ctx.textAlign='center';ctx.fillText('Classroom Library',W/2,36);
+  // Bookshelf frame
+  const pad=20,shelfW=W-pad*2,shelfX=pad,shelfTopY=55;
+  const rowH=(H-shelfTopY-20)/2;
+  bs.books=[];
+  for(let row=0;row<2;row++){
+    const ry=shelfTopY+row*rowH;
+    // Shelf back
+    ctx.fillStyle='#5c2607';rr(ctx,shelfX,ry,shelfW,rowH-4,4,true,false);
+    ctx.fillStyle='rgba(255,255,255,.03)';ctx.fillRect(shelfX+2,ry+2,shelfW-4,rowH-8);
+    // Shelf plank (bottom)
+    const plankY=ry+rowH-12;
+    gRect(ctx,shelfX,plankY,shelfW,12,2,'#b45309','#92400e');
+    ctx.fillStyle='rgba(255,255,255,.1)';ctx.fillRect(shelfX,plankY,shelfW,3);
+    // Books
+    const bookW=Math.floor((shelfW-30)/5);
+    const maxBookH=rowH-28;
+    for(let b=0;b<5;b++){
+      const idx=row*5+b;
+      const bx=shelfX+15+b*bookW;
+      const bh=Math.floor(maxBookH*bs.heights[idx]);
+      const by=plankY-bh;
+      const bw=bookW-6;
+      const col=bs.colors[idx];
+      // Book body
+      const bg=ctx.createLinearGradient(bx,by,bx+bw,by);
+      bg.addColorStop(0,col);bg.addColorStop(0.4,col);bg.addColorStop(1,darken(col,0.25));
+      ctx.fillStyle=bg;rr(ctx,bx,by,bw,bh,3,true,false);
+      // Spine highlight
+      ctx.fillStyle='rgba(255,255,255,.15)';ctx.fillRect(bx+2,by+2,3,bh-4);
+      // Spine line
+      ctx.fillStyle='rgba(0,0,0,.1)';ctx.fillRect(bx+bw-3,by,3,bh);
+      // Title text (vertical)
+      ctx.save();ctx.translate(bx+bw/2,by+bh/2);ctx.rotate(-Math.PI/2);
+      ctx.fillStyle='#fff';ctx.font='bold '+Math.min(11,bw*.35)+'px '+FONT;ctx.textAlign='center';
+      const title=bs.titles[idx];
+      const maxW=bh-12;
+      ctx.fillText(title.length>22?title.substring(0,20)+'..':title,0,4,maxW);
+      ctx.restore();
+      // Top/bottom decoration lines
+      ctx.fillStyle='rgba(255,255,255,.2)';
+      ctx.fillRect(bx+6,by+4,bw-12,2);
+      ctx.fillRect(bx+6,by+bh-6,bw-12,2);
+      // Store book bounds for tap detection
+      bs.books.push({x:bx,y:by,w:bw,h:bh,idx});
+    }
+  }
+  // Side panels
+  ctx.fillStyle='#78350f';ctx.fillRect(shelfX-4,shelfTopY,8,H-shelfTopY-16);ctx.fillRect(shelfX+shelfW-4,shelfTopY,8,H-shelfTopY-16);
+}
+function handleBookshelfTap(px,py){
+  if(px<50&&py<50){closeBookshelf();return}
+  if(!bookshelfActive)return;
+  for(const bk of bookshelfActive.books){
+    if(px>=bk.x&&px<=bk.x+bk.w&&py>=bk.y&&py<=bk.y+bk.h){
+      sfxInteract();showToast('\u{1F4D6} '+bookshelfActive.titles[bk.idx]);return;
+    }
+  }
+}
+
 // ---- DRAW ROOM ----
 function drawRoom(rk){
   const pal=PAL[rk];if(!pal)return;
@@ -2168,8 +2260,8 @@ function buildRoom(rk){
       (c,ob)=>{c.fillStyle='#4b4b4b';c.fillRect(ob.x-38,ob.y+18,4,14);c.fillRect(ob.x+34,ob.y+18,4,14);c.fillRect(ob.x-38,ob.y+10,4,14);c.fillRect(ob.x+34,ob.y+10,4,14);c.fillStyle='#3a3a3a';c.fillRect(ob.x-38,ob.y+28,4,4);c.fillRect(ob.x+34,ob.y+28,4,4);gRect(c,ob.x-42,ob.y-27,85,45,6,'#b45309','#78350f');const wg=c.createLinearGradient(ob.x-42,ob.y-27,ob.x+43,ob.y-27);wg.addColorStop(0,'rgba(255,255,255,.05)');wg.addColorStop(.5,'rgba(255,255,255,.12)');wg.addColorStop(1,'rgba(0,0,0,.06)');c.fillStyle=wg;rr(c,ob.x-42,ob.y-27,85,45,6,true,false);c.fillStyle='#d4a054';rr(c,ob.x-42,ob.y-27,85,12,6,true,false);c.fillStyle='rgba(255,255,255,.15)';c.fillRect(ob.x-40,ob.y-26,81,3);c.strokeStyle='rgba(0,0,0,.06)';c.lineWidth=.5;for(let l=0;l<6;l++){c.beginPath();c.moveTo(ob.x-38+l*14,ob.y-20);c.lineTo(ob.x-38+l*14,ob.y+16);c.stroke()}if(ob._o){c.font='22px '+FONT;c.textAlign='center';c.fillText('📖',ob.x,ob.y+2)}c.strokeStyle='rgba(60,30,10,.2)';c.lineWidth=2;rr(c,ob.x-42,ob.y-27,85,45,6,false,true)},
       (ob)=>{ob._o=!ob._o;sfxInteract();const k=`c_d${ob.id}`;if(!state.foundCoins[k]){state.foundCoins[k]=1;addCoin(ob.x,ob.y-40,1);showToast('Coin in desk! +1 ⭐')}});
     P('bookshelf',cw*.9,ch*.45,65,130,'Bookshelf',
-      (c,ob)=>{c.fillStyle='#3d1e06';rr(c,ob.x-34,ob.y-67,69,134,3,true,false);gRect(c,ob.x-32,ob.y-65,65,130,4,'#92400e','#5c2607');c.fillStyle='rgba(255,255,255,.06)';c.fillRect(ob.x-30,ob.y-64,2,128);for(let r=0;r<4;r++){c.fillStyle=darken('#92400e',.15);c.fillRect(ob.x-28,ob.y-34+r*30,56,3)}const cs=['#ef4444','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899'];const hs=[24,22,26,23,25,21,24,26];for(let r=0;r<4;r++)for(let b=0;b<2;b++){const bx=ob.x-24+b*26,bh=hs[(r*2+b)%8],by=ob.y-58+r*30+(26-bh);const bg=c.createLinearGradient(bx,by,bx+22,by);bg.addColorStop(0,cs[(r*2+b)%6]);bg.addColorStop(.5,cs[(r*2+b)%6]);bg.addColorStop(1,darken(cs[(r*2+b)%6],.2));c.fillStyle=bg;c.fillRect(bx,by,22,bh);c.fillStyle='rgba(255,255,255,.15)';c.fillRect(bx+1,by+1,20,4);c.fillStyle='rgba(255,255,255,.12)';c.font='4px '+FONT;c.textAlign='center';c.fillText('---',bx+11,by+bh*.6)}},
-      (ob)=>{sfxInteract();if(!state.interactedObjects.c_shelf){state.interactedObjects.c_shelf=1;addCoin(ob.x,ob.y-70,3);showToast('Sorted books! +3 ⭐')}});
+      (c,ob)=>{c.fillStyle='#3d1e06';rr(c,ob.x-34,ob.y-67,69,134,3,true,false);gRect(c,ob.x-32,ob.y-65,65,130,4,'#92400e','#5c2607');c.fillStyle='rgba(255,255,255,.06)';c.fillRect(ob.x-30,ob.y-64,2,128);const labels=['ABC','Math','Art','Sci','Fun','Read','Pets','Story'];const cs=['#ef4444','#3b82f6','#22c55e','#f59e0b','#8b5cf6','#ec4899','#14b8a6','#f97316'];const hs=[24,22,26,23,25,21,24,26];for(let r=0;r<4;r++){c.fillStyle=darken('#92400e',.15);c.fillRect(ob.x-28,ob.y-34+r*30,56,3);for(let b=0;b<2;b++){const bx=ob.x-24+b*26,bh=hs[(r*2+b)%8],by=ob.y-58+r*30+(26-bh);const bg=c.createLinearGradient(bx,by,bx+22,by);bg.addColorStop(0,cs[(r*2+b)%8]);bg.addColorStop(.5,cs[(r*2+b)%8]);bg.addColorStop(1,darken(cs[(r*2+b)%8],.25));c.fillStyle=bg;rr(c,bx,by,22,bh,2,true,false);c.fillStyle='rgba(255,255,255,.15)';c.fillRect(bx+1,by+1,20,3);c.fillStyle='rgba(0,0,0,.1)';c.fillRect(bx+20,by,2,bh);c.save();c.translate(bx+11,by+bh/2);c.rotate(-Math.PI/2);c.fillStyle='rgba(255,255,255,.85)';c.font='bold 5px '+FONT;c.textAlign='center';c.fillText(labels[(r*2+b)%8],0,2);c.restore()}}c.strokeStyle='rgba(60,30,10,.3)';c.lineWidth=2;rr(c,ob.x-34,ob.y-67,69,134,3,false,true)},
+      (ob)=>{sfxInteract();if(!state.interactedObjects.c_shelf){state.interactedObjects.c_shelf=1;addCoin(ob.x,ob.y-70,3);showToast('Sorted books! +3 ⭐')}launchBookshelf(ob)});
     P('clock',cw*.12,ch*.22,34,34,'Clock',
       (c,ob)=>{const fg=c.createRadialGradient(ob.x,ob.y,10,ob.x,ob.y,19);fg.addColorStop(0,'#6b7280');fg.addColorStop(1,'#374151');c.fillStyle=fg;c.beginPath();c.arc(ob.x,ob.y,19,0,Math.PI*2);c.fill();const wg=c.createRadialGradient(ob.x-2,ob.y-2,2,ob.x,ob.y,16);wg.addColorStop(0,'#ffffff');wg.addColorStop(1,'#f3f4f6');c.fillStyle=wg;c.beginPath();c.arc(ob.x,ob.y,16,0,Math.PI*2);c.fill();c.fillStyle='#374151';for(let m=0;m<12;m++){const a=m*Math.PI/6-Math.PI/2;const r=m%3===0?12:13.5;const sz=m%3===0?2:1;c.beginPath();c.arc(ob.x+Math.cos(a)*r,ob.y+Math.sin(a)*r,sz,0,Math.PI*2);c.fill()}const t=Date.now()/1000;c.strokeStyle='#1e1b4b';c.lineWidth=2.5;c.lineCap='round';c.beginPath();c.moveTo(ob.x,ob.y);c.lineTo(ob.x+Math.cos(t*.1-Math.PI/2)*10,ob.y+Math.sin(t*.1-Math.PI/2)*10);c.stroke();c.strokeStyle='#1e1b4b';c.lineWidth=1.5;c.beginPath();c.moveTo(ob.x,ob.y);c.lineTo(ob.x+Math.cos(t*.8-Math.PI/2)*13,ob.y+Math.sin(t*.8-Math.PI/2)*13);c.stroke();c.strokeStyle='#ef4444';c.lineWidth=.8;c.beginPath();c.moveTo(ob.x,ob.y);c.lineTo(ob.x+Math.cos(t-Math.PI/2)*14,ob.y+Math.sin(t-Math.PI/2)*14);c.stroke();c.fillStyle='#1e1b4b';c.beginPath();c.arc(ob.x,ob.y,2,0,Math.PI*2);c.fill();c.fillStyle='rgba(255,255,255,.18)';c.beginPath();c.arc(ob.x,ob.y,14,Math.PI*1.2,Math.PI*1.8);c.lineTo(ob.x,ob.y-6);c.closePath();c.fill();c.lineCap='butt'},
       ()=>{sfxInteract();showToast('Tick tock! 🕐')});
@@ -4459,6 +4551,7 @@ function setupInput(){
   window.addEventListener('touchend',ej);window.addEventListener('touchcancel',ej);
   canvas.addEventListener('touchstart',e=>{
     const t=e.changedTouches[0];
+    if(bookshelfActive){handleBookshelfTap(t.clientX,t.clientY);return}
     if(chalkboardActive){handleChalkboardPointerDown(t.clientX,t.clientY);return}
     if(miniGameActive){
       mgTouchStart={x:t.clientX,y:t.clientY};
@@ -4479,7 +4572,7 @@ function setupInput(){
     if(transitioning)return;handleTap(t.clientX,t.clientY)
   });
   canvas.addEventListener('touchmove',e=>{
-    if(chalkboardActive){const t=e.changedTouches[0];handleChalkboardPointerMove(t.clientX,t.clientY);return}
+    if(bookshelfActive||chalkboardActive){if(chalkboardActive){const t=e.changedTouches[0];handleChalkboardPointerMove(t.clientX,t.clientY)}return}
     if(miniGameActive){
       const t=e.changedTouches[0];
       const mgs=miniGameActive.gs;
@@ -4490,6 +4583,7 @@ function setupInput(){
     }
   });
   canvas.addEventListener('touchend',e=>{
+    if(bookshelfActive)return;
     if(chalkboardActive){chalkboardActive.drawing=false;return}
     if(miniGameActive&&mgTouchStart){
       const t=e.changedTouches[0];
@@ -4507,11 +4601,12 @@ function setupInput(){
       mgTouchStart=null;
     }
   });
-  canvas.addEventListener('mousedown',e=>{if(chalkboardActive){handleChalkboardPointerDown(e.clientX,e.clientY);return}if(transitioning&&!miniGameActive)return;handleTap(e.clientX,e.clientY)});
-  canvas.addEventListener('mousemove',e=>{if(chalkboardActive)handleChalkboardPointerMove(e.clientX,e.clientY)});
-  canvas.addEventListener('mouseup',e=>{if(chalkboardActive)chalkboardActive.drawing=false});
+  canvas.addEventListener('mousedown',e=>{if(bookshelfActive){handleBookshelfTap(e.clientX,e.clientY);return}if(chalkboardActive){handleChalkboardPointerDown(e.clientX,e.clientY);return}if(transitioning&&!miniGameActive)return;handleTap(e.clientX,e.clientY)});
+  canvas.addEventListener('mousemove',e=>{if(bookshelfActive)return;if(chalkboardActive)handleChalkboardPointerMove(e.clientX,e.clientY)});
+  canvas.addEventListener('mouseup',e=>{if(bookshelfActive)return;if(chalkboardActive)chalkboardActive.drawing=false});
   const keys={};
   window.addEventListener('keydown',e=>{
+    if(bookshelfActive){if(e.key==='Escape')closeBookshelf();return}
     if(chalkboardActive){if(e.key==='Escape')closeChalkboard();return}
     if(miniGameActive){
       const mgs=miniGameActive.gs;
@@ -4539,6 +4634,7 @@ function setupInput(){
   setInterval(()=>{if(!gameStarted)return;let kx=0,ky=0;if(keys.ArrowLeft||keys.a)kx--;if(keys.ArrowRight||keys.d)kx++;if(keys.ArrowUp||keys.w)ky--;if(keys.ArrowDown||keys.s)ky++;if(kx||ky){joystick.dx=kx*joystick.radius*.7;joystick.dy=ky*joystick.radius*.7;joystick.active=true}else if(!touchId){joystick.active=false;joystick.dx=0;joystick.dy=0}},16);
 }
 function handleTap(tx,ty){
+  if(bookshelfActive)return;
   if(chalkboardActive)return;
   // Mini-game input
   if(miniGameActive){
@@ -4809,13 +4905,15 @@ function setupUI(){
 // ---- GAME LOOP ----
 function gameLoop(ts){
   if(!gameStarted){requestAnimationFrame(gameLoop);return}
+  if(bookshelfActive){ctx.clearRect(0,0,W,H);renderBookshelf();requestAnimationFrame(gameLoop);return}
+  if(chalkboardActive){ctx.clearRect(0,0,W,H);renderChalkboard();requestAnimationFrame(gameLoop);return}
   const dt=Math.min(32,ts-lastTime)/16;lastTime=ts;
   player.bobT++;
   let spd=state.equipped.shoes?CFG.FAST_SPEED:CFG.SPEED;
   if(state.character==='milo')spd=Math.round(spd*1.25);
   if(joystick.active&&(Math.abs(joystick.dx)>5||Math.abs(joystick.dy)>5)){
     const m=Math.sqrt(joystick.dx**2+joystick.dy**2);player.vx=joystick.dx/m*spd*dt;player.vy=joystick.dy/m*spd*dt;tapTarget=null}
-  else if(tapTarget){const dx=tapTarget.x-player.x,dy=tapTarget.y-player.y,d=Math.sqrt(dx*dx+dy*dy);if(tapTarget.obj){if(d<20){player.vx=0;player.vy=0;interactObj(tapTarget.obj);tapTarget=null}else{player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}}else if(d>8){player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}else{player.vx=0;player.vy=0;tapTarget=null}}
+  else if(tapTarget){const dx=tapTarget.x-player.x,dy=tapTarget.y-player.y,d=Math.sqrt(dx*dx+dy*dy);if(tapTarget.obj){if(d<50){player.vx=0;player.vy=0;interactObj(tapTarget.obj);tapTarget=null}else{player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}}else if(d>8){player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}else{player.vx=0;player.vy=0;tapTarget=null}}
   else{player.vx*=.7;player.vy*=.7;if(Math.abs(player.vx)<.1)player.vx=0;if(Math.abs(player.vy)<.1)player.vy=0}
   player.x+=player.vx;player.y+=player.vy;
   player.x=Math.max(5,Math.min(W-5,player.x));player.y=Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,player.y));
@@ -4869,7 +4967,6 @@ function gameLoop(ts){
   if(state.equipped.tool==='bubble_wand'&&Math.random()<.12){particles.push({x:player.x+(Math.random()-.5)*30,y:player.y-10,vx:(Math.random()-.5)*.8,vy:-.5-Math.random()*.8,life:1,decay:.008,size:4+Math.random()*6,color:'rgba(168,85,247,.3)'})}
 
   // ---- CHALKBOARD DRAWING OVERLAY ----
-  if(chalkboardActive){ctx.clearRect(0,0,W,H);renderChalkboard();requestAnimationFrame(gameLoop);return}
   // ---- MINI-GAME OVERLAY ----
   if(miniGameActive){
     const mgs=miniGameActive.gs;
