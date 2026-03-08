@@ -510,6 +510,7 @@ let roomObjects=[],roomNPCs=[];
 let nearObject=null,nearNPC=null;
 let transitioning=false,transProgress=0,transDir=0;
 let gameStarted=false,lastTime=0;
+let challengeBubbleShown={};
 let tapTarget=null,touchId=null;
 let npcDialogTimer=0;
 let musicPlaying=false;
@@ -4508,6 +4509,8 @@ function talkToNPC(npc){
   const npcHasCompleted=(state.missionCounts[npc.name]||0)>0;
   const chData=ROOM_CHALLENGES[curRk];
   const chProg=state.challengeProgress[curRk];
+  // Show challenge bubble after first conversation
+  if(chData&&(!chProg||!chProg.completed))challengeBubbleShown[curRk]=true;
   if(chData&&(!chProg||!chProg.completed)&&Math.random()<0.4){
     nt.textContent=`Riddle: ${chData.riddle}`;
   }else if(mgHint&&npcHasCompleted&&!state.miniGamePlayed[curRk]&&Math.random()<0.3){
@@ -4700,6 +4703,20 @@ function gameLoop(ts){
   else{player.vx*=.7;player.vy*=.7;if(Math.abs(player.vx)<.1)player.vx=0;if(Math.abs(player.vy)<.1)player.vy=0}
   player.x+=player.vx;player.y+=player.vy;
   player.x=Math.max(5,Math.min(W-5,player.x));player.y=Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,player.y));
+  // Object collision — push player out of large objects
+  const PR=12;
+  for(const ob of roomObjects){
+    if(ob.movable||ob.w<28||ob.h<28)continue;
+    const ol=ob.x-ob.w/2-PR,or2=ob.x+ob.w/2+PR,ot=ob.y-ob.h/2-PR,obt=ob.y+ob.h/2+PR;
+    if(player.x>ol&&player.x<or2&&player.y>ot&&player.y<obt){
+      const dx1=player.x-ol,dx2=or2-player.x,dy1=player.y-ot,dy2=obt-player.y;
+      const mn=Math.min(dx1,dx2,dy1,dy2);
+      if(mn===dx1){player.x=ol;player.vx=0}
+      else if(mn===dx2){player.x=or2;player.vx=0}
+      else if(mn===dy1){player.y=ot;player.vy=0}
+      else{player.y=obt;player.vy=0}
+    }
+  }
   if(player.vx>.3)player.dir=1;else if(player.vx<-.3)player.dir=-1;
   // Seamless room transition
   checkRoomTransition();
@@ -4802,7 +4819,7 @@ function gameLoop(ts){
     const chPg=state.challengeProgress[rk];
     const chStep=chPg?chPg.step:0;
     const chDone=chPg&&chPg.completed;
-    if(!chDone){
+    if(!chDone&&challengeBubbleShown[rk]){
       // Find anchor: teacher or first street NPC
       let ancX=W*.82,ancY=FLOOR_TOP+10;
       if(!teacher&&streetNPCInstances.length>0){ancX=streetNPCInstances[0].x;ancY=streetNPCInstances[0].y-40}
