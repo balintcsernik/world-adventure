@@ -4815,7 +4815,7 @@ function gameLoop(ts){
   if(state.character==='milo')spd=Math.round(spd*1.25);
   if(joystick.active&&(Math.abs(joystick.dx)>5||Math.abs(joystick.dy)>5)){
     const m=Math.sqrt(joystick.dx**2+joystick.dy**2);player.vx=joystick.dx/m*spd*dt;player.vy=joystick.dy/m*spd*dt;tapTarget=null}
-  else if(tapTarget){const dx=tapTarget.x-player.x,dy=tapTarget.y-player.y,d=Math.sqrt(dx*dx+dy*dy);if(tapTarget.obj){const od=Math.sqrt((player.x-tapTarget.obj.x)**2+(player.y-tapTarget.obj.y)**2);if(od<CFG.INTERACT_R){player.vx=0;player.vy=0;interactObj(tapTarget.obj);tapTarget=null}else{player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}}else if(d>8){player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}else{player.vx=0;player.vy=0;tapTarget=null}}
+  else if(tapTarget){const dx=tapTarget.x-player.x,dy=tapTarget.y-player.y,d=Math.sqrt(dx*dx+dy*dy);if(tapTarget.obj){if(d<20){player.vx=0;player.vy=0;interactObj(tapTarget.obj);tapTarget=null}else{player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}}else if(d>8){player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}else{player.vx=0;player.vy=0;tapTarget=null}}
   else{player.vx*=.7;player.vy*=.7;if(Math.abs(player.vx)<.1)player.vx=0;if(Math.abs(player.vy)<.1)player.vy=0}
   player.x+=player.vx;player.y+=player.vy;
   player.x=Math.max(5,Math.min(W-5,player.x));player.y=Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,player.y));
