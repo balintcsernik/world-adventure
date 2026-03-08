@@ -59,9 +59,10 @@
   .equip-btn{padding:5px 10px;border-radius:7px;border:none;font-size:11px;font-weight:600;cursor:pointer}
   .equip-btn.equip{background:#6366f1;color:#fff}
   .equip-btn.unequip{background:#ef4444;color:#fff}
-  #toast{position:fixed;bottom:140px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(30,25,50,0.92);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;z-index:300;transition:transform .3s ease;white-space:nowrap;box-shadow:0 4px 0 rgba(0,0,0,.2),0 6px 16px rgba(0,0,0,.2);border:2px solid rgba(255,255,255,.12)}
-  #toast.show{transform:translateX(-50%) translateY(0)}
-  #status-bar{position:fixed;bottom:140px;left:50%;transform:translateX(-50%);background:rgba(100,100,120,0.8);color:#fff;padding:8px 20px;border-radius:16px;font-size:12px;font-weight:600;z-index:70;text-align:center;white-space:nowrap;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.15)}
+  #status-bar{position:fixed;bottom:140px;left:50%;transform:translateX(-50%);background:rgba(30,25,50,0.92);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;z-index:300;pointer-events:none;box-shadow:0 4px 0 rgba(0,0,0,.2),0 6px 16px rgba(0,0,0,.2);border:2px solid rgba(255,255,255,.12);display:flex;flex-direction:column;align-items:center;gap:4px}
+  #sb-toast{display:none;white-space:nowrap}
+  #sb-toast.show{display:block}
+  #sb-status{font-size:11px;opacity:.85;white-space:nowrap}
   #joystick-zone{position:fixed;bottom:16px;left:16px;width:110px;height:110px;z-index:50}
   #interact-hint{position:fixed;bottom:16px;right:16px;z-index:50}
   .hint-btn{width:58px;height:58px;border-radius:50%;border:3px solid #fff;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;transition:transform .15s}
@@ -226,8 +227,7 @@
   </div>
 </div>
 <div id="npc-dialog"><div class="npc-name" id="npc-name"></div><div id="npc-text"></div></div>
-<div id="toast"></div>
-<div id="status-bar"></div>
+<div id="status-bar"><span id="sb-toast"></span><span id="sb-status"></span></div>
 
 <script>
 // ===================== WORLD ADVENTURE v2 =====================
@@ -583,7 +583,7 @@ function resize(){W=window.innerWidth;H=window.innerHeight;canvas.width=W;canvas
 // ---- PARTICLES ----
 function spawnP(x,y,c,n=8){for(let i=0;i<n;i++){const a=Math.PI*2/n*i+Math.random()*.5,s=1.5+Math.random()*2.5;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1.5,life:1,decay:.02+Math.random()*.02,size:3+Math.random()*4,color:c})}}
 function spawnText(x,y,t,c='#f59e0b'){floatingTexts.push({x,y,text:t,color:c,life:1,decay:.015})}
-function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200)}
+function showToast(m){const t=document.getElementById('sb-toast');t.textContent=m;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2200)}
 
 // ---- HELPERS ----
 function rr(ctx,x,y,w,h,r,f,s){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();if(f)ctx.fill();if(s)ctx.stroke()}
@@ -4572,7 +4572,7 @@ function completeMission(npcName,tmpl){
 }
 
 function updateStatusBar(){
-  const rk=CFG.WORLD_ROOMS[state.currentRoom],bar=document.getElementById('status-bar');
+  const rk=CFG.WORLD_ROOMS[state.currentRoom],bar=document.getElementById('sb-status');
   if(!bar)return;
   const teacher=TEACHERS[rk],streetNpc=(STREET_NPCS[rk]||[])[0];
   const npcName=teacher?teacher.name:(streetNpc?streetNpc.name:null);
