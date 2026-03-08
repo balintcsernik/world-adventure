@@ -61,6 +61,7 @@
   .equip-btn.unequip{background:#ef4444;color:#fff}
   #toast{position:fixed;bottom:140px;left:50%;transform:translateX(-50%) translateY(100px);background:rgba(30,25,50,0.92);color:#fff;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;z-index:300;transition:transform .3s ease;white-space:nowrap;box-shadow:0 4px 0 rgba(0,0,0,.2),0 6px 16px rgba(0,0,0,.2);border:2px solid rgba(255,255,255,.12)}
   #toast.show{transform:translateX(-50%) translateY(0)}
+  #status-bar{position:fixed;bottom:140px;left:50%;transform:translateX(-50%);background:rgba(100,100,120,0.8);color:#fff;padding:8px 20px;border-radius:16px;font-size:12px;font-weight:600;z-index:70;text-align:center;white-space:nowrap;pointer-events:none;box-shadow:0 2px 8px rgba(0,0,0,.15)}
   #joystick-zone{position:fixed;bottom:16px;left:16px;width:110px;height:110px;z-index:50}
   #interact-hint{position:fixed;bottom:16px;right:16px;z-index:50}
   .hint-btn{width:58px;height:58px;border-radius:50%;border:3px solid #fff;font-size:24px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.3);display:none;align-items:center;justify-content:center;transition:transform .15s}
@@ -226,6 +227,7 @@
 </div>
 <div id="npc-dialog"><div class="npc-name" id="npc-name"></div><div id="npc-text"></div></div>
 <div id="toast"></div>
+<div id="status-bar"></div>
 
 <script>
 // ===================== WORLD ADVENTURE v2 =====================
@@ -1675,6 +1677,7 @@ function launchMiniGame(roomKey){
   document.getElementById('interact-hint').style.display='none';
   document.getElementById('grab-hint').style.display='none';
   var mt=document.getElementById('mission-tracker');if(mt)mt.style.display='none';
+  document.getElementById('status-bar').style.display='none';
 }
 function closeMiniGame(){
   if(!miniGameActive)return;
@@ -1703,6 +1706,7 @@ function closeMiniGame(){
   document.getElementById('hud').style.display='';
   document.getElementById('interact-hint').style.display='';
   document.getElementById('grab-hint').style.display='';
+  document.getElementById('status-bar').style.display='';
   var mt=document.getElementById('mission-tracker');if(mt)mt.style.display='';
 }
 
@@ -4355,7 +4359,7 @@ function switchRoom(){
   // Challenge hint on room entry
   const chRoom=ROOM_CHALLENGES[rk];const chP=state.challengeProgress[rk];
   if(chRoom&&(!chP||!chP.completed)){setTimeout(()=>showToast('A puzzle hides here... solve it to unlock a secret!'),600)}
-  saveGame();
+  saveGame();updateStatusBar();
 }
 
 // ---- INPUT ----
@@ -4463,7 +4467,7 @@ function handleTap(tx,ty){
   if(tObj){tapTarget={x:tObj.x,y:Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,tObj.y+30)),obj:tObj}}
   else{tapTarget={x:tx,y:Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,ty)),obj:null}}
 }
-function checkChallengeProgress(objectId,roomKey){const ch=ROOM_CHALLENGES[roomKey];if(!ch)return;if(!state.challengeProgress[roomKey])state.challengeProgress[roomKey]={step:0,completed:false};const prog=state.challengeProgress[roomKey];if(prog.completed)return;if(objectId===ch.steps[prog.step]){prog.step++;sfxInteract();if(prog.step>=ch.steps.length){prog.completed=true;addCoin(player.x,player.y-40,ch.reward);showToast(`Challenge complete! +${ch.reward} ⭐ Game Boy unlocked!`);setTimeout(()=>{roomObjects=buildRoom(roomKey)},400)}else{showToast(`Step ${prog.step}/${ch.steps.length}! ${ch.hints[prog.step]}`)}saveGame()}}
+function checkChallengeProgress(objectId,roomKey){const ch=ROOM_CHALLENGES[roomKey];if(!ch)return;if(!state.challengeProgress[roomKey])state.challengeProgress[roomKey]={step:0,completed:false};const prog=state.challengeProgress[roomKey];if(prog.completed)return;if(objectId===ch.steps[prog.step]){prog.step++;sfxInteract();if(prog.step>=ch.steps.length){prog.completed=true;addCoin(player.x,player.y-40,ch.reward);showToast(`Challenge complete! +${ch.reward} ⭐ Game Boy unlocked!`);setTimeout(()=>{roomObjects=buildRoom(roomKey)},400)}else{showToast(`Step ${prog.step}/${ch.steps.length}! ${ch.hints[prog.step]}`)}saveGame();updateStatusBar()}}
 function interactObj(ob){if(ob&&ob.onInteract){ob.onInteract(ob);player._int=true;setTimeout(()=>player._int=false,300);trackMissionProgress('interact',ob.id,CFG.WORLD_ROOMS[state.currentRoom]);checkChallengeProgress(ob.id,CFG.WORLD_ROOMS[state.currentRoom])}}
 function toggleGrab(){
   if(grabbedObject){
@@ -4549,7 +4553,7 @@ function acceptMission(npcName,tmpl){
   pendingMission=null;
   // Immediately track current room for visit missions
   trackMissionProgress('visit',null,CFG.WORLD_ROOMS[state.currentRoom]);
-  updateMissionTracker();saveGame();
+  updateMissionTracker();saveGame();updateStatusBar();
 }
 function completeMission(npcName,tmpl){
   delete state.activeMissions[npcName];
@@ -4564,7 +4568,23 @@ function completeMission(npcName,tmpl){
   // Unlock challenge riddle bubble for this room
   const curRk=CFG.WORLD_ROOMS[state.currentRoom];
   if(ROOM_CHALLENGES[curRk]){const cp=state.challengeProgress[curRk];if(!cp||!cp.completed)challengeBubbleShown[curRk]=true}
-  updateMissionTracker();saveGame();
+  updateMissionTracker();saveGame();updateStatusBar();
+}
+
+function updateStatusBar(){
+  const rk=CFG.WORLD_ROOMS[state.currentRoom],bar=document.getElementById('status-bar');
+  if(!bar)return;
+  const teacher=TEACHERS[rk],streetNpc=(STREET_NPCS[rk]||[])[0];
+  const npcName=teacher?teacher.name:(streetNpc?streetNpc.name:null);
+  const chDef=ROOM_CHALLENGES[rk],chProg=state.challengeProgress[rk],chDone=chProg&&chProg.completed;
+  const hasActive=npcName&&state.activeMissions[npcName];
+  if(chDef&&!chDone&&challengeBubbleShown[rk]&&npcName){
+    bar.textContent='\u{1F52E} Secret mission unlocked! Go to '+npcName+' to start it';
+  }else if(hasActive){
+    bar.textContent='\u{1F4CB} You are on a mission \u2014 complete to unlock something special!';
+  }else{
+    bar.textContent='\u{1F4AC} Explore or talk with characters';
+  }
 }
 
 // ---- UI ----
@@ -5053,7 +5073,7 @@ function buildCharSelect(){
     setTimeout(()=>{cs.style.display='none'},500);
     initAudio();gameStarted=true;
     if(state.musicOn)startBgm();
-    saveGame();
+    saveGame();updateStatusBar();
   };
 }
 
@@ -5081,7 +5101,7 @@ function init(){
       document.getElementById('splash').classList.add('hidden');
       setTimeout(()=>document.getElementById('splash').style.display='none',500);
       if(state.musicOn)startBgm();
-      saveGame();
+      saveGame();updateStatusBar();
     }else{
       // New player — show character select
       document.getElementById('splash').classList.add('hidden');
