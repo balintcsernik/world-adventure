@@ -3469,6 +3469,49 @@ function buildRoom(rk){
         c.fillStyle='#9ca3af';c.font='4px '+FONT;c.textAlign='center';c.fillText('by Emma',0,11);
         c.restore()},
       (ob)=>{sfxInteract();if(!state.foundCoins.ca_art){state.foundCoins.ca_art=1;addCoin(ob.x,ob.y-20,1);showToast('Yummy drawing! +1 \u2B50')}});
+    // --- WASH HANDS POSTER ---
+    P('wash_poster',cw*.6,ch*.34,32,28,'Wash Hands!',
+      (c,ob)=>{c.save();c.translate(ob.x,ob.y);c.rotate(-.02);
+        c.fillStyle='rgba(0,0,0,.06)';rr(c,-15,-13,32,28,3,true,false);
+        c.fillStyle='#dbeafe';rr(c,-16,-14,32,28,3,true,false);
+        c.strokeStyle='#3b82f6';c.lineWidth=1;rr(c,-16,-14,32,28,3,false,true);
+        c.font='bold 5px '+FONT;c.textAlign='center';c.fillStyle='#1e40af';c.fillText('WASH YOUR',0,-7);c.fillText('HANDS!',0,-1);
+        c.font='12px serif';c.fillText('\u{1FAE7}',0,10);
+        c.restore()},
+      ()=>{sfxInteract();showToast('Always wash your hands! \u{1FAE7}\u{1F9FC}')});
+    // --- BE KIND POSTER ---
+    P('kind_poster',cw*.88,ch*.34,30,26,'Be Kind',
+      (c,ob)=>{c.save();c.translate(ob.x,ob.y);c.rotate(.03);
+        c.fillStyle='rgba(0,0,0,.06)';rr(c,-14,-12,30,26,3,true,false);
+        c.fillStyle='#fce7f3';rr(c,-15,-13,30,26,3,true,false);
+        c.strokeStyle='#ec4899';c.lineWidth=1;rr(c,-15,-13,30,26,3,false,true);
+        c.font='bold 6px '+FONT;c.textAlign='center';c.fillStyle='#9d174d';c.fillText('BE KIND',0,-5);
+        c.font='10px serif';c.fillText('\u{1F49D}',0,7);
+        c.restore()},
+      ()=>{sfxInteract();showToast('Kindness makes the world better! \u{1F49D}')});
+    // --- ABC POSTER ---
+    P('abc_poster',cw*.32,ch*.2,34,24,'ABC Poster',
+      (c,ob)=>{c.save();c.translate(ob.x,ob.y);
+        c.fillStyle='rgba(0,0,0,.06)';rr(c,-16,-11,34,24,3,true,false);
+        c.fillStyle='#fefce8';rr(c,-17,-12,34,24,3,true,false);
+        c.strokeStyle='#ca8a04';c.lineWidth=.8;rr(c,-17,-12,34,24,3,false,true);
+        const abc=['A','B','C','D','E','F','G','H'];const cols=['#ef4444','#f97316','#eab308','#22c55e','#3b82f6','#8b5cf6','#ec4899','#06b6d4'];
+        c.font='bold 5px '+FONT;c.textAlign='center';
+        abc.forEach((l,i)=>{c.fillStyle=cols[i];c.fillText(l,-13+i*4,-4)});
+        c.font='bold 4px '+FONT;c.fillStyle='#78350f';c.fillText('1 2 3 4 5 6 7 8',0,5);
+        c.restore()},
+      ()=>{sfxInteract();showToast('A-B-C-D-E-F-G! \u{1F3B6}')});
+    // --- STAR STUDENT BOARD ---
+    P('star_board',cw*.6,ch*.18,36,22,'Star Students',
+      (c,ob)=>{c.save();c.translate(ob.x,ob.y);c.rotate(.01);
+        c.fillStyle='rgba(0,0,0,.06)';rr(c,-17,-10,36,22,3,true,false);
+        const sg=c.createLinearGradient(-17,-10,-17,12);sg.addColorStop(0,'#fef3c7');sg.addColorStop(1,'#fde68a');
+        c.fillStyle=sg;rr(c,-18,-11,36,22,3,true,false);
+        c.strokeStyle='#b45309';c.lineWidth=.8;rr(c,-18,-11,36,22,3,false,true);
+        c.font='bold 4px '+FONT;c.textAlign='center';c.fillStyle='#92400e';c.fillText('\u2B50 STAR STUDENTS \u2B50',0,-4);
+        c.font='3px '+FONT;c.fillStyle='#78350f';c.fillText('Hannah \u00B7 Milo \u00B7 Aria',0,3);c.fillText('Luna \u00B7 Marcus',0,8);
+        c.restore()},
+      ()=>{sfxInteract();showToast('You\'re a star student too! \u2B50')});
     // --- PET BED (interactive) ---
     P('petbed',cw*.14,ch*.58,44,28,'Pet Bed',
       (c,ob)=>{
@@ -5813,7 +5856,7 @@ function gameLoop(ts){
   // Teacher
   if(teacher)dr.push({t:'t',d:teacher,y:FLOOR_TOP+40});
   // Pet (room-specific positioning)
-  if(pet&&pet.type!=='fish'){let petX=W*.76,petY=FLOOR_TOP+69;if(rk==='cafeteria'){petX=W*.14;petY=FLOOR_TOP+(H-FLOOR_TOP)*.08}dr.push({t:'pet',d:pet,y:petY,px:petX})}
+  if(pet&&pet.type!=='fish'){let petX=W*.76,petY=FLOOR_TOP+69;if(rk==='cafeteria'){petX=W*.14;petY=H*.58-14}dr.push({t:'pet',d:pet,y:petY,px:petX})}
   // Street NPCs
   for(const sn of streetNPCInstances)dr.push({t:'snpc',d:sn,y:sn.y});
   dr.sort((a,b)=>a.y-b.y);
