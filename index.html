@@ -2278,16 +2278,33 @@ function renderBookReader(){
   for(let i=0;i<200;i++){ctx.beginPath();ctx.arc(grainRng()*W,grainRng()*H,1+grainRng()*2,0,Math.PI*2);ctx.fill()}
 
   // === 2. LAYOUT MATH ===
+  const portrait=W<500;
   const margin=Math.min(W*.06,H*.06,28);
   const bookW=W-margin*2;
-  let bookH=H-margin*2-10;if(bookH>bookW*.7)bookH=bookW*.7;
+  let bookH=H-margin*2-10;if(!portrait&&bookH>bookW*.7)bookH=bookW*.7;
   const bookX=margin,bookY=Math.max(margin,(H-bookH)/2);
   const cornerR=Math.max(16,Math.min(24,bookW*.03));
-  const spineX=bookX+bookW/2,spineW=Math.max(6,bookW*.015);
-  const leftPW=bookW/2-spineW/2,rightPW=bookW/2-spineW/2;
-  const rightPX=spineX+spineW/2;
-  const illPad=Math.max(12,leftPW*.08);
-  const txtPad=Math.max(14,rightPW*.08);
+
+  // Portrait: stacked layout (illustration top, text bottom)
+  // Landscape: side-by-side spread (illustration left, text right)
+  let spineX,spineW,leftPW,rightPW,rightPX,illPad,txtPad;
+  let illX,illY,illW,illH,txtAreaX,txtAreaY,txtAreaW,txtAreaH;
+
+  if(portrait){
+    spineX=bookX+bookW/2;spineW=0;
+    leftPW=bookW;rightPW=bookW;rightPX=bookX;
+    illPad=Math.max(10,bookW*.05);txtPad=Math.max(12,bookW*.05);
+    const illFrac=0.38;
+    illX=bookX+illPad;illY=bookY+illPad;illW=bookW-illPad*2;illH=bookH*illFrac-illPad*2;
+    txtAreaX=bookX+txtPad;txtAreaY=bookY+bookH*illFrac;txtAreaW=bookW-txtPad*2;txtAreaH=bookH*(1-illFrac)-txtPad;
+  }else{
+    spineX=bookX+bookW/2;spineW=Math.max(6,bookW*.015);
+    leftPW=bookW/2-spineW/2;rightPW=bookW/2-spineW/2;
+    rightPX=spineX+spineW/2;
+    illPad=Math.max(12,leftPW*.08);txtPad=Math.max(14,rightPW*.08);
+    illX=bookX+illPad;illY=bookY+illPad;illW=leftPW-illPad*2;illH=bookH-illPad*2;
+    txtAreaX=rightPX+txtPad;txtAreaY=bookY+txtPad;txtAreaW=rightPW-txtPad*2;txtAreaH=bookH-txtPad*2;
+  }
 
   // === 3. BOOK SHADOW (4 layers) ===
   for(let s=4;s>=1;s--){const off=s*3,al=.04+(4-s)*.02;ctx.fillStyle='rgba(60,30,10,'+al+')';rr(ctx,bookX-off/2,bookY+off,bookW+off,bookH+off,cornerR+s*2,true,false)}
@@ -2299,9 +2316,12 @@ function renderBookReader(){
   ctx.fillStyle='rgba(139,90,43,.06)';ctx.fillRect(bookX+cornerR,bookY+bookH-4,bookW-cornerR*2,4);
   ctx.fillStyle='rgba(0,0,0,.025)';ctx.fillRect(bookX+bookW-3,bookY+cornerR,3,bookH-cornerR*2);
 
-  // === 5. LEFT PAGE (illustration) ===
-  ctx.fillStyle='#fffbf0';rr(ctx,bookX+3,bookY+3,leftPW-3,bookH-6,cornerR-2,true,false);
-  const illX=bookX+illPad,illY=bookY+illPad,illW=leftPW-illPad*2,illH=bookH-illPad*2;
+  // === 5. ILLUSTRATION AREA ===
+  if(portrait){
+    ctx.fillStyle='#fffbf0';rr(ctx,bookX+3,bookY+3,bookW-6,bookH*.38-3,cornerR-2,true,false);
+  }else{
+    ctx.fillStyle='#fffbf0';rr(ctx,bookX+3,bookY+3,leftPW-3,bookH-6,cornerR-2,true,false);
+  }
   // Illustration frame
   ctx.strokeStyle='rgba(139,90,43,.12)';ctx.lineWidth=1.5;rr(ctx,illX-1,illY-1,illW+2,illH+2,10,false,true);
   // Clip and draw scene
@@ -2311,45 +2331,52 @@ function renderBookReader(){
   scenes[pg.sceneType](ctx,illX,illY,illW,illH,rng);
   ctx.restore();
 
-  // === 6. RIGHT PAGE (text) ===
-  ctx.fillStyle='#fffdf8';rr(ctx,rightPX,bookY+3,rightPW-3,bookH-6,cornerR-2,true,false);
+  // === 6. TEXT PAGE AREA ===
+  if(portrait){
+    ctx.fillStyle='#fffdf8';rr(ctx,bookX+3,bookY+bookH*.38,bookW-6,bookH*.62-3,cornerR-2,true,false);
+    // Divider line between illustration and text
+    ctx.strokeStyle='rgba(139,90,43,.08)';ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(bookX+txtPad,bookY+bookH*.38);ctx.lineTo(bookX+bookW-txtPad,bookY+bookH*.38);ctx.stroke();
+  }else{
+    ctx.fillStyle='#fffdf8';rr(ctx,rightPX,bookY+3,rightPW-3,bookH-6,cornerR-2,true,false);
+  }
 
-  // === 7. SPINE ===
-  ctx.fillStyle='rgba(100,60,20,.1)';ctx.fillRect(spineX-spineW/2,bookY+10,spineW,bookH-20);
-  // Left page inner shadow
-  const lSh=ctx.createLinearGradient(spineX-spineW/2-18,0,spineX-spineW/2,0);
-  lSh.addColorStop(0,'rgba(0,0,0,0)');lSh.addColorStop(1,'rgba(0,0,0,.05)');
-  ctx.fillStyle=lSh;ctx.fillRect(spineX-spineW/2-18,bookY+8,18,bookH-16);
-  // Right page inner shadow
-  const rSh=ctx.createLinearGradient(spineX+spineW/2,0,spineX+spineW/2+18,0);
-  rSh.addColorStop(0,'rgba(0,0,0,.05)');rSh.addColorStop(1,'rgba(0,0,0,0)');
-  ctx.fillStyle=rSh;ctx.fillRect(spineX+spineW/2,bookY+8,18,bookH-16);
-  // Stitch line
-  ctx.strokeStyle='rgba(100,60,20,.06)';ctx.lineWidth=1;ctx.setLineDash([4,6]);
-  ctx.beginPath();ctx.moveTo(spineX,bookY+15);ctx.lineTo(spineX,bookY+bookH-15);ctx.stroke();ctx.setLineDash([]);
+  // === 7. SPINE (landscape only) ===
+  if(!portrait){
+    ctx.fillStyle='rgba(100,60,20,.1)';ctx.fillRect(spineX-spineW/2,bookY+10,spineW,bookH-20);
+    const lSh=ctx.createLinearGradient(spineX-spineW/2-18,0,spineX-spineW/2,0);
+    lSh.addColorStop(0,'rgba(0,0,0,0)');lSh.addColorStop(1,'rgba(0,0,0,.05)');
+    ctx.fillStyle=lSh;ctx.fillRect(spineX-spineW/2-18,bookY+8,18,bookH-16);
+    const rSh=ctx.createLinearGradient(spineX+spineW/2,0,spineX+spineW/2+18,0);
+    rSh.addColorStop(0,'rgba(0,0,0,.05)');rSh.addColorStop(1,'rgba(0,0,0,0)');
+    ctx.fillStyle=rSh;ctx.fillRect(spineX+spineW/2,bookY+8,18,bookH-16);
+    ctx.strokeStyle='rgba(100,60,20,.06)';ctx.lineWidth=1;ctx.setLineDash([4,6]);
+    ctx.beginPath();ctx.moveTo(spineX,bookY+15);ctx.lineTo(spineX,bookY+bookH-15);ctx.stroke();ctx.setLineDash([]);
+  }
 
-  // === 8. TITLE on right page ===
-  const titleFs=Math.max(11,Math.min(14,rightPW*.05));
+  // === 8. TITLE ===
+  const titleCenterX=portrait?bookX+bookW/2:rightPX+rightPW/2;
+  const titleFs=Math.max(11,Math.min(14,(portrait?bookW:rightPW)*.05));
   ctx.fillStyle=br.color;ctx.font='bold '+titleFs+'px '+FONT;ctx.textAlign='center';
-  ctx.fillText(br.title,rightPX+rightPW/2,bookY+txtPad+14);
+  ctx.fillText(br.title,titleCenterX,txtAreaY+14);
   // Decorative rule
   ctx.strokeStyle='rgba(139,90,43,.12)';ctx.lineWidth=1;
-  ctx.beginPath();ctx.moveTo(rightPX+txtPad+rightPW*.1,bookY+txtPad+22);ctx.lineTo(rightPX+rightPW-txtPad-rightPW*.1,bookY+txtPad+22);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(txtAreaX+txtAreaW*.1,txtAreaY+22);ctx.lineTo(txtAreaX+txtAreaW*.9,txtAreaY+22);ctx.stroke();
 
   // === 9. STORY TEXT ===
-  const fontSize=Math.max(15,Math.min(18,rightPW*.065));
+  const fontSize=Math.max(15,Math.min(18,(portrait?txtAreaW:rightPW)*.065));
   const lineH=Math.round(fontSize*1.45);
   ctx.fillStyle='#2c1810';ctx.font=fontSize+'px '+FONT;ctx.textAlign='left';
-  const txtX=rightPX+txtPad,txtStartY=bookY+txtPad+30;
-  const txtW=rightPW-txtPad*2;
-  const txtMaxY=bookY+bookH-txtPad-28;
+  const txtX=txtAreaX,txtStartY=txtAreaY+30;
+  const txtW=txtAreaW;
+  const txtMaxY=portrait?bookY+bookH-txtPad-28:bookY+bookH-txtPad-28;
   const lines=wrapText(ctx,pg.text,txtW);
   for(let i=0;i<lines.length;i++){const ly=txtStartY+i*lineH;if(ly>txtMaxY)break;ctx.fillText(lines[i],txtX,ly)}
 
   // === 10. PREV NAV ARROW ===
   const navW=Math.max(44,Math.min(60,bookW*.09)),navH=Math.max(32,Math.min(40,bookH*.08));
   if(br.page>0){
-    const nx=bookX+illPad,ny=bookY+bookH-navH-10;
+    const nx=bookX+(portrait?txtPad:illPad),ny=bookY+bookH-navH-10;
     ctx.fillStyle='rgba(60,30,10,.1)';rr(ctx,nx-1,ny+3,navW+2,navH+1,navH/2,true,false);
     const pg1=ctx.createLinearGradient(nx,ny,nx,ny+navH);pg1.addColorStop(0,'#fde68a');pg1.addColorStop(1,'#f59e0b');
     ctx.fillStyle=pg1;rr(ctx,nx,ny,navW,navH,navH/2,true,false);
@@ -2361,7 +2388,7 @@ function renderBookReader(){
 
   // === 11. NEXT NAV ARROW ===
   if(br.page<br.totalPages-1){
-    const nx=rightPX+rightPW-txtPad-navW,ny=bookY+bookH-navH-10;
+    const nx=portrait?bookX+bookW-txtPad-navW:rightPX+rightPW-txtPad-navW,ny=bookY+bookH-navH-10;
     ctx.fillStyle='rgba(60,30,10,.1)';rr(ctx,nx-1,ny+3,navW+2,navH+1,navH/2,true,false);
     const pg2=ctx.createLinearGradient(nx,ny,nx,ny+navH);pg2.addColorStop(0,'#fde68a');pg2.addColorStop(1,'#f59e0b');
     ctx.fillStyle=pg2;rr(ctx,nx,ny,navW,navH,navH/2,true,false);
@@ -2373,7 +2400,7 @@ function renderBookReader(){
 
   // === 12. PAGE INDICATOR ===
   ctx.fillStyle='rgba(100,60,20,.45)';ctx.font='bold '+Math.max(10,Math.min(13,bookW*.02))+'px '+FONT;ctx.textAlign='center';
-  ctx.fillText('Page '+(br.page+1)+' of '+br.totalPages,spineX,bookY+bookH-8);
+  ctx.fillText('Page '+(br.page+1)+' of '+br.totalPages,bookX+bookW/2,bookY+bookH-8);
 
   // === 13. CHUNKY CLOSE BUTTON ===
   const cbSize=Math.max(36,Math.min(48,W*.08)),cbR=cbSize/2;
@@ -5404,7 +5431,7 @@ function setupInput(){
   window.addEventListener('touchend',ej);window.addEventListener('touchcancel',ej);
   canvas.addEventListener('touchstart',e=>{
     const t=e.changedTouches[0];
-    if(bookReaderActive){handleBookReaderTap(t.clientX,t.clientY);return}
+    if(bookReaderActive){e.preventDefault();handleBookReaderTap(t.clientX,t.clientY);return}
     if(bookshelfActive){handleBookshelfTap(t.clientX,t.clientY);return}
     if(chalkboardActive){handleChalkboardPointerDown(t.clientX,t.clientY);return}
     if(miniGameActive){
