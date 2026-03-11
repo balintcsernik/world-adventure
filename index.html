@@ -237,6 +237,8 @@
 
 const CFG = {
   SPEED: 3.2, FAST_SPEED: 4.8, INTERACT_R: 80,
+  FOOD_STACK_OFFSET: 14, FOOD_STACK_SNAP: 35, FOOD_CHAR_SNAP: 45,
+  FOOD_SIZE: 24, FOOD_WOBBLE_K: 0.18, FOOD_WOBBLE_DAMP: 0.82,
   WORLD_ROOMS: ['classroom','cafeteria','gymnasium','playground','library','artroom','musicroom','sciencelab','shop','school_exit','street1','street2','home','city_store','movie_theater','pool','airport','france','northpole','hungary','egypt'],
   ROOM_NAMES: {classroom:'Classroom',cafeteria:'Cafeteria',gymnasium:'Gymnasium',playground:'Playground',library:'Library',artroom:'Art Room',musicroom:'Music Room',sciencelab:'Science Lab',shop:'School Shop',school_exit:'School Exit',street1:'Main Street',street2:'Elm Avenue',home:'My Home',city_store:'Corner Store',movie_theater:'Movie Theater',pool:'Swimming Pool',airport:'Airport',france:'Paris, France',northpole:'North Pole',hungary:'Budapest, Hungary',egypt:'Ancient Egypt'},
   ROOM_W: 800, // virtual width per room
@@ -504,6 +506,7 @@ let state = {
   miniGamePlayed:{},
   miniGameHighScore:{},
   challengeProgress:{},
+  foodSpawns:{},
 };
 
 // Runtime
@@ -522,6 +525,7 @@ let npcDialogTimer=0;
 let musicPlaying=false;
 let streetNPCInstances=[];
 let grabbedObject=null;
+let foodSpawnCounter=0;
 let pendingMission=null;
 let miniGameActive=null;
 let mgTouchStart=null;
@@ -783,7 +787,7 @@ function stopBgm(){if(bgmInterval){clearInterval(bgmInterval);bgmInterval=null;}
 // ---- SAVE / LOAD ----
 const SAVE_KEY='world_adventure_v4';
 function saveGame(){state.playerX=player.x;state.playerY=player.y;state.playerDir=player.dir;try{localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch(e){}}
-function loadGame(){try{let d=localStorage.getItem(SAVE_KEY);if(d){Object.assign(state,JSON.parse(d));if(!state.challengeProgress)state.challengeProgress={};return true}d=localStorage.getItem('world_adventure_v3');if(d){const old=JSON.parse(d);Object.assign(state,old);state.unlockedRoom=13;state.activeMissions={};state.missionCounts={};if(!state.challengeProgress)state.challengeProgress={};saveGame();return true}}catch(e){}return false}
+function loadGame(){try{let d=localStorage.getItem(SAVE_KEY);if(d){Object.assign(state,JSON.parse(d));if(!state.challengeProgress)state.challengeProgress={};if(!state.foodSpawns)state.foodSpawns={};return true}d=localStorage.getItem('world_adventure_v3');if(d){const old=JSON.parse(d);Object.assign(state,old);state.unlockedRoom=13;state.activeMissions={};state.missionCounts={};if(!state.challengeProgress)state.challengeProgress={};saveGame();return true}}catch(e){}return false}
 
 // ---- RESIZE ----
 function resize(){W=window.innerWidth;H=window.innerHeight;canvas.width=W;canvas.height=H;FLOOR_TOP=H*.55;FLOOR_BOT=H*.9;joystick.baseX=72;joystick.baseY=H-72;joystick.x=joystick.baseX;joystick.y=joystick.baseY}
@@ -916,8 +920,10 @@ function drawTeacher(ctx,x,y,t,bobT){
   // Skirt / bottom flare
   ctx.fillStyle=darken(t.dress,.08);ctx.beginPath();ctx.moveTo(-20,18);ctx.lineTo(-24,22);ctx.lineTo(24,22);ctx.lineTo(20,18);ctx.fill();
   // ---- ARMS ----
+  const _holdingFood=roomObjects&&roomObjects.some(ob=>ob._isFood&&ob._heldBy==='teacher');
+  const _armAng=_holdingFood?-.5:-.15;
   // Left arm
-  ctx.save();ctx.translate(-20,-8);ctx.rotate(-.15);
+  ctx.save();ctx.translate(-20,-8);ctx.rotate(_armAng);
   const aG1=ctx.createLinearGradient(0,0,10,0);aG1.addColorStop(0,darken(t.dress,.1));aG1.addColorStop(1,t.dress);
   ctx.fillStyle=aG1;rr(ctx,-5,-2,10,22,5,true,false);
   // Hand
@@ -925,7 +931,7 @@ function drawTeacher(ctx,x,y,t,bobT){
   ctx.fillStyle='rgba(255,255,255,.15)';ctx.beginPath();ctx.arc(-1,20,3,0,Math.PI*2);ctx.fill();
   ctx.restore();
   // Right arm
-  ctx.save();ctx.translate(20,-8);ctx.rotate(.15);
+  ctx.save();ctx.translate(20,-8);ctx.rotate(-_armAng);
   const aG2=ctx.createLinearGradient(-10,0,0,0);aG2.addColorStop(0,t.dress);aG2.addColorStop(1,darken(t.dress,.1));
   ctx.fillStyle=aG2;rr(ctx,-5,-2,10,22,5,true,false);
   ctx.fillStyle=skin1;ctx.beginPath();ctx.arc(0,22,5.5,0,Math.PI*2);ctx.fill();
@@ -3963,7 +3969,7 @@ function buildRoom(rk){
           c.font='16px '+FONT;c.fillText(f,fx,fy);
         });
       },
-      (ob)=>{sfxInteract();if(!state.foundCoins.ca_counter){state.foundCoins.ca_counter=1;addCoin(ob.x,ob.y-40,2);showToast('Found lunch money! +2 \u2B50')}});
+      (ob)=>{sfxInteract();if(!state.foundCoins.ca_counter){state.foundCoins.ca_counter=1;addCoin(ob.x,ob.y-40,2);showToast('Found lunch money! +2 \u2B50')}else{spawnFoodItem(ob)}});
     // --- RECYCLING STATION (bubbly bins with hooded lids) ---
     P('recycle',cw*.38,ch*.82,80,52,'Recycling Station',
       (c,ob)=>{
@@ -6303,6 +6309,30 @@ function buildRoom(rk){
   // Restore moved object positions
   for(const ob of o){const mk=rk+'_'+ob.id;if(state.movedObjects[mk]){ob.x=state.movedObjects[mk].x;ob.y=state.movedObjects[mk].y}}
 
+  // Restore spawned food items
+  if(state.foodSpawns&&state.foodSpawns[rk]){
+    const ftMap={pizza:{emoji:'\u{1F355}',label:'Pizza'},salad:{emoji:'\u{1F957}',label:'Salad'},apple:{emoji:'\u{1F34E}',label:'Apple'},milk:{emoji:'\u{1F95B}',label:'Milk'}};
+    let maxIdx=0;
+    for(const fs of state.foodSpawns[rk]){
+      const ft=ftMap[fs.type];if(!ft)continue;
+      const pos=state.movedObjects[rk+'_'+fs.id]||{x:fs.x,y:fs.y};
+      const saved=state.movedObjects[rk+'_'+fs.id];
+      const num=parseInt(fs.id.split('_').pop())||0;if(num>maxIdx)maxIdx=num;
+      o.push({
+        id:fs.id,x:pos.x,y:pos.y,w:CFG.FOOD_SIZE,h:CFG.FOOD_SIZE,
+        label:ft.label,interactable:true,movable:true,
+        _isFood:true,_foodType:fs.type,_foodEmoji:ft.emoji,
+        _stackParent:null,_stackChildren:[],_stackIndex:0,_stackOffsetY:0,
+        _wobbleX:0,_wobbleVX:0,_targetX:pos.x,
+        _heldBy:saved?saved.heldBy:null,_heldByRef:null,
+        draw:drawFoodItem,
+        onInteract:(ob)=>{sfxInteract();showToast(ft.emoji+' Yummy '+ft.label+'!')}
+      });
+    }
+    foodSpawnCounter=Math.max(foodSpawnCounter,maxIdx);
+    rebuildFoodStacks(o,rk);
+  }
+
   // Secret mini Game Boy
   const mgConfig=MINIGAMES[rk];
   if(mgConfig){
@@ -6534,18 +6564,276 @@ function handleTap(tx,ty){
 }
 function checkChallengeProgress(objectId,roomKey){const ch=ROOM_CHALLENGES[roomKey];if(!ch)return;if(!state.challengeProgress[roomKey])state.challengeProgress[roomKey]={step:0,completed:false};const prog=state.challengeProgress[roomKey];if(prog.completed)return;if(objectId===ch.steps[prog.step]){prog.step++;sfxInteract();if(prog.step>=ch.steps.length){prog.completed=true;addCoin(player.x,player.y-40,ch.reward);showToast(`Challenge complete! +${ch.reward} ⭐ Game Boy unlocked!`);setTimeout(()=>{roomObjects=buildRoom(roomKey)},400)}else{showToast(`Step ${prog.step}/${ch.steps.length}! ${ch.hints[prog.step]}`)}saveGame();updateStatusBar()}}
 function interactObj(ob){if(ob&&ob.onInteract){ob.onInteract(ob);player._int=true;setTimeout(()=>player._int=false,300);trackMissionProgress('interact',ob.id,CFG.WORLD_ROOMS[state.currentRoom]);checkChallengeProgress(ob.id,CFG.WORLD_ROOMS[state.currentRoom])}}
+
+// ---- FOOD STACKING SYSTEM ----
+const FOOD_TYPES=[
+  {type:'pizza',emoji:'\u{1F355}',label:'Pizza'},
+  {type:'salad',emoji:'\u{1F957}',label:'Salad'},
+  {type:'apple',emoji:'\u{1F34E}',label:'Apple'},
+  {type:'milk', emoji:'\u{1F95B}',label:'Milk'}
+];
+
+function drawFoodItem(c,ob){
+  c.save();
+  const wx=ob._wobbleX||0;
+  // Plate shadow
+  c.fillStyle='rgba(0,0,0,.06)';c.beginPath();c.ellipse(ob.x+wx,ob.y+4,11,4,0,0,Math.PI*2);c.fill();
+  // White plate
+  const pg=c.createRadialGradient(ob.x+wx-2,ob.y+1,1,ob.x+wx,ob.y+2,10);
+  pg.addColorStop(0,'#fff');pg.addColorStop(1,'#e5e7eb');
+  c.fillStyle=pg;c.beginPath();c.ellipse(ob.x+wx,ob.y+2,10,4.5,0,0,Math.PI*2);c.fill();
+  // Plate rim highlight
+  c.fillStyle='rgba(255,255,255,.3)';c.beginPath();c.ellipse(ob.x+wx-3,ob.y,5,2,-.2,0,Math.PI*2);c.fill();
+  // Food emoji
+  c.font='16px '+FONT;c.textAlign='center';c.fillText(ob._foodEmoji,ob.x+wx,ob.y);
+  c.restore();
+}
+
+function getStackBase(food){let c=food;while(c._stackParent)c=c._stackParent;return c}
+function getStackHeight(base){let mx=0;function w(n,d){if(d>mx)mx=d;for(const ch of(n._stackChildren||[]))w(ch,d+1)}w(base,0);return mx}
+function isDescendant(node,ancestor){let c=node._stackParent;while(c){if(c===ancestor)return true;c=c._stackParent}return false}
+
+function recalcStackPositions(base){
+  base._stackIndex=0;base._stackOffsetY=0;
+  (function recurse(par,depth){
+    for(let i=0;i<par._stackChildren.length;i++){
+      const ch=par._stackChildren[i];
+      ch._stackIndex=depth+1;
+      ch._stackOffsetY=-(depth+1)*CFG.FOOD_STACK_OFFSET;
+      ch._targetX=par.x;
+      recurse(ch,depth+1);
+    }
+  })(base,0);
+}
+
+function saveFoodState(food,rk){
+  state.movedObjects[rk+'_'+food.id]={
+    x:food.x,y:food.y,
+    stackParentId:food._stackParent?food._stackParent.id:null,
+    heldBy:food._heldBy||null
+  };
+}
+function saveStackState(base,rk){
+  saveFoodState(base,rk);
+  for(const ch of(base._stackChildren||[]))saveStackState(ch,rk);
+}
+
+function spawnFoodItem(counterOb){
+  const rk=CFG.WORLD_ROOMS[state.currentRoom];
+  if(rk!=='cafeteria')return;
+  // Limit food items
+  const existing=roomObjects.filter(o=>o._isFood).length;
+  if(existing>=8){showToast('Too much food! \u{1F605}');return}
+  const ft=FOOD_TYPES[foodSpawnCounter%FOOD_TYPES.length];
+  foodSpawnCounter++;
+  const id='food_'+ft.type+'_'+foodSpawnCounter;
+  const sx=player.x+(player.dir>0?25:-25);
+  const sy=Math.min(player.y+10,FLOOR_BOT-15);
+  const foodObj={
+    id,x:sx,y:sy,w:CFG.FOOD_SIZE,h:CFG.FOOD_SIZE,
+    label:ft.label,interactable:true,movable:true,
+    _isFood:true,_foodType:ft.type,_foodEmoji:ft.emoji,
+    _stackParent:null,_stackChildren:[],_stackIndex:0,_stackOffsetY:0,
+    _wobbleX:0,_wobbleVX:0,_targetX:sx,
+    _heldBy:null,_heldByRef:null,
+    draw:drawFoodItem,
+    onInteract:(ob)=>{sfxInteract();showToast(ft.emoji+' Yummy '+ft.label+'!')}
+  };
+  roomObjects.push(foodObj);
+  if(!state.foodSpawns[rk])state.foodSpawns[rk]=[];
+  state.foodSpawns[rk].push({id,type:ft.type,x:sx,y:sy});
+  spawnP(sx,sy,'#34d399',6);
+  showToast('Grabbed a '+ft.label+'! '+ft.emoji);
+  saveGame();
+}
+
+function attachFoodToCharacter(food,charName,charRef){
+  food._heldBy=charName;food._heldByRef=charRef;
+  if(charName==='teacher'){
+    food.x=W*.82;food.y=FLOOR_TOP+10;
+  }else{
+    for(const sn of streetNPCInstances){
+      if(sn.data===charRef||sn.data.name===charName){food.x=sn.x;food.y=sn.y-30;break}
+    }
+  }
+  food._wobbleVX=(Math.random()-.5)*2;
+  recalcStackPositions(getStackBase(food));
+  spawnP(food.x,food.y-10,'#ec4899',6);
+  showToast((charName==='teacher'?'Chef Marco':'The character')+' is holding the food! \u{1F37D}\u{FE0F}');
+}
+
+function handleFoodDrop(food,rk){
+  // 1. Find nearest food to stack on
+  let bestTarget=null,bestDist=CFG.FOOD_STACK_SNAP;
+  for(const ob of roomObjects){
+    if(ob===food||!ob._isFood)continue;
+    if(ob._stackParent===food||isDescendant(ob,food))continue;
+    const d=Math.sqrt((food.x-ob.x)**2+(food.y-ob.y)**2);
+    if(d<bestDist){bestDist=d;bestTarget=ob}
+  }
+  // 2. Check character hold
+  if(!bestTarget){
+    const teacher=TEACHERS[rk];
+    if(teacher){
+      const td=Math.sqrt((food.x-W*.82)**2+(food.y-(FLOOR_TOP+40))**2);
+      if(td<CFG.FOOD_CHAR_SNAP){attachFoodToCharacter(food,'teacher',teacher);saveStackState(getStackBase(food),rk);return}
+    }
+    for(const sn of streetNPCInstances){
+      const sd=Math.sqrt((food.x-sn.x)**2+(food.y-sn.y)**2);
+      if(sd<CFG.FOOD_CHAR_SNAP){attachFoodToCharacter(food,sn.data.name,sn.data);saveStackState(getStackBase(food),rk);return}
+    }
+  }
+  // 3. Stack onto target
+  if(bestTarget){
+    let top=bestTarget;
+    while(top._stackChildren.length>0)top=top._stackChildren[top._stackChildren.length-1];
+    food._stackParent=top;
+    top._stackChildren.push(food);
+    food.x=top.x;food.y=top.y;
+    food._wobbleVX=(Math.random()-.5)*3;
+    const base=getStackBase(food);
+    recalcStackPositions(base);
+    spawnP(food.x,food.y-10,'#34d399',4);
+    showToast('Stacked! \u{1F37D}\u{FE0F}');
+    saveStackState(base,rk);
+    return;
+  }
+  // 4. Normal drop
+  saveFoodState(food,rk);
+}
+
+function unstackFood(food){
+  const rk=CFG.WORLD_ROOMS[state.currentRoom];
+  if(food._heldBy){food._heldBy=null;food._heldByRef=null}
+  // If this is the BASE of a stack (no parent), keep children attached
+  if(!food._stackParent){
+    food._wobbleX=0;food._wobbleVX=0;
+    // Give children a wobble impulse for grab feedback
+    for(const ch of(food._stackChildren||[]))ch._wobbleVX=(Math.random()-.5)*2;
+    saveFoodState(food,rk);
+    return;
+  }
+  // Detach from parent (grabbing from middle/top)
+  if(food._stackParent){
+    const par=food._stackParent;
+    const idx=par._stackChildren.indexOf(food);
+    if(idx>-1)par._stackChildren.splice(idx,1);
+    food._stackParent=null;food._stackIndex=0;food._stackOffsetY=0;
+    // Recalc parent's remaining stack
+    recalcStackPositions(getStackBase(par));
+    saveFoodState(par,rk);
+  }
+  // Detach children (orphans drop in place) — only when grabbed from middle
+  if(food._stackChildren.length>0){
+    const orphans=[...food._stackChildren];
+    food._stackChildren=[];
+    for(const orph of orphans){
+      orph._stackParent=null;orph._stackIndex=0;orph._stackOffsetY=0;
+      orph._wobbleVX=(Math.random()-.5)*4;
+      orph.x=food.x+(orph._wobbleX||0);
+      orph.y=food.y;
+      orph._wobbleX=0;
+      if(orph._stackChildren.length>0)recalcStackPositions(orph);
+      saveFoodState(orph,rk);
+      spawnP(orph.x,orph.y-10,'#f59e0b',3);
+    }
+  }
+  food._wobbleX=0;food._wobbleVX=0;
+  saveFoodState(food,rk);
+}
+
+function moveStackWithParent(parent){
+  for(const ch of(parent._stackChildren||[])){
+    ch._targetX=parent.x+(parent._wobbleX||0);
+    ch.x=parent.x;ch.y=parent.y;
+    moveStackWithParent(ch);
+  }
+}
+
+function updateHeldFoodPosition(food){
+  const rk=CFG.WORLD_ROOMS[state.currentRoom];
+  if(food._heldBy==='teacher'){
+    const t=TEACHERS[rk];
+    if(!t){food._heldBy=null;return}
+    const bob=Math.sin(player.bobT*.05)*2;
+    food.x=W*.82;food.y=FLOOR_TOP+10+bob;
+  }else{
+    for(const sn of streetNPCInstances){
+      if(sn.data.name===food._heldBy){
+        const bob=Math.sin(sn.bobT*.05)*2;
+        food.x=sn.x;food.y=sn.y-30+bob;break;
+      }
+    }
+  }
+  recalcStackPositions(food);
+}
+
+function updateFoodPhysics(){
+  for(const ob of roomObjects){
+    if(!ob._isFood)continue;
+    // Held food tracks character
+    if(ob._heldBy&&!ob._stackParent&&ob!==grabbedObject){
+      updateHeldFoodPosition(ob);
+    }
+    // Stacked children: spring wobble
+    if(ob._stackParent&&ob!==grabbedObject){
+      const par=ob._stackParent;
+      const parentRX=par.x+(par._wobbleX||0);
+      ob._targetX=parentRX;
+      const dx=ob._targetX-(ob.x+(ob._wobbleX||0));
+      ob._wobbleVX=(ob._wobbleVX||0)+dx*CFG.FOOD_WOBBLE_K;
+      ob._wobbleVX*=CFG.FOOD_WOBBLE_DAMP;
+      ob._wobbleX=(ob._wobbleX||0)+ob._wobbleVX;
+      if(Math.abs(ob._wobbleX)>12)ob._wobbleX=Math.sign(ob._wobbleX)*12;
+      if(Math.abs(ob._wobbleVX)<.01)ob._wobbleVX=0;
+      ob.x=par.x;ob.y=par.y;
+    }
+    // Base items: dampen residual wobble
+    if(!ob._stackParent){
+      ob._wobbleVX=(ob._wobbleVX||0)*CFG.FOOD_WOBBLE_DAMP;
+      ob._wobbleX=(ob._wobbleX||0)+ob._wobbleVX;
+      if(Math.abs(ob._wobbleX)<.1&&Math.abs(ob._wobbleVX)<.01){ob._wobbleX=0;ob._wobbleVX=0}
+    }
+  }
+}
+
+function rebuildFoodStacks(objects,rk){
+  const fMap={};
+  for(const ob of objects){if(ob._isFood)fMap[ob.id]=ob}
+  for(const ob of objects){
+    if(!ob._isFood)continue;
+    const saved=state.movedObjects[rk+'_'+ob.id];
+    if(saved&&saved.stackParentId&&fMap[saved.stackParentId]){
+      const par=fMap[saved.stackParentId];
+      ob._stackParent=par;par._stackChildren.push(ob);
+    }
+    if(saved&&saved.heldBy)ob._heldBy=saved.heldBy;
+  }
+  for(const ob of objects){
+    if(ob._isFood&&!ob._stackParent)recalcStackPositions(ob);
+  }
+}
+// ---- END FOOD STACKING SYSTEM ----
+
 function toggleGrab(){
   if(grabbedObject){
     // Drop
     const rk=CFG.WORLD_ROOMS[state.currentRoom];
-    state.movedObjects[rk+'_'+grabbedObject.id]={x:grabbedObject.x,y:grabbedObject.y};
+    if(grabbedObject._isFood){
+      handleFoodDrop(grabbedObject,rk);
+    }else{
+      state.movedObjects[rk+'_'+grabbedObject.id]={x:grabbedObject.x,y:grabbedObject.y};
+    }
     grabbedObject=null;document.getElementById('grab-hint').style.display='none';
-    sfxInteract();showToast('Dropped! 📦');saveGame();
+    sfxInteract();showToast('Dropped! \u{1F4E6}');saveGame();
   }else{
     // Find nearest movable object
     let best=null,bd=50;
     for(const ob of roomObjects){if(!ob.movable)continue;const d=Math.sqrt((player.x-ob.x)**2+(player.y-ob.y)**2);if(d<bd){bd=d;best=ob}}
-    if(best){grabbedObject=best;sfxInteract();showToast('Grabbed '+best.label+'! Move around & press G to drop')}
+    if(best){
+      if(best._isFood)unstackFood(best);
+      grabbedObject=best;sfxInteract();showToast('Grabbed '+best.label+'! Move around & press G to drop');
+    }
   }
 }
 function talkToNPC(npc){
@@ -6818,7 +7106,9 @@ function gameLoop(ts){
     }else{sn.bobT++}
   }
   // Grabbed object follows player
-  if(grabbedObject){grabbedObject.x=player.x;grabbedObject.y=player.y+20}
+  if(grabbedObject){grabbedObject.x=player.x;grabbedObject.y=player.y+20;if(grabbedObject._isFood)moveStackWithParent(grabbedObject)}
+  // Food stacking physics (cafeteria only)
+  if(CFG.WORLD_ROOMS[state.currentRoom]==='cafeteria')updateFoodPhysics();
   // Near object
   nearObject=null;nearNPC=null;let md=CFG.INTERACT_R;
   for(const ob of roomObjects){if(!ob.interactable)continue;const d=Math.sqrt((player.x-ob.x)**2+(player.y-ob.y)**2);if(d<md){md=d;nearObject=ob}}
@@ -6867,7 +7157,11 @@ function gameLoop(ts){
   // Flashlight glow
   if(state.equipped.tool==='flashlight'){const g=ctx.createRadialGradient(player.x,player.y,0,player.x,player.y,130);g.addColorStop(0,'rgba(255,255,200,.15)');g.addColorStop(1,'rgba(255,255,200,0)');ctx.fillStyle=g;ctx.fillRect(player.x-130,player.y-130,260,260)}
   // Sort by Y
-  const dr=[...roomObjects.map(o=>({t:'o',d:o,y:o.y}))];
+  const dr=[...roomObjects.map(o=>{
+    let sortY=o.y;
+    if(o._isFood&&o._stackParent){sortY=getStackBase(o).y+o._stackIndex*.1}
+    return{t:'o',d:o,y:sortY};
+  })];
   dr.push({t:'p',y:player.y});
   // Teacher
   if(teacher)dr.push({t:'t',d:teacher,y:FLOOR_TOP+40});
@@ -6882,29 +7176,41 @@ function gameLoop(ts){
     else if(d.t==='pet')drawPet(ctx,d.px||W*.76,d.y,d.d,player.bobT);
     else if(d.t==='snpc'){const sn=d.d;if(sn.data.accessory)drawStreetNPC(ctx,sn.x,sn.y,sn.data,sn.bobT);else drawTeacher(ctx,sn.x,sn.y,sn.data,sn.bobT)}
     else{const o=d.d;
-      // Context-aware shadow (floor vs wall objects)
-      const isFloor=o.y>FLOOR_TOP-20;
-      if(isFloor){
-        const fSR=Math.max(o.w*.55,20),fSH=Math.max(6,o.h*.06);
-        const fSY=o.y+o.h*.38;
-        // Layer 1: Wide diffused shadow (ambient)
-        const fSG1=ctx.createRadialGradient(o.x,fSY,0,o.x,fSY,fSR*1.3);
-        fSG1.addColorStop(0,'rgba(0,0,0,.06)');fSG1.addColorStop(.5,'rgba(0,0,0,.03)');fSG1.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.fillStyle=fSG1;ctx.beginPath();ctx.ellipse(o.x,fSY,fSR*1.3,fSH*1.5,0,0,Math.PI*2);ctx.fill();
-        // Layer 2: Tight dark contact line
-        const fSG2=ctx.createRadialGradient(o.x,fSY,0,o.x,fSY,fSR*.6);
-        fSG2.addColorStop(0,'rgba(0,0,0,.18)');fSG2.addColorStop(.5,'rgba(0,0,0,.1)');fSG2.addColorStop(1,'rgba(0,0,0,0)');
-        ctx.fillStyle=fSG2;ctx.beginPath();ctx.ellipse(o.x,fSY,fSR*.6,fSH*.7,0,0,Math.PI*2);ctx.fill();
-      }else{
-        // Layer 1: Wide soft ambient shadow
-        ctx.fillStyle='rgba(0,0,0,.04)';rr(ctx,o.x-o.w*.48+5,o.y-o.h*.48+5,o.w*.96,o.h*.96,6,true,false);
-        // Layer 2: Tighter offset shadow
-        ctx.fillStyle='rgba(0,0,0,.08)';rr(ctx,o.x-o.w*.48+2,o.y-o.h*.48+2,o.w*.96,o.h*.96,4,true,false);
+      // Skip shadow for stacked food children (base casts shadow for whole stack)
+      const skipShadow=o._isFood&&o._stackParent;
+      if(!skipShadow){
+        // Context-aware shadow (floor vs wall objects)
+        const isFloor=o.y>FLOOR_TOP-20;
+        if(isFloor){
+          let sMul=1;if(o._isFood&&o._stackChildren&&o._stackChildren.length>0)sMul=1+getStackHeight(o)*.15;
+          const fSR=Math.max(o.w*.55,20)*sMul,fSH=Math.max(6,o.h*.06);
+          const fSY=o.y+o.h*.38;
+          // Layer 1: Wide diffused shadow (ambient)
+          const fSG1=ctx.createRadialGradient(o.x,fSY,0,o.x,fSY,fSR*1.3);
+          fSG1.addColorStop(0,'rgba(0,0,0,.06)');fSG1.addColorStop(.5,'rgba(0,0,0,.03)');fSG1.addColorStop(1,'rgba(0,0,0,0)');
+          ctx.fillStyle=fSG1;ctx.beginPath();ctx.ellipse(o.x,fSY,fSR*1.3,fSH*1.5,0,0,Math.PI*2);ctx.fill();
+          // Layer 2: Tight dark contact line
+          const fSG2=ctx.createRadialGradient(o.x,fSY,0,o.x,fSY,fSR*.6);
+          fSG2.addColorStop(0,'rgba(0,0,0,.18)');fSG2.addColorStop(.5,'rgba(0,0,0,.1)');fSG2.addColorStop(1,'rgba(0,0,0,0)');
+          ctx.fillStyle=fSG2;ctx.beginPath();ctx.ellipse(o.x,fSY,fSR*.6,fSH*.7,0,0,Math.PI*2);ctx.fill();
+        }else{
+          // Layer 1: Wide soft ambient shadow
+          ctx.fillStyle='rgba(0,0,0,.04)';rr(ctx,o.x-o.w*.48+5,o.y-o.h*.48+5,o.w*.96,o.h*.96,6,true,false);
+          // Layer 2: Tighter offset shadow
+          ctx.fillStyle='rgba(0,0,0,.08)';rr(ctx,o.x-o.w*.48+2,o.y-o.h*.48+2,o.w*.96,o.h*.96,4,true,false);
+        }
       }
-      if(o.draw)o.draw(ctx,o);
+      // Draw object with stack offset for food items
+      if(o._isFood&&o._stackOffsetY){
+        ctx.save();ctx.translate(o._wobbleX||0,o._stackOffsetY);
+        if(o.draw)o.draw(ctx,o);
+        ctx.restore();
+      }else{
+        if(o.draw)o.draw(ctx,o);
+      }
       // Grabbed object glow
-      if(o===grabbedObject){ctx.strokeStyle='rgba(99,102,241,.7)';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(o.x,o.y,Math.max(o.w,o.h)*.55,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}
-      if(o===nearObject){ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.beginPath();ctx.arc(o.x,o.y,Math.max(o.w,o.h)*.55,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='rgba(0,0,0,.7)';ctx.font='bold 10px '+FONT;ctx.textAlign='center';rr(ctx,o.x-38,o.y-Math.max(o.h,30)-22,76,16,8,true,false);ctx.fillStyle='#fff';ctx.fillText(o.label||'',o.x,o.y-Math.max(o.h,30)-10)}}}
+      if(o===grabbedObject){ctx.strokeStyle='rgba(99,102,241,.7)';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(o.x+(o._wobbleX||0),o.y+(o._stackOffsetY||0),Math.max(o.w,o.h)*.55,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}
+      if(o===nearObject){const ny=o.y+(o._stackOffsetY||0);ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.beginPath();ctx.arc(o.x,ny,Math.max(o.w,o.h)*.55,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='rgba(0,0,0,.7)';ctx.font='bold 10px '+FONT;ctx.textAlign='center';rr(ctx,o.x-38,ny-Math.max(o.h,30)-22,76,16,8,true,false);ctx.fillStyle='#fff';ctx.fillText(o.label||'',o.x,ny-Math.max(o.h,30)-10)}}}
   // NPC highlight (teachers + street NPCs)
   if(nearNPC){
     if(teacher&&nearNPC===teacher){ctx.strokeStyle='rgba(236,72,153,.5)';ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.beginPath();ctx.arc(W*.82,FLOOR_TOP+40,35,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}
