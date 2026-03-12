@@ -95,20 +95,20 @@
   #hc-logo::after{content:'🌟';position:absolute;bottom:-8px;right:-14px;font-size:16px;-webkit-text-fill-color:initial;animation:hcSpark 1.5s ease-in-out infinite .7s}
   @keyframes hcSpark{0%,100%{opacity:.4;transform:scale(.8)}50%{opacity:1;transform:scale(1.2)}}
   /* Character Select */
-  #char-select{position:fixed;inset:0;background:linear-gradient(135deg,#a78bfa,#6366f1,#ec4899);z-index:998;display:none;flex-direction:column;align-items:center;justify-content:center;transition:opacity .5s;padding:16px;overflow-y:auto}
+  #char-select{position:fixed;inset:0;background:linear-gradient(135deg,#a78bfa,#6366f1,#ec4899);z-index:998;display:none;flex-direction:column;align-items:center;justify-content:flex-start;transition:opacity .5s;padding:6px 6px;overflow-y:auto}
   #char-select.show{display:flex}
   #char-select.hidden{opacity:0;pointer-events:none}
-  #char-select h1{color:#fff;font-size:24px;text-shadow:0 3px 12px rgba(0,0,0,.3);margin-bottom:16px}
-  #char-cards{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:18px}
-  .char-card{background:rgba(255,255,255,.92);border-radius:18px;padding:14px 16px 12px;width:150px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s;border:3px solid transparent;box-shadow:0 4px 16px rgba(0,0,0,.15);position:relative}
+  #char-select h1{color:#fff;font-size:17px;text-shadow:0 3px 12px rgba(0,0,0,.3);margin:4px 0 6px}
+  #char-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;margin-bottom:8px;width:100%;max-width:700px;padding:0 2px}
+  .char-card{background:rgba(255,255,255,.92);border-radius:12px;padding:6px 4px 5px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s;border:2px solid transparent;box-shadow:0 3px 10px rgba(0,0,0,.15);position:relative}
   .char-card:hover{transform:scale(1.04)}
-  .char-card.selected{border-color:#fbbf24;box-shadow:0 0 24px rgba(251,191,36,.5),0 6px 20px rgba(0,0,0,.2);transform:scale(1.06)}
-  .char-card canvas{display:block;margin:0 auto 8px;border-radius:12px;background:linear-gradient(180deg,#f0f9ff,#e0f2fe)}
-  .char-name{font-size:16px;font-weight:800;color:#374151;margin-bottom:2px}
-  .char-title{font-size:11px;color:#6b7280;margin-bottom:6px}
-  .char-skill{display:inline-flex;align-items:center;gap:4px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:10px;font-weight:700;padding:4px 10px;border-radius:12px;letter-spacing:.3px}
-  .char-skill-desc{font-size:9px;color:#9ca3af;margin-top:4px}
-  #char-play-btn{background:#fff;color:#6366f1;border:none;padding:12px 40px;border-radius:28px;font-size:17px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:transform .15s,opacity .2s;opacity:.4;pointer-events:none}
+  .char-card.selected{border-color:#fbbf24;box-shadow:0 0 20px rgba(251,191,36,.5),0 4px 16px rgba(0,0,0,.2);transform:scale(1.06)}
+  .char-card canvas{display:block;margin:0 auto 3px;border-radius:8px;background:linear-gradient(180deg,#f0f9ff,#e0f2fe)}
+  .char-name{font-size:11px;font-weight:800;color:#374151;margin-bottom:0;line-height:1.2}
+  .char-title{font-size:8px;color:#6b7280;margin-bottom:3px}
+  .char-skill{display:inline-flex;align-items:center;gap:2px;background:linear-gradient(135deg,#6366f1,#8b5cf6);color:#fff;font-size:7.5px;font-weight:700;padding:2px 6px;border-radius:8px;letter-spacing:.2px}
+  .char-skill-desc{font-size:7px;color:#9ca3af;margin-top:2px;line-height:1.2}
+  #char-play-btn{background:#fff;color:#6366f1;border:none;padding:8px 30px;border-radius:24px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(0,0,0,.2);transition:transform .15s,opacity .2s;opacity:.4;pointer-events:none}
   #char-play-btn.enabled{opacity:1;pointer-events:auto}
   #char-play-btn:active{transform:scale(.95)}
   #btn-dismiss{background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#fff;display:none}
@@ -335,7 +335,21 @@ const CHARACTERS = [
   {id:'milo',name:'Milo',title:'The Sporty Kid',skill:'Super Sprint',skillDesc:'Move 25% faster everywhere!',
    hair:'#ea580c',iris:'#92400e',outfit:'#22c55e',skin:'#e0b088',skinSh:'#c49870',icon:'⚡'},
   {id:'aria',name:'Aria',title:'The Artist',skill:'Golden Touch',skillDesc:'+1 bonus coin from every interaction!',
-   hair:'#ec4899',iris:'#8b5cf6',outfit:'#eab308',skin:'#f0c8a0',skinSh:'#d4a888',icon:'🎨'}
+   hair:'#ec4899',iris:'#8b5cf6',outfit:'#eab308',skin:'#f0c8a0',skinSh:'#d4a888',icon:'\u{1F3A8}'},
+  {id:'kai',name:'Kai',title:'The Scientist',skill:'Lab Bonus',skillDesc:'Double coins in the Science Lab!',
+   hair:'#1a1a2a',iris:'#d97706',outfit:'#0d9488',skin:'#c68642',skinSh:'#a0673a',icon:'\u{1F52C}'},
+  {id:'ravi',name:'Ravi',title:'The Musician',skill:'Rhythm Boost',skillDesc:'20% faster interact cooldown!',
+   hair:'#3b1f0b',iris:'#78350f',outfit:'#dc2626',skin:'#b5651d',skinSh:'#8b4513',icon:'\u{1F3B5}'},
+  {id:'leo',name:'Leo',title:'The Builder',skill:'Handy Helper',skillDesc:'Shop items cost 1 less coin!',
+   hair:'#d4a24e',iris:'#2563eb',outfit:'#ea580c',skin:'#ffe0bd',skinSh:'#dbb99a',icon:'\u{1F527}'},
+  {id:'zara',name:'Zara',title:'The Adventurer',skill:'Trailblazer',skillDesc:'Hidden items sparkle in travel rooms!',
+   hair:'#0f0a1a',iris:'#a16207',outfit:'#c026d3',skin:'#8d5524',skinSh:'#6b3a1a',icon:'\u{1F5FA}\u{FE0F}'},
+  {id:'mei',name:'Mei',title:'The Reader',skill:'Bookworm',skillDesc:'Double coins in the Library!',
+   hair:'#111827',iris:'#374151',outfit:'#a78bfa',skin:'#f5deb3',skinSh:'#d4b896',icon:'\u{1F4D6}'},
+  {id:'suki',name:'Suki',title:'The Chef',skill:'Tasty Treats',skillDesc:'+1 bonus coin when stacking food!',
+   hair:'#92400e',iris:'#16a34a',outfit:'#f472b6',skin:'#dba87e',skinSh:'#bf8a60',icon:'\u{1F9C1}'},
+  {id:'nia',name:'Nia',title:'The Dancer',skill:'Dance Moves',skillDesc:'Wider interact range (1.3x)!',
+   hair:'#1c1015',iris:'#92400e',outfit:'#06b6d4',skin:'#a0522d',skinSh:'#804020',icon:'\u{1F483}'}
 ];
 
 const MINIGAMES = {
@@ -799,7 +813,7 @@ function showToast(m){const t=document.getElementById('sb-toast');t.textContent=
 
 // ---- HELPERS ----
 function rr(ctx,x,y,w,h,r,f,s){ctx.beginPath();ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();if(f)ctx.fill();if(s)ctx.stroke()}
-function addCoin(x,y,amt){const bonus=(state.character==='aria'?1:0);state.coins+=amt+bonus;sfxCoin();spawnP(x,y,'#fbbf24',10);spawnText(x,y-20,`+${amt+bonus} ⭐`);document.getElementById('coin-count').textContent=state.coins;saveGame()}
+function addCoin(x,y,amt){const rk=CFG.WORLD_ROOMS[state.currentRoom];if(state.character==='kai'&&rk==='sciencelab')amt*=2;if(state.character==='mei'&&rk==='library')amt*=2;const bonus=(state.character==='aria'?1:0);state.coins+=amt+bonus;sfxCoin();spawnP(x,y,'#fbbf24',10);spawnText(x,y-20,`+${amt+bonus} ⭐`);document.getElementById('coin-count').textContent=state.coins;saveGame()}
 function darken(hex,a){let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgb(${Math.max(0,r*(1-a)|0)},${Math.max(0,g*(1-a)|0)},${Math.max(0,b*(1-a)|0)})`}
 function lighten(hex,a){let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgb(${Math.min(255,r+(255-r)*a|0)},${Math.min(255,g+(255-g)*a|0)},${Math.min(255,b+(255-b)*a|0)})`}
 
@@ -7255,7 +7269,7 @@ function handleTap(tx,ty){
   else{tapTarget={x:tx,y:Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,ty)),obj:null}}
 }
 function checkChallengeProgress(objectId,roomKey){const ch=ROOM_CHALLENGES[roomKey];if(!ch)return;if(!state.challengeProgress[roomKey])state.challengeProgress[roomKey]={step:0,completed:false};const prog=state.challengeProgress[roomKey];if(prog.completed)return;if(objectId===ch.steps[prog.step]){prog.step++;sfxInteract();if(prog.step>=ch.steps.length){prog.completed=true;addCoin(player.x,player.y-40,ch.reward);showToast(`Challenge complete! +${ch.reward} ⭐ Game Boy unlocked!`);setTimeout(()=>{roomObjects=buildRoom(roomKey)},400)}else{showToast(`Step ${prog.step}/${ch.steps.length}! ${ch.hints[prog.step]}`)}saveGame();updateStatusBar()}}
-function interactObj(ob){if(ob&&ob.onInteract){ob.onInteract(ob);player._int=true;setTimeout(()=>player._int=false,300);trackMissionProgress('interact',ob.id,CFG.WORLD_ROOMS[state.currentRoom]);checkChallengeProgress(ob.id,CFG.WORLD_ROOMS[state.currentRoom])}}
+function interactObj(ob){if(ob&&ob.onInteract){ob.onInteract(ob);player._int=true;const icd=state.character==='ravi'?240:300;setTimeout(()=>player._int=false,icd);trackMissionProgress('interact',ob.id,CFG.WORLD_ROOMS[state.currentRoom]);checkChallengeProgress(ob.id,CFG.WORLD_ROOMS[state.currentRoom])}}
 
 // ---- FOOD STACKING SYSTEM ----
 const FOOD_TYPES=[
@@ -7386,6 +7400,7 @@ function handleFoodDrop(food,rk){
     const base=getStackBase(food);
     recalcStackPositions(base);
     spawnP(food.x,food.y-10,'#34d399',4);
+    if(state.character==='suki'){state.coins+=1;updateCoinDisplay();spawnText(food.x,food.y-20,'+1 \u2B50');saveGame()}
     showToast('Stacked! \u{1F37D}\u{FE0F}');
     saveStackState(base,rk);
     return;
@@ -7649,7 +7664,7 @@ function openTradeDialog(items,title,msg){
 }
 function closeTradeDialog(){document.getElementById('trade-dialog').classList.remove('open')}
 function renderTradeItems(){const c=document.getElementById('trade-items');c.innerHTML='';for(const it of _tradeItems){const ow=state.inventory.includes(it.id);const d=document.createElement('div');d.className='trade-item'+(ow?' owned':'');d.innerHTML=`<div class="trade-item-icon">${it.icon}</div><div class="trade-item-info"><div class="trade-item-name">${it.name}</div><div class="trade-item-desc">${it.desc}</div></div>${ow?'<span class="owned-badge">Owned</span>':`<div class="trade-item-price"><span class="mini-coin"></span>${it.price}</div>`}`;if(!ow)d.onclick=()=>buyItem(it);c.appendChild(d)}}
-function buyItem(it){if(state.inventory.includes(it.id))return;if(it.price>0&&state.coins<it.price){showToast(`Need ${it.price-state.coins} more ⭐!`);return}if(it.price>0)state.coins-=it.price;state.inventory.push(it.id);if(!state.equipped[it.slot])state.equipped[it.slot]=it.id;sfxBuy();updateCoinDisplay();renderTradeItems();saveGame();showToast(`Bought ${it.name}! ${it.icon}`)}
+function buyItem(it){if(state.inventory.includes(it.id))return;const price=state.character==='leo'?Math.max(1,it.price-1):it.price;if(price>0&&state.coins<price){showToast(`Need ${price-state.coins} more ⭐!`);return}if(price>0)state.coins-=price;state.inventory.push(it.id);if(!state.equipped[it.slot])state.equipped[it.slot]=it.id;sfxBuy();updateCoinDisplay();renderTradeItems();saveGame();showToast(`Bought ${it.name}! ${it.icon}`)}
 function openTaskPanel(){document.getElementById('task-panel').classList.add('open');renderTaskList()}
 function closeTaskPanel(){document.getElementById('task-panel').classList.remove('open')}
 function renderTaskList(){
@@ -7802,13 +7817,14 @@ function gameLoop(ts){
   // Food stacking physics (cafeteria only)
   if(CFG.WORLD_ROOMS[state.currentRoom]==='cafeteria')updateFoodPhysics();
   // Near object
-  nearObject=null;nearNPC=null;let md=CFG.INTERACT_R;
+  const intR=state.character==='nia'?Math.round(CFG.INTERACT_R*1.3):CFG.INTERACT_R;
+  nearObject=null;nearNPC=null;let md=intR;
   for(const ob of roomObjects){if(!ob.interactable)continue;const d=Math.sqrt((player.x-ob.x)**2+(player.y-ob.y)**2);if(d<md){md=d;nearObject=ob}}
   // Near teacher
   const rk=CFG.WORLD_ROOMS[state.currentRoom],teacher=TEACHERS[rk],pet=PETS[rk];
-  if(teacher){const td=Math.sqrt((player.x-W*.82)**2+(player.y-(FLOOR_TOP+40))**2);if(td<CFG.INTERACT_R&&(!nearObject||td<md)){nearNPC=teacher;nearObject=null}}
+  if(teacher){const td=Math.sqrt((player.x-W*.82)**2+(player.y-(FLOOR_TOP+40))**2);if(td<intR&&(!nearObject||td<md)){nearNPC=teacher;nearObject=null}}
   // Near street NPC
-  for(const sn of streetNPCInstances){const sd=Math.sqrt((player.x-sn.x)**2+(player.y-sn.y)**2);if(sd<CFG.INTERACT_R&&(!nearObject||sd<md)){nearNPC=sn.data;nearObject=null;md=sd}}
+  for(const sn of streetNPCInstances){const sd=Math.sqrt((player.x-sn.x)**2+(player.y-sn.y)**2);if(sd<intR&&(!nearObject||sd<md)){nearNPC=sn.data;nearObject=null;md=sd}}
   // Grab hint: show when near movable and nothing grabbed
   const gh=document.getElementById('grab-hint');
   if(!grabbedObject){let nearMov=false;for(const ob of roomObjects){if(!ob.movable)continue;const d=Math.sqrt((player.x-ob.x)**2+(player.y-ob.y)**2);if(d<50){nearMov=true;break}}gh.style.display=nearMov?'block':'none'}else{gh.style.display='block';gh.textContent='Press G to drop'}
@@ -7845,7 +7861,9 @@ function gameLoop(ts){
   ctx.clearRect(0,0,W,H);
   drawRoom(rk);
   // Magnifier sparkles
-  if(state.equipped.tool==='magnifier'||state.character==='luna'){for(const ob of roomObjects){const ck=rk+'_'+ob.id;if(!state.foundCoins[ck]&&!state.interactedObjects[ck]){ctx.font='14px '+FONT;ctx.textAlign='center';ctx.globalAlpha=.5+Math.sin(Date.now()*.005)*.3;ctx.fillText('✨',ob.x+16,ob.y-16);ctx.globalAlpha=1}}}
+  const travelRooms=['pool','airport','france','northpole','hungary','egypt'];
+  const showSparkle=state.equipped.tool==='magnifier'||state.character==='luna'||(state.character==='zara'&&travelRooms.includes(rk));
+  if(showSparkle){for(const ob of roomObjects){const ck=rk+'_'+ob.id;if(!state.foundCoins[ck]&&!state.interactedObjects[ck]){ctx.font='14px '+FONT;ctx.textAlign='center';ctx.globalAlpha=.5+Math.sin(Date.now()*.005)*.3;ctx.fillText('\u2728',ob.x+16,ob.y-16);ctx.globalAlpha=1}}}
   // Flashlight glow
   if(state.equipped.tool==='flashlight'){const g=ctx.createRadialGradient(player.x,player.y,0,player.x,player.y,130);g.addColorStop(0,'rgba(255,255,200,.15)');g.addColorStop(1,'rgba(255,255,200,0)');ctx.fillStyle=g;ctx.fillRect(player.x-130,player.y-130,260,260)}
   // Sort by Y
@@ -8001,8 +8019,9 @@ function gameLoop(ts){
 // ---- CHARACTER SELECT ----
 function drawCharPreview(cvs,charData){
   const c=cvs.getContext('2d');
-  c.clearRect(0,0,120,140);
-  c.save();c.translate(60,95);
+  c.clearRect(0,0,cvs.width,cvs.height);
+  c.save();c.translate(cvs.width/2,cvs.height*.68);
+  const pScale=cvs.width/120;c.scale(pScale,pScale);
   const dir=1,skin1=charData.skin,skin2=charData.skinSh,skinSh=darken(charData.skinSh,.08);
   // Shadow
   c.fillStyle='rgba(0,0,0,.13)';c.beginPath();c.ellipse(0,40,30,7,0,0,Math.PI*2);c.fill();
@@ -8131,7 +8150,7 @@ function buildCharSelect(){
     card.dataset.charId=ch.id;
     // Canvas
     const cvs=document.createElement('canvas');
-    cvs.width=120;cvs.height=140;
+    cvs.width=80;cvs.height=90;
     card.appendChild(cvs);
     // Name
     const nameDiv=document.createElement('div');
