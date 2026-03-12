@@ -7710,34 +7710,47 @@ function flyToDestination(roomIdx){
 // ---- MAP ----
 function openMap(){document.getElementById('map-overlay').style.display='flex';renderMap()}
 function closeMap(){document.getElementById('map-overlay').style.display='none'}
+const MAP_AREAS=[
+  {name:'School',icon:'\u{1F3EB}',x:20,y:130,rooms:[0,1,2,3,4,5,6,7,8],w:70,h:45},
+  {name:'City',icon:'\u{1F3D9}\u{FE0F}',x:110,y:130,rooms:[9,10,11,12,13],w:65,h:45},
+  {name:'Fun',icon:'\u{1F3AC}',x:195,y:130,rooms:[14,15],w:55,h:45},
+  {name:'Airport',icon:'\u2708\u{FE0F}',x:270,y:130,rooms:[16],w:55,h:45},
+  {name:'France',icon:'\u{1F5FC}',x:40,y:35,rooms:[17],w:55,h:38},
+  {name:'N. Pole',icon:'\u{1F3D4}\u{FE0F}',x:120,y:28,rooms:[18],w:55,h:38},
+  {name:'Hungary',icon:'\u{1F3DB}\u{FE0F}',x:210,y:35,rooms:[19],w:58,h:38},
+  {name:'Egypt',icon:'\u{1F3DC}\u{FE0F}',x:295,y:28,rooms:[20],w:55,h:38},
+];
 function renderMap(){
   const mc=document.getElementById('map-canvas'),mx=mc.getContext('2d'),mw=mc.width,mh=mc.height;
   mx.clearRect(0,0,mw,mh);
   const bg=mx.createLinearGradient(0,0,0,mh);bg.addColorStop(0,'#bae6fd');bg.addColorStop(1,'#e0f2fe');mx.fillStyle=bg;mx.fillRect(0,0,mw,mh);
-  const areas=[
-    {name:'School',icon:'🏫',x:20,y:130,rooms:[0,1,2,3,4,5,6,7,8],w:70,h:45},
-    {name:'City',icon:'🏙️',x:110,y:130,rooms:[9,10,11,12,13],w:65,h:45},
-    {name:'Fun',icon:'🎬',x:195,y:130,rooms:[14,15],w:55,h:45},
-    {name:'Airport',icon:'✈️',x:270,y:130,rooms:[16],w:55,h:45},
-    {name:'France',icon:'🗼',x:40,y:35,rooms:[17],w:55,h:38},
-    {name:'N. Pole',icon:'🏔️',x:120,y:28,rooms:[18],w:55,h:38},
-    {name:'Hungary',icon:'🏛️',x:210,y:35,rooms:[19],w:58,h:38},
-    {name:'Egypt',icon:'🏜️',x:295,y:28,rooms:[20],w:55,h:38},
-  ];
   mx.strokeStyle='#94a3b8';mx.lineWidth=2;mx.setLineDash([4,4]);
   mx.beginPath();mx.moveTo(90,152);mx.lineTo(110,152);mx.stroke();
   mx.beginPath();mx.moveTo(175,152);mx.lineTo(195,152);mx.stroke();
   mx.beginPath();mx.moveTo(250,152);mx.lineTo(270,152);mx.stroke();
-  for(const dest of [areas[4],areas[5],areas[6],areas[7]]){mx.beginPath();mx.moveTo(297,130);mx.lineTo(dest.x+dest.w/2,dest.y+dest.h);mx.stroke()}
+  for(const dest of [MAP_AREAS[4],MAP_AREAS[5],MAP_AREAS[6],MAP_AREAS[7]]){mx.beginPath();mx.moveTo(297,130);mx.lineTo(dest.x+dest.w/2,dest.y+dest.h);mx.stroke()}
   mx.setLineDash([]);
-  for(const area of areas){
+  for(const area of MAP_AREAS){
     const cur=area.rooms.includes(state.currentRoom);
     mx.fillStyle=cur?'#dbeafe':'#f0f9ff';
     mx.strokeStyle=cur?'#6366f1':'#93c5fd';mx.lineWidth=cur?3:1.5;
     rr(mx,area.x,area.y,area.w,area.h,8,true,true);
     mx.font='18px '+FONT;mx.textAlign='center';mx.fillText(area.icon,area.x+area.w/2,area.y+area.h/2+2);
-    mx.fillStyle='#374151';mx.font='bold 8px '+FONT;mx.fillText(area.name,area.x+area.w/2,area.y+area.h+11);
+    mx.fillStyle=cur?'#4338ca':'#374151';mx.font='bold 8px '+FONT;mx.fillText(area.name,area.x+area.w/2,area.y+area.h+11);
     if(cur){mx.fillStyle='#6366f1';mx.beginPath();mx.arc(area.x+area.w/2,area.y-5,4,0,Math.PI*2);mx.fill()}
+    if(!cur){mx.fillStyle='rgba(99,102,241,.15)';mx.font='bold 7px '+FONT;mx.fillText('\u{1F449} Tap',area.x+area.w/2,area.y+area.h+20)}
+  }
+}
+function handleMapTap(px,py){
+  for(const area of MAP_AREAS){
+    if(px>=area.x&&px<=area.x+area.w&&py>=area.y&&py<=area.y+area.h){
+      if(area.rooms.includes(state.currentRoom)){closeMap();return}
+      state.currentRoom=area.rooms[0];
+      player.x=W*.3;player.y=FLOOR_BOT-30;player.dir=1;
+      switchRoom();closeMap();
+      showToast('Traveled to '+area.name+'! \u{1F5FA}\u{FE0F}');
+      return;
+    }
   }
 }
 // ---- MISSION TRACKER HUD ----
@@ -7766,6 +7779,7 @@ function setupUI(){
   document.getElementById('btn-map').onclick=openMap;
   document.getElementById('close-map').onclick=closeMap;
   document.getElementById('map-overlay').onclick=e=>{if(e.target.id==='map-overlay')closeMap()};
+  document.getElementById('map-canvas').onclick=e=>{const mc=e.target;const rect=mc.getBoundingClientRect();const scaleX=mc.width/rect.width;const scaleY=mc.height/rect.height;const px=(e.clientX-rect.left)*scaleX;const py=(e.clientY-rect.top)*scaleY;handleMapTap(px,py)};
   document.getElementById('close-destination').onclick=()=>document.getElementById('destination-dialog').classList.remove('open');
   document.getElementById('destination-dialog').onclick=e=>{if(e.target.id==='destination-dialog')document.getElementById('destination-dialog').classList.remove('open')};
   document.getElementById('accept-mission').onclick=()=>{if(pendingMission)acceptMission(pendingMission.npc.name,pendingMission.mission)};
