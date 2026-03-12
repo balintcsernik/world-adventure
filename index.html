@@ -2146,9 +2146,11 @@ function renderChalkboard(){
   // Toolbar
   const tbY=H-toolbarH;cs._tbY=tbY;
   ctx.fillStyle='rgba(0,0,0,.35)';ctx.fillRect(0,tbY,W,toolbarH);
-  const cCount=cs.colors.length,cSize=16,cGap=6;
+  const cCount=cs.colors.length,btnW=36,btnGap=4,toolsW=btnW*2+btnGap+8;
+  const availW=W-toolsW-12;
+  const cSize=Math.min(16,Math.floor((availW/(cCount*2+cCount-1)))),cGap=Math.min(6,Math.max(2,Math.floor((availW-cCount*cSize*2)/(cCount-1))));
   const totalCW=cCount*(cSize*2+cGap)-cGap;
-  let cx=(W-totalCW)/2-30,cY=tbY+toolbarH/2;
+  let cx=6,cY=tbY+toolbarH/2;
   cs._colorStartX=cx;cs._colorSize=cSize;cs._colorGap=cGap;cs._colorCY=cY;
   for(let i=0;i<cCount;i++){
     ctx.fillStyle=cs.colors[i];ctx.beginPath();ctx.arc(cx+cSize,cY,cSize,0,Math.PI*2);ctx.fill();
@@ -2156,9 +2158,13 @@ function renderChalkboard(){
     cx+=cSize*2+cGap;
   }
   // Eraser
-  const eraserX=cx+40;cs._eraserX=eraserX;
-  ctx.fillStyle=cs.tool==='eraser'?'#fff':'rgba(255,255,255,.3)';rr(ctx,eraserX-20,cY-16,40,32,8,true,false);
-  ctx.fillStyle=cs.tool==='eraser'?'#047857':'#fff';ctx.font='20px '+FONT;ctx.textAlign='center';ctx.fillText('\u{1F9FD}',eraserX,cY+7);
+  const eraserX=W-toolsW+btnW/2;cs._eraserX=eraserX;
+  ctx.fillStyle=cs.tool==='eraser'?'#fff':'rgba(255,255,255,.3)';rr(ctx,eraserX-btnW/2,cY-16,btnW,32,8,true,false);
+  ctx.fillStyle=cs.tool==='eraser'?'#047857':'#fff';ctx.font='18px '+FONT;ctx.textAlign='center';ctx.fillText('\u{1F9FD}',eraserX,cY+7);
+  // Clear all
+  const clearX=eraserX+btnW+btnGap;cs._clearX=clearX;
+  ctx.fillStyle='rgba(239,68,68,.45)';rr(ctx,clearX-btnW/2,cY-16,btnW,32,8,true,false);
+  ctx.fillStyle='#fff';ctx.font='16px '+FONT;ctx.textAlign='center';ctx.fillText('\u{1F5D1}\u{FE0F}',clearX,cY+6);
   // Close + title
   drawMiniGameClose();
   ctx.fillStyle='#fff';ctx.font='bold 16px '+FONT;ctx.textAlign='center';ctx.fillText('Chalkboard Drawing',W/2,36);
@@ -2169,6 +2175,8 @@ function handleChalkboardPointerDown(px,py){
   if(py>cs._tbY){
     // Eraser
     if(Math.abs(px-cs._eraserX)<26&&Math.abs(py-cs._colorCY)<20){cs.tool=cs.tool==='eraser'?'pencil':'eraser';sfxInteract();return}
+    // Clear all
+    if(Math.abs(px-cs._clearX)<26&&Math.abs(py-cs._colorCY)<20){const dc=cs.ob._drawCanvas.getContext('2d');dc.fillStyle='#047857';dc.fillRect(0,0,400,200);sfxInteract();return}
     // Colors
     let cx=cs._colorStartX;const sz=cs._colorSize,gap=cs._colorGap;
     for(let i=0;i<cs.colors.length;i++){
@@ -7158,7 +7166,7 @@ function setupInput(){
     const t=e.changedTouches[0];
     if(bookReaderActive){e.preventDefault();handleBookReaderTap(t.clientX,t.clientY);return}
     if(bookshelfActive){handleBookshelfTap(t.clientX,t.clientY);return}
-    if(chalkboardActive){handleChalkboardPointerDown(t.clientX,t.clientY);return}
+    if(chalkboardActive){e.preventDefault();handleChalkboardPointerDown(t.clientX,t.clientY);return}
     if(miniGameActive){
       mgTouchStart={x:t.clientX,y:t.clientY};
       const mgs=miniGameActive.gs;
@@ -7176,9 +7184,9 @@ function setupInput(){
       return;
     }
     if(transitioning)return;handleTap(t.clientX,t.clientY)
-  });
+  },{passive:false});
   canvas.addEventListener('touchmove',e=>{
-    if(bookReaderActive||bookshelfActive||chalkboardActive){if(chalkboardActive){const t=e.changedTouches[0];handleChalkboardPointerMove(t.clientX,t.clientY)}return}
+    if(bookReaderActive||bookshelfActive||chalkboardActive){if(chalkboardActive){e.preventDefault();const t=e.changedTouches[0];handleChalkboardPointerMove(t.clientX,t.clientY)}return}
     if(miniGameActive){
       const t=e.changedTouches[0];
       const mgs=miniGameActive.gs;
@@ -7187,7 +7195,7 @@ function setupInput(){
         mgs.px=Math.max(mgs.pw/2,Math.min(7-mgs.pw/2,(t.clientX-mox)/(mgw/7)));
       }
     }
-  });
+  },{passive:false});
   canvas.addEventListener('touchend',e=>{
     if(bookReaderActive)return;
     if(bookshelfActive)return;
