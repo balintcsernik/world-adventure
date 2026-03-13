@@ -5,15 +5,16 @@ import { CHARACTERS } from '../constants';
 const GameContext = createContext(null);
 
 export function GameProvider({ children }) {
-  const [coins, setCoins] = useState(0);
+  const [coins, setCoins] = useState(100);
   const [currentRoom, setCurrentRoom] = useState(0);
   const [character, setCharacter] = useState(null);
   const [inventory, setInventory] = useState([]);
   const [equipped, setEquipped] = useState({hat:null,cape:null,shoes:null,tool:null,accessory:null});
   const [activeMissions, setActiveMissions] = useState({});
-  const [gameScreen, setGameScreen] = useState('splash'); // splash, charSelect, playing, cityHub
+  const [gameScreen, setGameScreen] = useState('splash');
   const [cityHubOpen, setCityHubOpen] = useState(false);
-  const [activeView, setActiveView] = useState('map'); // map, classroom, gym
+  const [activeView, setActiveView] = useState('map');
+  const [selectedNodeIdx, setSelectedNodeIdx] = useState(null);
   const engineInitialized = useRef(false);
 
   // Derive the full selectedCharacter object from the character ID
@@ -48,6 +49,7 @@ export function GameProvider({ children }) {
     gameScreen, setGameScreen,
     cityHubOpen, setCityHubOpen,
     activeView, setActiveView,
+    selectedNodeIdx, setSelectedNodeIdx,
     syncFromEngine, updateCoins, selectCharacter,
     engineInitialized,
   };

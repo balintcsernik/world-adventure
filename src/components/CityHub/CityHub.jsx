@@ -2,21 +2,22 @@ import React from 'react';
 import CityTopBar from './CityTopBar';
 import CityDock from './CityDock';
 import CityBuildingsLayer from './CityBuildingsLayer';
+import CityEnvironment from './CityEnvironment';
 import './CityHub.css';
 
 export default function CityHub() {
   return (
     <div id="city-hub">
-      {/* Layer 1: Environment background — gradient landscape with biomes */}
-      <div id="city-env-bg" />
+      {/* Layer 1: Full illustrated environment background (SVG) */}
+      <CityEnvironment />
 
-      {/* Layer 2: Interactive Map Nodes (buildings) */}
+      {/* Layer 2: Interactive Map Nodes (SVG buildings) */}
       <CityBuildingsLayer />
 
       {/* Legacy container kept for engine compat */}
       <div id="city-buildings" style={{ display: 'none' }} />
 
-      {/* Layer 3: HUD / Floating UI */}
+      {/* Layer 3: Persistent HUD */}
       <CityTopBar />
 
       <div id="city-welcome">

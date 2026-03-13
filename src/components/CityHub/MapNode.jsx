@@ -1,26 +1,23 @@
 import React, { useState, useCallback } from 'react';
+import { MapPinIcon } from './icons/HudIcons';
 
 /**
- * MapNode — An interactive city map node with:
- * - Physical grounding via drop-shadow
- * - Squash-and-stretch animation on tap
- * - Animated floating Map Pin above selected node
+ * MapNode — An interactive city-map node.
  *
  * Props:
- *   position: { x: number, y: number } — percentage-based placement
- *   label: string — display name
- *   icon: string — emoji or icon
- *   isSelected: boolean — whether this is the current/active node
- *   onTap: () => void — click handler
- *   glowColor: string — color for hover glow
- *   children: ReactNode — building component to render inside
+ *   position  { x, y }     — 0-1 percentage placement on the map
+ *   label     string        — name shown on the wooden sign
+ *   imageAsset ReactNode    — SVG building component rendered inside
+ *   isSelected boolean      — drives floating pin + glow
+ *   onTap     () => void
+ *   glowColor string
  */
-export default function MapNode({ position, label, isSelected, onTap, glowColor, children }) {
+export default function MapNode({ position, label, imageAsset, isSelected, onTap, glowColor, children }) {
   const [isTapped, setIsTapped] = useState(false);
 
   const handleClick = useCallback(() => {
     setIsTapped(true);
-    setTimeout(() => setIsTapped(false), 300);
+    setTimeout(() => setIsTapped(false), 350);
     if (onTap) onTap();
   }, [onTap]);
 
@@ -39,7 +36,7 @@ export default function MapNode({ position, label, isSelected, onTap, glowColor,
       }}
       onClick={handleClick}
     >
-      {/* Hover glow */}
+      {/* Hover / selected glow */}
       <div
         className="map-node__glow"
         style={{
@@ -47,20 +44,22 @@ export default function MapNode({ position, label, isSelected, onTap, glowColor,
         }}
       />
 
-      {/* Building content with grounding shadow */}
+      {/* Building content — physical grounding via drop-shadow */}
       <div className="map-node__content">
-        {children}
+        {imageAsset || children}
       </div>
 
-      {/* Chunky wooden sign */}
+      {/* Chunky wooden sign post */}
       <div className="map-node__sign">
         <div className="map-node__sign-post" />
         <div className="map-node__sign-board">{label}</div>
       </div>
 
-      {/* Animated floating pin — visible when selected */}
+      {/* Animated floating Map Pin — visible when selected */}
       {isSelected && (
-        <div className="map-node__pin">&#128205;</div>
+        <div className="map-node__pin">
+          <MapPinIcon size={28} />
+        </div>
       )}
     </div>
   );

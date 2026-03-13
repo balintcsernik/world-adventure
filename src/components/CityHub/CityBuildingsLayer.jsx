@@ -1,7 +1,7 @@
 import React, { useCallback } from 'react';
 import { CITY_BUILDINGS, MAP_AREAS } from '../../constants';
 import { state, handleBuildingTap } from '../../engine/gameEngine';
-import BUILDING_COMPONENTS from './Buildings';
+import SVG_BUILDINGS from './icons/BuildingSvgs';
 import MapNode from './MapNode';
 
 export default function CityBuildingsLayer() {
@@ -17,7 +17,7 @@ export default function CityBuildingsLayer() {
 function CityMapNode({ bldg }) {
   const area = MAP_AREAS[bldg.areaIdx];
   const isCurrent = area.rooms.includes(state.currentRoom);
-  const BuildingComponent = BUILDING_COMPONENTS[bldg.buildFn];
+  const SvgBuilding = SVG_BUILDINGS[bldg.buildFn];
 
   const handleTap = useCallback(() => {
     handleBuildingTap(bldg.areaIdx);
@@ -30,8 +30,7 @@ function CityMapNode({ bldg }) {
       isSelected={isCurrent}
       onTap={handleTap}
       glowColor={bldg.glowColor}
-    >
-      {BuildingComponent && <BuildingComponent bldg={bldg} />}
-    </MapNode>
+      imageAsset={SvgBuilding ? <SvgBuilding w={bldg.buildW} h={bldg.buildH} /> : null}
+    />
   );
 }

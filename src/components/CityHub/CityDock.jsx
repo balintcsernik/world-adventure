@@ -2,45 +2,60 @@ import React from 'react';
 import { useGame } from '../../contexts/GameContext';
 import { CHARACTERS } from '../../constants';
 
+/* ─── Character Portrait with glow + scale animation ─── */
 function CharPortrait({ char, isActive, onSelect }) {
-  const portraitStyle = {
-    display: 'flex', flexDirection: 'column', alignItems: 'center',
-    cursor: 'pointer', padding: 6, borderRadius: 16,
-    border: `3px solid ${isActive ? '#fbbf24' : 'transparent'}`,
-    background: isActive ? 'rgba(251,191,36,0.1)' : 'transparent',
-    boxShadow: isActive
-      ? '0 0 16px rgba(251,191,36,0.35), 0 4px 12px rgba(251,191,36,0.2)'
-      : 'none',
-    transform: isActive ? 'scale(1.1)' : 'scale(1)',
-    transition: 'transform 0.25s cubic-bezier(.34,1.56,.64,1), border-color 0.2s ease, background 0.2s ease, box-shadow 0.3s ease',
-    minWidth: 56,
-  };
-
-  const avatarStyle = {
-    width: 44, height: 44, borderRadius: 12,
-    background: `linear-gradient(135deg, ${char.outfit}22, ${char.outfit}44)`,
-    border: `2.5px solid ${isActive ? '#fbbf24' : char.outfit + '33'}`,
-    boxShadow: isActive
-      ? `0 0 10px rgba(251,191,36,0.25), inset 0 0 8px ${char.outfit}22`
-      : `0 2px 6px rgba(0,0,0,0.08)`,
-    display: 'flex', alignItems: 'center', justifyContent: 'center',
-    fontSize: 22,
-    transition: 'border-color 0.2s ease, box-shadow 0.3s ease',
-  };
-
-  const nameStyle = {
-    fontSize: 9, fontWeight: 800, color: isActive ? '#92400e' : '#374151',
-    marginTop: 3, letterSpacing: '0.02em',
-    transition: 'color 0.2s ease',
-  };
-
   return (
-    <div style={portraitStyle} onClick={() => onSelect(char.id)}>
-      <div style={avatarStyle}>
+    <button
+      className={`char-portrait${isActive ? ' char-portrait--active' : ''}`}
+      onClick={() => onSelect(char.id)}
+      style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        cursor: 'pointer', padding: 6, borderRadius: 16,
+        border: `3px solid ${isActive ? '#fbbf24' : 'transparent'}`,
+        background: isActive ? 'rgba(251,191,36,0.12)' : 'transparent',
+        boxShadow: isActive
+          ? '0 0 18px rgba(251,191,36,0.4), 0 0 6px rgba(251,191,36,0.25), 0 4px 12px rgba(251,191,36,0.2)'
+          : 'none',
+        transform: isActive ? 'scale(1.12)' : 'scale(1)',
+        transition: 'transform 0.3s cubic-bezier(.34,1.56,.64,1), border-color 0.2s, background 0.2s, box-shadow 0.35s',
+        minWidth: 56, outline: 'none', fontFamily: 'Nunito, sans-serif',
+        WebkitTapHighlightColor: 'transparent',
+      }}
+    >
+      {/* Avatar circle */}
+      <div style={{
+        width: 46, height: 46, borderRadius: 14,
+        background: `linear-gradient(135deg, ${char.outfit}22, ${char.outfit}55)`,
+        border: `2.5px solid ${isActive ? '#fbbf24' : char.outfit + '44'}`,
+        boxShadow: isActive
+          ? `0 0 12px rgba(251,191,36,0.3), inset 0 0 10px ${char.outfit}22`
+          : `0 3px 8px rgba(0,0,0,0.1)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: 24,
+        transition: 'border-color 0.2s, box-shadow 0.35s',
+        position: 'relative',
+      }}>
         {char.icon}
+        {/* Active glow ring */}
+        {isActive && (
+          <div style={{
+            position: 'absolute', inset: -4, borderRadius: 18,
+            border: '2px solid rgba(251,191,36,0.3)',
+            animation: 'charGlowPulse 2s ease-in-out infinite',
+            pointerEvents: 'none',
+          }} />
+        )}
       </div>
-      <span style={nameStyle}>{char.name}</span>
-    </div>
+      {/* Name label */}
+      <span style={{
+        fontSize: 9, fontWeight: 800,
+        color: isActive ? '#92400e' : '#374151',
+        marginTop: 4, letterSpacing: '0.02em',
+        transition: 'color 0.2s',
+      }}>
+        {char.name}
+      </span>
+    </button>
   );
 }
 
