@@ -6,9 +6,10 @@ import {
 } from './icons/HudIcons';
 
 /* ─── Enamel-Pin Token ─── */
-function Token({ children, label, wide, onClick, title }) {
+function Token({ children, label, wide, onClick, title, id }) {
   return (
     <button
+      id={id}
       className="city-token"
       onClick={onClick}
       title={title}
@@ -79,12 +80,12 @@ export default function CityTopBar() {
       </Token>
 
       {/* Settings */}
-      <Token title="Settings" onClick={() => {}}>
+      <Token id="city-settings-btn" title="Settings" onClick={() => {}}>
         <SettingsIcon size={30} />
       </Token>
 
       {/* Close */}
-      <Token title="Back to Room" onClick={() => {
+      <Token id="city-close-btn" title="Back to Room" onClick={() => {
         document.getElementById('city-hub')?.classList.remove('show');
       }}>
         <CloseIcon size={30} />
