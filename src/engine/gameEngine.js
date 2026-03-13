@@ -8286,6 +8286,7 @@ function drawCharPreview(cvs,charData){
 
 function buildCharSelect(){
   const container=document.getElementById('char-cards');
+  if(!container)return;
   container.innerHTML='';
   let selectedId=null;
   CHARACTERS.forEach(ch=>{
