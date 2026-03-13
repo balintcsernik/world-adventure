@@ -804,7 +804,8 @@ function saveGame(){state.playerX=player.x;state.playerY=player.y;state.playerDi
 function loadGame(){try{let d=localStorage.getItem(SAVE_KEY);if(d){Object.assign(state,JSON.parse(d));if(!state.challengeProgress)state.challengeProgress={};if(!state.foodSpawns)state.foodSpawns={};return true}d=localStorage.getItem('world_adventure_v3');if(d){const old=JSON.parse(d);Object.assign(state,old);state.unlockedRoom=13;state.activeMissions={};state.missionCounts={};if(!state.challengeProgress)state.challengeProgress={};saveGame();return true}}catch(e){}return false}
 
 // ---- RESIZE ----
-function resize(){W=window.innerWidth;H=window.innerHeight;canvas.width=W;canvas.height=H;FLOOR_TOP=H*.55;FLOOR_BOT=H*.9;joystick.baseX=72;joystick.baseY=H-72;joystick.x=joystick.baseX;joystick.y=joystick.baseY}
+function resize(){const vw=window.innerWidth,vh=window.innerHeight,MIN_W=550,MIN_H=480,scale=Math.max(1,MIN_W/vw,MIN_H/vh);W=Math.round(vw*scale);H=Math.round(vh*scale);canvas.width=W;canvas.height=H;FLOOR_TOP=H*.55;FLOOR_BOT=H*.9;joystick.baseX=Math.round(72*scale);joystick.baseY=H-Math.round(72*scale);joystick.x=joystick.baseX;joystick.y=joystick.baseY;joystick.radius=Math.round(44*scale)}
+function toVirtual(cx,cy){const r=canvas.getBoundingClientRect();return[cx*W/r.width,cy*H/r.height]}
 
 // ---- PARTICLES ----
 function spawnP(x,y,c,n=8){for(let i=0;i<n;i++){const a=Math.PI*2/n*i+Math.random()*.5,s=1.5+Math.random()*2.5;particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-1.5,life:1,decay:.02+Math.random()*.02,size:3+Math.random()*4,color:c})}}
@@ -7163,40 +7164,40 @@ function switchRoom(){
 function setupInput(){
   const jz=document.getElementById('joystick-zone');
   jz.addEventListener('touchstart',e=>{e.preventDefault();const t=e.changedTouches[0];touchId=t.identifier;joystick.active=true},{passive:false});
-  window.addEventListener('touchmove',e=>{if(!joystick.active)return;for(const t of e.changedTouches)if(t.identifier===touchId){const dx=t.clientX-joystick.baseX,dy=t.clientY-joystick.baseY,d=Math.sqrt(dx*dx+dy*dy),m=joystick.radius;if(d>m){joystick.dx=dx/d*m;joystick.dy=dy/d*m}else{joystick.dx=dx;joystick.dy=dy}joystick.x=joystick.baseX+joystick.dx;joystick.y=joystick.baseY+joystick.dy}},{passive:false});
+  window.addEventListener('touchmove',e=>{if(!joystick.active)return;for(const t of e.changedTouches)if(t.identifier===touchId){const[vx,vy]=toVirtual(t.clientX,t.clientY);const dx=vx-joystick.baseX,dy=vy-joystick.baseY,d=Math.sqrt(dx*dx+dy*dy),m=joystick.radius;if(d>m){joystick.dx=dx/d*m;joystick.dy=dy/d*m}else{joystick.dx=dx;joystick.dy=dy}joystick.x=joystick.baseX+joystick.dx;joystick.y=joystick.baseY+joystick.dy}},{passive:false});
   const ej=e=>{for(const t of e.changedTouches)if(t.identifier===touchId){joystick.active=false;joystick.dx=0;joystick.dy=0;joystick.x=joystick.baseX;joystick.y=joystick.baseY;touchId=null}};
   window.addEventListener('touchend',ej);window.addEventListener('touchcancel',ej);
   canvas.addEventListener('touchstart',e=>{
-    const t=e.changedTouches[0];
-    if(bookReaderActive){e.preventDefault();handleBookReaderTap(t.clientX,t.clientY);return}
-    if(bookshelfActive){handleBookshelfTap(t.clientX,t.clientY);return}
-    if(chalkboardActive){e.preventDefault();handleChalkboardPointerDown(t.clientX,t.clientY);return}
+    const t=e.changedTouches[0];const[tx,ty]=toVirtual(t.clientX,t.clientY);
+    if(bookReaderActive){e.preventDefault();handleBookReaderTap(tx,ty);return}
+    if(bookshelfActive){handleBookshelfTap(tx,ty);return}
+    if(chalkboardActive){e.preventDefault();handleChalkboardPointerDown(tx,ty);return}
     if(miniGameActive){
-      mgTouchStart={x:t.clientX,y:t.clientY};
+      mgTouchStart={x:tx,y:ty};
       const mgs=miniGameActive.gs;
       if(mgs.mg.type==='breaker'){
         const mgw=Math.min(W*0.9,420),mox=(W-mgw)/2;
-        mgs.px=Math.max(mgs.pw/2,Math.min(7-mgs.pw/2,(t.clientX-mox)/(mgw/7)));
+        mgs.px=Math.max(mgs.pw/2,Math.min(7-mgs.pw/2,(tx-mox)/(mgw/7)));
         if(!mgs.started)mgs.started=true;
       }
       if(mgs.mg.type==='invaders'){
-        if(t.clientX<W*0.35)mgs.px=Math.max(0,mgs.px-0.8);
-        else if(t.clientX>W*0.65)mgs.px=Math.min(7,mgs.px+0.8);
+        if(tx<W*0.35)mgs.px=Math.max(0,mgs.px-0.8);
+        else if(tx>W*0.65)mgs.px=Math.min(7,mgs.px+0.8);
         else{if(mgs.shootCooldown===0){mgs.bullets.push({x:mgs.px,y:8.5});mgs.shootCooldown=8}}
       }
-      handleTap(t.clientX,t.clientY);
+      handleTap(tx,ty);
       return;
     }
-    if(transitioning)return;handleTap(t.clientX,t.clientY)
+    if(transitioning)return;handleTap(tx,ty)
   },{passive:false});
   canvas.addEventListener('touchmove',e=>{
-    if(bookReaderActive||bookshelfActive||chalkboardActive){if(chalkboardActive){e.preventDefault();const t=e.changedTouches[0];handleChalkboardPointerMove(t.clientX,t.clientY)}return}
+    if(bookReaderActive||bookshelfActive||chalkboardActive){if(chalkboardActive){e.preventDefault();const t=e.changedTouches[0];const[mx,my]=toVirtual(t.clientX,t.clientY);handleChalkboardPointerMove(mx,my)}return}
     if(miniGameActive){
-      const t=e.changedTouches[0];
+      const t=e.changedTouches[0];const[mx,my]=toVirtual(t.clientX,t.clientY);
       const mgs=miniGameActive.gs;
       if(mgs.mg.type==='breaker'){
         const mgw=Math.min(W*0.9,420),mox=(W-mgw)/2;
-        mgs.px=Math.max(mgs.pw/2,Math.min(7-mgs.pw/2,(t.clientX-mox)/(mgw/7)));
+        mgs.px=Math.max(mgs.pw/2,Math.min(7-mgs.pw/2,(mx-mox)/(mgw/7)));
       }
     }
   },{passive:false});
@@ -7205,8 +7206,8 @@ function setupInput(){
     if(bookshelfActive)return;
     if(chalkboardActive){chalkboardActive.drawing=false;return}
     if(miniGameActive&&mgTouchStart){
-      const t=e.changedTouches[0];
-      const dx=t.clientX-mgTouchStart.x,dy=t.clientY-mgTouchStart.y;
+      const t=e.changedTouches[0];const[ex,ey]=toVirtual(t.clientX,t.clientY);
+      const dx=ex-mgTouchStart.x,dy=ey-mgTouchStart.y;
       const mgs=miniGameActive.gs;
       if(mgs.mg.type==='snake'&&(Math.abs(dx)>20||Math.abs(dy)>20)){
         if(Math.abs(dx)>Math.abs(dy)){
@@ -7220,8 +7221,8 @@ function setupInput(){
       mgTouchStart=null;
     }
   });
-  canvas.addEventListener('mousedown',e=>{if(bookReaderActive){handleBookReaderTap(e.clientX,e.clientY);return}if(bookshelfActive){handleBookshelfTap(e.clientX,e.clientY);return}if(chalkboardActive){handleChalkboardPointerDown(e.clientX,e.clientY);return}if(transitioning&&!miniGameActive)return;handleTap(e.clientX,e.clientY)});
-  canvas.addEventListener('mousemove',e=>{if(bookReaderActive)return;if(bookshelfActive)return;if(chalkboardActive)handleChalkboardPointerMove(e.clientX,e.clientY)});
+  canvas.addEventListener('mousedown',e=>{const[mx,my]=toVirtual(e.clientX,e.clientY);if(bookReaderActive){handleBookReaderTap(mx,my);return}if(bookshelfActive){handleBookshelfTap(mx,my);return}if(chalkboardActive){handleChalkboardPointerDown(mx,my);return}if(transitioning&&!miniGameActive)return;handleTap(mx,my)});
+  canvas.addEventListener('mousemove',e=>{if(bookReaderActive)return;if(bookshelfActive)return;if(chalkboardActive){const[mx,my]=toVirtual(e.clientX,e.clientY);handleChalkboardPointerMove(mx,my)}});
   canvas.addEventListener('mouseup',e=>{if(bookReaderActive)return;if(bookshelfActive)return;if(chalkboardActive)chalkboardActive.drawing=false});
   const keys={};
   window.addEventListener('keydown',e=>{
