@@ -2,7 +2,7 @@ import React from 'react';
 import { useGame } from '../../contexts/GameContext';
 import {
   CoinIcon, GlobeIcon, BellIcon, ClipboardIcon,
-  MusicIcon, BackpackIcon, SettingsIcon, CloseIcon,
+  MusicIcon, DressIcon, BackpackIcon, SettingsIcon, CloseIcon,
 } from './icons/HudIcons';
 
 /* ─── Enamel-Pin Token ─── */
@@ -22,7 +22,6 @@ function Token({ children, label, wide, onClick, title }) {
         cursor: 'pointer', userSelect: 'none',
         transition: 'transform 0.15s ease, box-shadow 0.15s ease',
         flexShrink: 0, lineHeight: 1,
-        /* no native button chrome */
         outline: 'none', color: 'inherit',
       }}
     >
@@ -44,59 +43,51 @@ export default function CityTopBar() {
     <div id="city-top-bar">
       {/* Currency */}
       <Token wide label={<span style={{ color: '#d97706' }}>{coins}</span>} title="Coins">
-        <CoinIcon size={28} />
+        <CoinIcon size={30} />
       </Token>
 
       {/* Globe / Places */}
-      <Token wide label={<span style={{ color: '#6b7280', fontSize: 11 }}>8 Places</span>} title="World Map">
-        <GlobeIcon size={28} />
+      <Token title="World Map">
+        <GlobeIcon size={30} />
       </Token>
 
       {/* Notifications / Missions */}
-      <Token wide label={<span style={{ color: '#d97706' }}>{missionCount}</span>} title="Missions">
-        <BellIcon size={28} />
+      <Token title="Missions">
+        <BellIcon size={30} />
       </Token>
 
       {/* Clipboard */}
       <Token title="Clipboard">
-        <ClipboardIcon size={28} />
+        <ClipboardIcon size={30} />
       </Token>
 
       {/* Music */}
       <Token title="Music">
-        <MusicIcon size={28} />
+        <MusicIcon size={30} />
       </Token>
 
-      {/* Outfits — color dot cluster */}
-      <Token wide title="Outfits">
-        <div style={{ display: 'flex', gap: 4, alignItems: 'center' }}>
-          {OUTFIT_COLORS.map((color, i) => (
-            <svg key={i} width="16" height="16" viewBox="0 0 16 16">
-              <circle cx="8" cy="8" r="7" fill={color} stroke="rgba(255,255,255,0.85)" strokeWidth="1.5"/>
-              <circle cx="6" cy="6" r="2.5" fill="rgba(255,255,255,0.25)"/>
-            </svg>
-          ))}
-        </div>
-      </Token>
+      {/* Outfits — dress icons in various colors (matching reference) */}
+      {OUTFIT_COLORS.map((color, i) => (
+        <Token key={i} title="Outfits">
+          <DressIcon size={30} color={color} />
+        </Token>
+      ))}
 
       {/* Backpack */}
       <Token title="Backpack">
-        <BackpackIcon size={28} />
+        <BackpackIcon size={30} />
       </Token>
-
-      {/* Spacer */}
-      <div style={{ flex: 1 }} />
 
       {/* Settings */}
       <Token title="Settings" onClick={() => {}}>
-        <SettingsIcon size={28} />
+        <SettingsIcon size={30} />
       </Token>
 
       {/* Close */}
       <Token title="Back to Room" onClick={() => {
         document.getElementById('city-hub')?.classList.remove('show');
       }}>
-        <CloseIcon size={28} />
+        <CloseIcon size={30} />
       </Token>
     </div>
   );

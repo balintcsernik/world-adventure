@@ -3,7 +3,7 @@
 /* === Landscape Orientation Lock === */
 @media (orientation: portrait) {
   #city-hub::before {
-    content: '📱 Please rotate your device to landscape';
+    content: '\U0001F4F1 Please rotate your device to landscape';
     position: fixed; inset: 0; z-index: 9999;
     background: linear-gradient(135deg, #6366f1, #a78bfa);
     color: #fff; font-size: 18px; font-weight: 800;
@@ -31,6 +31,17 @@
 /* === Layer 2: Buildings Container === */
 #city-buildings { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
 .city-buildings-react { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
+
+/* === Mascot Character === */
+#city-mascot {
+  position: absolute;
+  top: 18%; left: 50%;
+  transform: translateX(-50%);
+  z-index: 12;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 12px rgba(0,0,0,0.25));
+  animation: mascotBob 3s ease-in-out infinite;
+}
 
 /* === MapNode — Interactive Map Nodes === */
 .map-node {
@@ -65,21 +76,23 @@
   margin-top: 2px; pointer-events: none;
 }
 .map-node__sign-post {
-  width: 5px; height: 16px;
+  width: 6px; height: 18px;
   background: linear-gradient(90deg, #8b4513, #a0522d, #8b4513);
   border-radius: 2px;
   box-shadow: 1px 0 0 #6b3410;
 }
 .map-node__sign-board {
   background: linear-gradient(180deg, #deb887, #c8a260);
-  color: #4a2c0a; font-size: 10px; font-weight: 900;
-  padding: 4px 12px; border-radius: 6px;
+  color: #4a2c0a; font-size: 11px; font-weight: 900;
+  padding: 5px 14px; border-radius: 6px;
   border: 2.5px solid #8b4513;
   border-bottom: 5px solid #6b3410;
   box-shadow: 0 3px 0 #5a2d0e, 0 4px 8px rgba(0,0,0,0.25);
   white-space: nowrap;
   text-shadow: 0 1px 0 rgba(255,255,255,0.3);
   font-family: 'Nunito', sans-serif;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 /* Animated floating Map Pin */
@@ -95,23 +108,20 @@
 #city-top-bar {
   position: absolute; top: 0; left: 0; right: 0; z-index: 50;
   display: flex; align-items: center; gap: 8px;
-  padding: 12px 16px;
+  padding: 10px 14px;
   flex-wrap: nowrap;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
-  /* Fade-mask on scroll edges */
-  mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
 }
 #city-top-bar::-webkit-scrollbar { display: none; }
 
-/* Enamel-pin token — base styles (handled inline for flexibility) */
+/* Enamel-pin token */
 .city-token {
   display: flex; align-items: center; gap: 6px;
   background: #fff; border-radius: 16px;
-  padding: 6px 14px 6px 8px;
-  box-shadow: 0px 6px 0px #e0e0e0, 0px 8px 15px rgba(0,0,0,0.1);
-  border: 2.5px solid #f5f5f5;
+  padding: 4px 8px;
+  box-shadow: 0px 5px 0px #d4d4d4, 0px 8px 16px rgba(0,0,0,0.12);
+  border: 2px solid #f0f0f0;
   font-size: 15px; font-weight: 800;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   cursor: pointer; user-select: none;
@@ -119,34 +129,34 @@
 }
 .city-token:hover {
   transform: translateY(-2px);
-  box-shadow: 0px 8px 0px #e0e0e0, 0px 10px 18px rgba(0,0,0,0.12);
+  box-shadow: 0px 7px 0px #d4d4d4, 0px 10px 20px rgba(0,0,0,0.14);
 }
 .city-token:active {
   transform: translateY(2px);
-  box-shadow: 0px 2px 0px #e0e0e0, 0px 3px 6px rgba(0,0,0,0.06);
+  box-shadow: 0px 2px 0px #d4d4d4, 0px 3px 6px rgba(0,0,0,0.06);
 }
 
 /* === Layer 3: HUD — Bottom Character Dock (z-index: 50) === */
 #city-dock {
-  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%);
   z-index: 50;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-radius: 40px;
-  padding: 12px 24px;
+  padding: 10px 22px;
   box-shadow:
-    0px 12px 30px rgba(0,0,0,0.18),
-    0px 4px 0px rgba(0,0,0,0.05),
+    0px 10px 30px rgba(0,0,0,0.2),
+    0px 4px 0px rgba(0,0,0,0.06),
     inset 0 1px 0 rgba(255,255,255,.8);
-  border: 2px solid rgba(255,255,255,.7);
+  border: 2px solid rgba(255,255,255,.75);
   max-width: 92vw;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }
 #city-dock::-webkit-scrollbar { display: none; }
 #city-dock-inner {
-  display: flex; gap: 10px; align-items: center;
+  display: flex; gap: 8px; align-items: center;
 }
 
 /* Character portrait active glow pulse */
@@ -154,23 +164,42 @@
   animation: charGlowBreath 2.5s ease-in-out infinite;
 }
 
+/* === Dock Prompt Text === */
+#city-dock-prompt {
+  position: absolute;
+  bottom: 80px; right: 5%;
+  z-index: 50;
+  display: flex; flex-direction: column;
+  align-items: flex-end;
+  pointer-events: none;
+}
+#city-dock-prompt span {
+  font-size: 11px; font-weight: 900;
+  color: #fff;
+  text-shadow: 0 2px 0 rgba(0,0,0,.3), 0 4px 10px rgba(0,0,0,.2);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  line-height: 1.5;
+}
+
 /* === City Hub Welcome Text === */
 #city-welcome {
-  position: absolute; top: 64px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: 56px; left: 50%; transform: translateX(-50%);
   z-index: 50; text-align: center; pointer-events: none;
 }
 #city-welcome h2 {
-  font-size: 24px; font-weight: 900; color: #fff;
+  font-size: 26px; font-weight: 900; color: #fff;
   text-shadow:
-    0 2px 0 rgba(0,0,0,.25),
-    0 4px 14px rgba(0,0,0,.25),
-    0 0 30px rgba(99,102,241,.2);
+    0 3px 0 rgba(0,0,0,.3),
+    0 6px 16px rgba(0,0,0,.25);
   margin: 0;
+  letter-spacing: 0.04em;
 }
 #city-welcome p {
-  font-size: 13px; font-weight: 700; color: rgba(255,255,255,.9);
+  font-size: 15px; font-weight: 800; color: rgba(255,255,255,.95);
   margin: 4px 0 0;
-  text-shadow: 0 1px 0 rgba(0,0,0,.2);
+  text-shadow: 0 2px 0 rgba(0,0,0,.2);
+  letter-spacing: 0.03em;
 }
 
 /* === GameLayout Shell === */
@@ -184,6 +213,12 @@
 }
 
 /* ============ KEYFRAMES ============ */
+
+/* Mascot bob */
+@keyframes mascotBob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-8px); }
+}
 
 /* Map Pin floating animation */
 @keyframes mapPinFloat {
@@ -234,19 +269,25 @@
 /* ============ RESPONSIVE ============ */
 
 @media (max-width: 768px) {
-  #city-top-bar { gap: 6px; padding: 8px 10px; }
-  .city-token { padding: 4px 10px 4px 6px; font-size: 13px; border-radius: 14px; }
-  #city-dock { padding: 8px 16px; bottom: 10px; border-radius: 32px; }
-  #city-dock-inner { gap: 8px; }
-  #city-welcome { top: 52px; }
+  #city-top-bar { gap: 5px; padding: 6px 8px; }
+  .city-token { padding: 3px 6px; font-size: 13px; border-radius: 12px; }
+  #city-dock { padding: 8px 14px; bottom: 8px; border-radius: 30px; }
+  #city-dock-inner { gap: 6px; }
+  #city-welcome { top: 44px; }
   #city-welcome h2 { font-size: 18px; }
   #city-welcome p { font-size: 11px; }
+  #city-mascot { top: 14%; }
+  #city-mascot svg { width: 50px; height: 56px; }
+  #city-dock-prompt { bottom: 65px; }
+  #city-dock-prompt span { font-size: 9px; }
 }
 
 @media (max-height: 400px) {
-  #city-top-bar { padding: 6px 10px; }
-  .city-token { padding: 3px 8px; }
-  #city-dock { padding: 6px 14px; bottom: 6px; }
-  #city-welcome { top: 44px; }
-  #city-welcome h2 { font-size: 16px; }
+  #city-top-bar { padding: 4px 8px; }
+  .city-token { padding: 2px 6px; }
+  #city-dock { padding: 6px 12px; bottom: 4px; }
+  #city-welcome { top: 36px; }
+  #city-welcome h2 { font-size: 15px; }
+  #city-mascot { display: none; }
+  #city-dock-prompt { bottom: 55px; }
 }

@@ -10,21 +10,29 @@ export const MAP_AREAS = [
 ];
 
 export const CITY_BUILDINGS = [
-  {idx:0,name:'School',areaIdx:0,pctX:.38,pctY:.62,buildW:90,buildH:100,glowColor:'#fbbf24',
+  // School — large, bottom-center (dominant)
+  {idx:0,name:'School',areaIdx:0,pctX:.48,pctY:.78,buildW:130,buildH:140,glowColor:'#fbbf24',
    roofColor:'#ef4444',wallColor:'#fef3c7',accentColor:'#dc2626',doorColor:'#92400e',buildFn:'buildSchoolEl'},
-  {idx:1,name:'City',areaIdx:1,pctX:.54,pctY:.58,buildW:80,buildH:110,glowColor:'#6366f1',
+  // City — cluster of buildings, center-upper
+  {idx:1,name:'City',areaIdx:1,pctX:.40,pctY:.48,buildW:120,buildH:140,glowColor:'#6366f1',
    roofColor:'#6366f1',wallColor:'#ede9fe',accentColor:'#4338ca',doorColor:'#374151',buildFn:'buildCityEl'},
-  {idx:2,name:'Fun Zone',areaIdx:2,pctX:.70,pctY:.60,buildW:85,buildH:95,glowColor:'#ec4899',
+  // Fun Zone — right of center
+  {idx:2,name:'Fun Zone',areaIdx:2,pctX:.68,pctY:.52,buildW:90,buildH:100,glowColor:'#ec4899',
    roofColor:'#ec4899',wallColor:'#fce7f3',accentColor:'#be185d',doorColor:'#831843',buildFn:'buildFunEl'},
-  {idx:3,name:'Airport',areaIdx:3,pctX:.54,pctY:.42,buildW:100,buildH:90,glowColor:'#64748b',
+  // Airport — upper-right area
+  {idx:3,name:'Airport',areaIdx:3,pctX:.68,pctY:.32,buildW:110,buildH:90,glowColor:'#64748b',
    roofColor:'#475569',wallColor:'#f1f5f9',accentColor:'#334155',doorColor:'#1e293b',buildFn:'buildAirportEl'},
-  {idx:4,name:'France',areaIdx:4,pctX:.88,pctY:.56,buildW:60,buildH:120,glowColor:'#f472b6',
+  // France — far right
+  {idx:4,name:'France',areaIdx:4,pctX:.90,pctY:.62,buildW:65,buildH:130,glowColor:'#f472b6',
    roofColor:'#9d174d',wallColor:'#fce7f3',accentColor:'#be185d',doorColor:'#6b7280',buildFn:'buildFranceEl'},
-  {idx:5,name:'N. Pole',areaIdx:5,pctX:.88,pctY:.30,buildW:85,buildH:85,glowColor:'#93c5fd',
+  // N. Pole — upper right with mountains
+  {idx:5,name:'N. Pole',areaIdx:5,pctX:.88,pctY:.32,buildW:95,buildH:95,glowColor:'#93c5fd',
    roofColor:'#e2e8f0',wallColor:'#f0f9ff',accentColor:'#94a3b8',doorColor:'#475569',buildFn:'buildPoleEl'},
-  {idx:6,name:'Hungary',areaIdx:6,pctX:.12,pctY:.56,buildW:90,buildH:95,glowColor:'#dc2626',
+  // Hungary — far left
+  {idx:6,name:'Hungary',areaIdx:6,pctX:.12,pctY:.60,buildW:105,buildH:110,glowColor:'#dc2626',
    roofColor:'#dc2626',wallColor:'#fef3c7',accentColor:'#16a34a',doorColor:'#92400e',buildFn:'buildHungaryEl'},
-  {idx:7,name:'Egypt',areaIdx:7,pctX:.12,pctY:.30,buildW:90,buildH:105,glowColor:'#f59e0b',
+  // Egypt — upper left
+  {idx:7,name:'Egypt',areaIdx:7,pctX:.12,pctY:.32,buildW:110,buildH:120,glowColor:'#f59e0b',
    roofColor:'#f59e0b',wallColor:'#fef3c7',accentColor:'#d97706',doorColor:'#78350f',buildFn:'buildEgyptEl'},
 ];
 

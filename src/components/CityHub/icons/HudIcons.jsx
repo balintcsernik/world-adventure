@@ -92,6 +92,27 @@ export function MusicIcon({ size = 28 }) {
   );
 }
 
+/** Dress/outfit icon — shows a small dress silhouette in the given color */
+export function DressIcon({ size = 30, color = '#ef4444' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 30 30" fill="none">
+      <circle cx="15" cy="15" r="14" fill="#fff" stroke="#e5e7eb" strokeWidth="1.2"/>
+      {/* Dress body */}
+      <path d="M11 9L13 8H17L19 9L20 14L22 22H8L10 14Z"
+        fill={color} stroke={color === '#fff' ? '#d1d5db' : 'none'} strokeWidth=".5"/>
+      {/* Collar */}
+      <path d="M13 8Q15 10 17 8" fill="none" stroke={color} strokeWidth="1" opacity=".6"/>
+      {/* Waist */}
+      <path d="M10 14Q15 16 20 14" fill="none" stroke="rgba(0,0,0,.15)" strokeWidth=".6"/>
+      {/* Sleeves */}
+      <path d="M11 9L8 13" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+      <path d="M19 9L22 13" stroke={color} strokeWidth="2" strokeLinecap="round"/>
+      {/* Highlight */}
+      <path d="M13 14L12 20" stroke="rgba(255,255,255,.35)" strokeWidth="1" strokeLinecap="round"/>
+    </svg>
+  );
+}
+
 export function BackpackIcon({ size = 28 }) {
   return (
     <svg width={size} height={size} viewBox="0 0 28 28" fill="none">
