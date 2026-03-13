@@ -99,7 +99,7 @@
   #char-select.show{display:flex}
   #char-select.hidden{opacity:0;pointer-events:none}
   #char-select h1{color:#fff;font-size:17px;text-shadow:0 3px 12px rgba(0,0,0,.3);margin:4px 0 6px}
-  #char-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(90px,1fr));gap:6px;margin-bottom:8px;width:100%;max-width:700px;padding:0 2px}
+  #char-cards{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px;width:100%;max-width:700px;padding:0 2px}
   .char-card{background:rgba(255,255,255,.92);border-radius:12px;padding:6px 4px 5px;text-align:center;cursor:pointer;transition:transform .2s,box-shadow .2s,border-color .2s;border:2px solid transparent;box-shadow:0 3px 10px rgba(0,0,0,.15);position:relative}
   .char-card:hover{transform:scale(1.04)}
   .char-card.selected{border-color:#fbbf24;box-shadow:0 0 20px rgba(251,191,36,.5),0 4px 16px rgba(0,0,0,.2);transform:scale(1.06)}
@@ -142,6 +142,51 @@
   .dest-item-info{flex:1}
   .dest-item-name{font-weight:600;color:#374151;font-size:14px}
   .dest-item-desc{color:#9ca3af;font-size:11px}
+  /* ===== CITY HUB ===== */
+  #city-hub{position:fixed;inset:0;z-index:500;display:none;overflow:hidden;font-family:'Nunito',sans-serif}
+  #city-hub.show{display:block}
+  #city-hub.hidden{opacity:0;pointer-events:none;transition:opacity .4s}
+  #city-canvas{position:absolute;inset:0;width:100%;height:100%;z-index:1}
+  #city-buildings{position:absolute;inset:0;z-index:2;pointer-events:none}
+  .city-building{position:absolute;pointer-events:auto;cursor:pointer;transform-origin:bottom center;transition:transform .15s cubic-bezier(.34,1.56,.64,1)}
+  .city-building:hover{transform:translate(-50%,-100%) scale(1.06)}
+  .city-building:active{animation:bldgSquash .25s cubic-bezier(.34,1.56,.64,1)}
+  .city-building.current .building-pin{animation:pinBounce 1s ease-in-out infinite;display:block!important}
+  .building-glow{position:absolute;inset:-18px;border-radius:50%;opacity:0;transition:opacity .25s;z-index:-1;pointer-events:none}
+  .city-building:hover .building-glow{opacity:1}
+  .building-canvas{display:block}
+  .building-sign{display:flex;flex-direction:column;align-items:center;margin-top:-4px;pointer-events:none}
+  .sign-post{width:4px;height:14px;background:linear-gradient(180deg,#a0522d,#8b4513);border-radius:2px}
+  .sign-board{background:linear-gradient(180deg,#deb887,#c8a260);color:#4a2c0a;font-size:10px;font-weight:800;padding:3px 10px;border-radius:6px;border:2px solid #8b4513;box-shadow:0 2px 0 #6b3410,0 3px 6px rgba(0,0,0,.2);white-space:nowrap;text-shadow:0 1px 0 rgba(255,255,255,.3)}
+  .building-pin{position:absolute;top:-20px;left:50%;transform:translateX(-50%);font-size:22px;animation:pinBob 2.5s ease-in-out infinite;filter:drop-shadow(0 2px 3px rgba(0,0,0,.3));pointer-events:none;display:none}
+  /* Top bar tokens */
+  #city-top-bar{position:absolute;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:8px;padding:10px 14px}
+  .city-token{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,.95);border-radius:20px;padding:5px 12px 5px 8px;box-shadow:0 4px 0 rgba(0,0,0,.12),0 4px 12px rgba(0,0,0,.1);border:2px solid rgba(0,0,0,.06);font-size:14px;font-weight:800;animation:tokenBob 3s ease-in-out infinite}
+  .token-icon{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;box-shadow:0 2px 0 rgba(0,0,0,.15),inset 0 1px 0 rgba(255,255,255,.3)}
+  .coin-token{background:radial-gradient(circle at 40% 35%,#fde68a,#f59e0b);border:2px solid #d97706;color:#92400e}
+  .globe-token{background:radial-gradient(circle at 40% 35%,#93c5fd,#3b82f6);border:2px solid #2563eb;color:#fff}
+  .bell-token{background:radial-gradient(circle at 40% 35%,#fde68a,#fbbf24);border:2px solid #d97706;color:#92400e}
+  .token-count{color:#f59e0b}
+  .token-label{color:#6b7280;font-size:11px;font-weight:700}
+  #city-close-btn{margin-left:auto;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.9);border:2px solid rgba(0,0,0,.1);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:800;color:#6b7280;cursor:pointer;box-shadow:0 3px 0 rgba(0,0,0,.1),0 3px 8px rgba(0,0,0,.1);transition:transform .1s}
+  #city-close-btn:active{transform:translateY(2px);box-shadow:0 1px 0 rgba(0,0,0,.1)}
+  /* Bottom character dock */
+  #city-dock{position:absolute;bottom:12px;left:50%;transform:translateX(-50%);z-index:10;background:rgba(255,255,255,.92);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:28px;padding:6px 14px;box-shadow:0 4px 0 rgba(0,0,0,.1),0 6px 20px rgba(0,0,0,.15);border:3px solid rgba(255,255,255,.6);max-width:92vw;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  #city-dock-inner{display:flex;gap:6px;align-items:center}
+  .dock-char{display:flex;flex-direction:column;align-items:center;cursor:pointer;padding:3px;border-radius:12px;border:2px solid transparent;transition:transform .15s,border-color .2s,background .2s;min-width:52px}
+  .dock-char:hover{transform:scale(1.08)}
+  .dock-char.active{border-color:#fbbf24;background:rgba(251,191,36,.12);box-shadow:0 0 12px rgba(251,191,36,.3)}
+  .dock-char-canvas{width:40px;height:40px;border-radius:10px;background:linear-gradient(180deg,#f0f9ff,#e0f2fe);border:2px solid rgba(99,102,241,.15)}
+  .dock-char-name{font-size:8px;font-weight:800;color:#374151;margin-top:2px}
+  /* City hub welcome text */
+  #city-welcome{position:absolute;top:50px;left:50%;transform:translateX(-50%);z-index:10;text-align:center;pointer-events:none}
+  #city-welcome h2{font-size:20px;font-weight:900;color:#fff;text-shadow:0 2px 0 rgba(0,0,0,.2),0 4px 12px rgba(0,0,0,.15);margin:0}
+  #city-welcome p{font-size:12px;font-weight:700;color:rgba(255,255,255,.85);margin:4px 0 0;text-shadow:0 1px 0 rgba(0,0,0,.15)}
+  /* City hub keyframes */
+  @keyframes pinBob{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-5px)}}
+  @keyframes pinBounce{0%,100%{transform:translateX(-50%) translateY(0) scale(1)}25%{transform:translateX(-50%) translateY(-10px) scale(1.15)}50%{transform:translateX(-50%) translateY(0) scale(1)}75%{transform:translateX(-50%) translateY(-5px) scale(1.08)}}
+  @keyframes bldgSquash{0%{transform:translate(-50%,-100%) scale(1.06)}30%{transform:translate(-50%,-100%) scaleX(1.12) scaleY(.9)}60%{transform:translate(-50%,-100%) scaleX(.95) scaleY(1.08)}100%{transform:translate(-50%,-100%) scale(1.06)}}
+  @keyframes tokenBob{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
 </style>
 </head>
 <body>
@@ -218,6 +263,18 @@
     <canvas id="map-canvas" width="380" height="300" style="width:100%;border-radius:12px;background:#e0f2fe"></canvas>
     <button class="trade-close" id="close-map">Close Map</button>
   </div>
+</div>
+<div id="city-hub">
+  <canvas id="city-canvas"></canvas>
+  <div id="city-buildings"></div>
+  <div id="city-top-bar">
+    <div class="city-token" id="city-coins"><div class="token-icon coin-token">★</div><span class="token-count" id="city-coin-count">0</span></div>
+    <div class="city-token" id="city-globe"><div class="token-icon globe-token">🌍</div><span class="token-label">8 Places</span></div>
+    <div class="city-token" id="city-missions"><div class="token-icon bell-token">🔔</div><span class="token-count" id="city-mission-count">0</span></div>
+    <div id="city-close-btn" title="Back to Room">✕</div>
+  </div>
+  <div id="city-welcome"><h2>Welcome to the City!</h2><p>Tap to visit your world.</p></div>
+  <div id="city-dock"><div id="city-dock-inner"></div></div>
 </div>
 <div id="mission-tracker" style="position:fixed;top:52px;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.92);border-radius:12px;padding:4px 14px;font-size:11px;font-weight:600;color:#6366f1;z-index:10;box-shadow:0 2px 8px rgba(0,0,0,.12);display:none;max-width:260px;text-align:center">
   <div id="tracker-title" style="margin-bottom:2px"></div>
@@ -332,26 +389,28 @@ const CITY_STORE_ITEMS = [
 const ALL_ITEMS=[...SHOP_ITEMS,...CITY_STORE_ITEMS];
 
 const CHARACTERS = [
-  {id:'luna',name:'Luna',title:'The Explorer',skill:"Explorer's Eye",skillDesc:'Hidden coins sparkle automatically!',
-   hair:'#7c3aed',iris:'#22c55e',outfit:'#3b82f6',skin:'#fad5b5',skinSh:'#d4a080',icon:'🔭'},
+  // Row 1: Boys
   {id:'milo',name:'Milo',title:'The Sporty Kid',skill:'Super Sprint',skillDesc:'Move 25% faster everywhere!',
-   hair:'#ea580c',iris:'#92400e',outfit:'#22c55e',skin:'#e0b088',skinSh:'#c49870',icon:'⚡'},
-  {id:'aria',name:'Aria',title:'The Artist',skill:'Golden Touch',skillDesc:'+1 bonus coin from every interaction!',
-   hair:'#ec4899',iris:'#8b5cf6',outfit:'#eab308',skin:'#f0c8a0',skinSh:'#d4a888',icon:'\u{1F3A8}'},
+   hair:'#ea580c',iris:'#92400e',outfit:'#22c55e',skin:'#e0b088',skinSh:'#c49870',gender:'boy',icon:'⚡'},
   {id:'kai',name:'Kai',title:'The Scientist',skill:'Lab Bonus',skillDesc:'Double coins in the Science Lab!',
-   hair:'#1a1a2a',iris:'#d97706',outfit:'#0d9488',skin:'#c68642',skinSh:'#a0673a',icon:'\u{1F52C}'},
+   hair:'#1a1a2a',iris:'#d97706',outfit:'#0d9488',skin:'#c68642',skinSh:'#a0673a',gender:'boy',icon:'\u{1F52C}'},
   {id:'ravi',name:'Ravi',title:'The Musician',skill:'Rhythm Boost',skillDesc:'20% faster interact cooldown!',
-   hair:'#3b1f0b',iris:'#78350f',outfit:'#dc2626',skin:'#b5651d',skinSh:'#8b4513',icon:'\u{1F3B5}'},
+   hair:'#3b1f0b',iris:'#78350f',outfit:'#dc2626',skin:'#b5651d',skinSh:'#8b4513',gender:'boy',icon:'\u{1F3B5}'},
   {id:'leo',name:'Leo',title:'The Builder',skill:'Handy Helper',skillDesc:'Shop items cost 1 less coin!',
-   hair:'#d4a24e',iris:'#2563eb',outfit:'#ea580c',skin:'#ffe0bd',skinSh:'#dbb99a',icon:'\u{1F527}'},
+   hair:'#d4a24e',iris:'#2563eb',outfit:'#ea580c',skin:'#ffe0bd',skinSh:'#dbb99a',gender:'boy',icon:'\u{1F527}'},
+  {id:'max',name:'Max',title:'The Inventor',skill:'Wide Reach',skillDesc:'Wider interact range (1.3x)!',
+   hair:'#4b3621',iris:'#059669',outfit:'#6366f1',skin:'#f0c8a0',skinSh:'#d4a888',gender:'boy',icon:'\u{1F9EA}'},
+  // Row 2: Girls
+  {id:'luna',name:'Luna',title:'The Explorer',skill:"Explorer's Eye",skillDesc:'Hidden coins sparkle automatically!',
+   hair:'#7c3aed',iris:'#22c55e',outfit:'#3b82f6',skin:'#fad5b5',skinSh:'#d4a080',gender:'girl',icon:'🔭'},
+  {id:'aria',name:'Aria',title:'The Artist',skill:'Golden Touch',skillDesc:'+1 bonus coin from every interaction!',
+   hair:'#ec4899',iris:'#8b5cf6',outfit:'#eab308',skin:'#f0c8a0',skinSh:'#d4a888',gender:'girl',icon:'\u{1F3A8}'},
   {id:'zara',name:'Zara',title:'The Adventurer',skill:'Trailblazer',skillDesc:'Hidden items sparkle in travel rooms!',
-   hair:'#0f0a1a',iris:'#a16207',outfit:'#c026d3',skin:'#8d5524',skinSh:'#6b3a1a',icon:'\u{1F5FA}\u{FE0F}'},
+   hair:'#0f0a1a',iris:'#a16207',outfit:'#c026d3',skin:'#8d5524',skinSh:'#6b3a1a',gender:'girl',icon:'\u{1F5FA}\u{FE0F}'},
   {id:'mei',name:'Mei',title:'The Reader',skill:'Bookworm',skillDesc:'Double coins in the Library!',
-   hair:'#111827',iris:'#374151',outfit:'#a78bfa',skin:'#f5deb3',skinSh:'#d4b896',icon:'\u{1F4D6}'},
+   hair:'#111827',iris:'#374151',outfit:'#a78bfa',skin:'#f5deb3',skinSh:'#d4b896',gender:'girl',icon:'\u{1F4D6}'},
   {id:'suki',name:'Suki',title:'The Chef',skill:'Tasty Treats',skillDesc:'+1 bonus coin when stacking food!',
-   hair:'#92400e',iris:'#16a34a',outfit:'#f472b6',skin:'#dba87e',skinSh:'#bf8a60',icon:'\u{1F9C1}'},
-  {id:'nia',name:'Nia',title:'The Dancer',skill:'Dance Moves',skillDesc:'Wider interact range (1.3x)!',
-   hair:'#1c1015',iris:'#92400e',outfit:'#06b6d4',skin:'#a0522d',skinSh:'#804020',icon:'\u{1F483}'}
+   hair:'#92400e',iris:'#16a34a',outfit:'#f472b6',skin:'#dba87e',skinSh:'#bf8a60',gender:'girl',icon:'\u{1F9C1}'}
 ];
 
 const MINIGAMES = {
@@ -1569,6 +1628,7 @@ function drawPlayer(px,py,dir,bobT){
   const wBob=(player.vx!==0||player.vy!==0)?Math.sin(bobT*.25)*3.5:0;
   const s=dir;
   const ch=CHARACTERS.find(c=>c.id===state.character)||CHARACTERS[0];const skin1=ch.skin,skin2=ch.skinSh,skinSh=darken(ch.skinSh,.08);
+  const isBoy=ch.gender==='boy';
   ctx.save();ctx.translate(px,py+bob);
   // Breathing animation (subtle vertical pulse)
   const breathe=1+Math.sin(bobT*.035)*.007;ctx.scale(1,breathe);
@@ -1585,6 +1645,8 @@ function drawPlayer(px,py,dir,bobT){
   // ---- LEGS ----
   const lo=wBob*.8;
   ctx.fillStyle=skin1;rr(ctx,-11,18,9,20+lo,4,true,false);rr(ctx,2,18,9,20-lo,4,true,false);
+  // Shorts (boys only)
+  if(isBoy){const shC=darken(ch.outfit,.15);ctx.fillStyle=shC;rr(ctx,-14,16,13,14,3,true,false);rr(ctx,1,16,13,14,3,true,false);ctx.fillStyle='rgba(255,255,255,.1)';ctx.fillRect(-12,17,9,2);ctx.fillRect(3,17,9,2)}
   // Shoes
   const shoeCol=state.equipped.shoes==='fast_shoes'?'#f59e0b':state.equipped.shoes==='bunny_shoes'?'#fecdd3':'#ec4899';
   const shG1=ctx.createLinearGradient(-14,36+lo,-14,44+lo);shG1.addColorStop(0,shoeCol);shG1.addColorStop(1,darken(shoeCol,.15));
@@ -1610,8 +1672,8 @@ function drawPlayer(px,py,dir,bobT){
   ctx.fillStyle=bodyOvG;rr(ctx,-20,-16,40,38,10,true,false);
   // Collar
   ctx.fillStyle='rgba(255,255,255,.8)';ctx.beginPath();ctx.moveTo(-8,-16);ctx.quadraticCurveTo(0,-8,8,-16);ctx.lineTo(6,-14);ctx.quadraticCurveTo(0,-4,-6,-14);ctx.fill();
-  // Skirt flare
-  ctx.fillStyle=darken(ch.outfit,.1);ctx.beginPath();ctx.moveTo(-20,18);ctx.lineTo(-24,22);ctx.lineTo(24,22);ctx.lineTo(20,18);ctx.fill();
+  // Skirt flare (girls only)
+  if(!isBoy){ctx.fillStyle=darken(ch.outfit,.1);ctx.beginPath();ctx.moveTo(-20,18);ctx.lineTo(-24,22);ctx.lineTo(24,22);ctx.lineTo(20,18);ctx.fill()}
   // ---- ARMS ----
   const aw=Math.sin(bobT*.12)*12;
   // Left arm
@@ -1636,20 +1698,28 @@ function drawPlayer(px,py,dir,bobT){
   if(isIdle){ctx.save();ctx.translate(0,-18);ctx.rotate(Math.sin(bobT*.02)*.02);ctx.translate(0,18)}
   // ---- NECK ----
   ctx.fillStyle=skin2;rr(ctx,-5,-20,10,8,3,true,false);
-  // ---- HAIR BACK (behind head — voluminous waves) ----
+  // ---- HAIR BACK (behind head) ----
   ctx.fillStyle=ch.hair;
-  // Wide side locks
-  ctx.beginPath();ctx.ellipse(-19,-26,9,16,.2,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(19,-26,9,16,-.2,0,Math.PI*2);ctx.fill();
-  // Lower wavy curls behind
-  ctx.beginPath();ctx.ellipse(-15,-18,7,10,.15,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(15,-18,7,10,-.15,0,Math.PI*2);ctx.fill();
-  // Back volume
-  ctx.beginPath();ctx.ellipse(0,-20,14,12,0,0,Math.PI*2);ctx.fill();
-  // Darker shadow layer
-  ctx.fillStyle=darken(ch.hair,.1);
-  ctx.beginPath();ctx.ellipse(-s*12,-20,6,8,s*.1,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(s*12,-20,6,8,-s*.1,0,Math.PI*2);ctx.fill();
+  if(isBoy){
+    // Boy: short cropped back hair
+    ctx.beginPath();ctx.ellipse(0,-22,13,10,0,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle=darken(ch.hair,.1);
+    ctx.beginPath();ctx.ellipse(-s*6,-22,5,6,s*.1,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(s*6,-22,5,6,-s*.1,0,Math.PI*2);ctx.fill();
+  }else{
+    // Girl: voluminous waves — wide side locks
+    ctx.beginPath();ctx.ellipse(-19,-26,9,16,.2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(19,-26,9,16,-.2,0,Math.PI*2);ctx.fill();
+    // Lower wavy curls behind
+    ctx.beginPath();ctx.ellipse(-15,-18,7,10,.15,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(15,-18,7,10,-.15,0,Math.PI*2);ctx.fill();
+    // Back volume
+    ctx.beginPath();ctx.ellipse(0,-20,14,12,0,0,Math.PI*2);ctx.fill();
+    // Darker shadow layer
+    ctx.fillStyle=darken(ch.hair,.1);
+    ctx.beginPath();ctx.ellipse(-s*12,-20,6,8,s*.1,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(s*12,-20,6,8,-s*.1,0,Math.PI*2);ctx.fill();
+  }
   // ---- HEAD ----
   const hg=ctx.createRadialGradient(s*(-4),-32,2,0,-30,20);hg.addColorStop(0,'#fde0c8');hg.addColorStop(.7,skin1);hg.addColorStop(1,skin2);
   ctx.fillStyle=hg;ctx.beginPath();ctx.arc(0,-30,19,0,Math.PI*2);ctx.fill();
@@ -1660,9 +1730,9 @@ function drawPlayer(px,py,dir,bobT){
   ctx.fillStyle='rgba(220,160,130,.35)';ctx.beginPath();ctx.arc(-18,-30,2.5,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.arc(18,-30,2.5,0,Math.PI*2);ctx.fill();
   // ---- FACE FEATURES (on skin) ----
-  // Blush (behind eyes)
-  ctx.fillStyle='rgba(240,120,140,.28)';ctx.beginPath();ctx.ellipse(-12,-26,5.5,3.2,0,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(12,-26,5.5,3.2,0,0,Math.PI*2);ctx.fill();
+  // Blush (girls only)
+  if(!isBoy){ctx.fillStyle='rgba(240,120,140,.28)';ctx.beginPath();ctx.ellipse(-12,-26,5.5,3.2,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(12,-26,5.5,3.2,0,0,Math.PI*2);ctx.fill()}
   // Eyebrows (subtle thin arches)
   ctx.strokeStyle='#6b3a1a';ctx.lineWidth=1.5;ctx.lineCap='round';
   ctx.beginPath();ctx.moveTo(s*(-3),-35.5);ctx.quadraticCurveTo(s*(-6.5),-37.5,s*(-9.5),-35);ctx.stroke();
@@ -1717,25 +1787,46 @@ function drawPlayer(px,py,dir,bobT){
   ctx.beginPath();ctx.arc(0,-19.5,3,.15,Math.PI-.15);ctx.stroke();
   // ---- HAIR TOP (on top of head, framing face) ----
   ctx.fillStyle=ch.hair;
-  // Main dome covering upper head
-  ctx.beginPath();ctx.arc(0,-34,21,Math.PI+.15,Math.PI*2-.15);ctx.fill();
-  // Volume layers on top (wavy curls)
-  ctx.beginPath();ctx.ellipse(0,-42,17,9,0,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(-7,-44,9,6,.15,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(7,-44,9,6,-.15,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(0,-48,11,5,0,0,Math.PI*2);ctx.fill();
-  // Bangs (fringe curving above eyebrows)
-  ctx.beginPath();ctx.ellipse(s*(-6),-37,7,4.5,s*.08,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(s*5,-37.5,6,4,-s*.08,0,Math.PI*2);ctx.fill();
-  // Side wave accents
-  ctx.beginPath();ctx.ellipse(-17,-34,5,8,.25,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(17,-34,5,8,-.25,0,Math.PI*2);ctx.fill();
-  // Hair highlight (glossy shine)
-  ctx.fillStyle='rgba(255,255,255,.13)';ctx.beginPath();ctx.ellipse(s*(-4),-46,8,4,-.2,0,Math.PI*2);ctx.fill();
-  // Hair darker underside accent
-  ctx.fillStyle=darken(ch.hair,.12);
-  ctx.beginPath();ctx.ellipse(s*(-8),-37,5,3,s*.1,0,Math.PI*2);ctx.fill();
-  ctx.beginPath();ctx.ellipse(s*7,-37.5,4,2.5,-s*.1,0,Math.PI*2);ctx.fill();
+  if(isBoy){
+    // Boy: short neat cap with spiky fringe
+    ctx.beginPath();ctx.arc(0,-34,20,Math.PI+.2,Math.PI*2-.2);ctx.fill();
+    // Flat top volume
+    ctx.beginPath();ctx.ellipse(0,-40,16,6,0,0,Math.PI*2);ctx.fill();
+    // Spiky fringe tufts
+    ctx.beginPath();ctx.moveTo(-8,-36);ctx.lineTo(-11,-46);ctx.lineTo(-4,-38);ctx.fill();
+    ctx.beginPath();ctx.moveTo(-2,-38);ctx.lineTo(0,-49);ctx.lineTo(3,-38);ctx.fill();
+    ctx.beginPath();ctx.moveTo(5,-36);ctx.lineTo(10,-46);ctx.lineTo(8,-36);ctx.fill();
+    // Small side hair
+    ctx.beginPath();ctx.ellipse(-15,-33,4,6,.2,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(15,-33,4,6,-.2,0,Math.PI*2);ctx.fill();
+    // Hair highlight
+    ctx.fillStyle='rgba(255,255,255,.13)';ctx.beginPath();ctx.ellipse(s*(-3),-42,6,3,-.2,0,Math.PI*2);ctx.fill();
+    // Hair darker accent
+    ctx.fillStyle=darken(ch.hair,.12);
+    ctx.beginPath();ctx.ellipse(s*(-6),-37,4,2.5,s*.1,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(s*6,-37,3.5,2,-s*.1,0,Math.PI*2);ctx.fill();
+  }else{
+    // Girl: voluminous wavy curls
+    // Main dome covering upper head
+    ctx.beginPath();ctx.arc(0,-34,21,Math.PI+.15,Math.PI*2-.15);ctx.fill();
+    // Volume layers on top (wavy curls)
+    ctx.beginPath();ctx.ellipse(0,-42,17,9,0,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(-7,-44,9,6,.15,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(7,-44,9,6,-.15,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(0,-48,11,5,0,0,Math.PI*2);ctx.fill();
+    // Bangs (fringe curving above eyebrows)
+    ctx.beginPath();ctx.ellipse(s*(-6),-37,7,4.5,s*.08,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(s*5,-37.5,6,4,-s*.08,0,Math.PI*2);ctx.fill();
+    // Side wave accents
+    ctx.beginPath();ctx.ellipse(-17,-34,5,8,.25,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(17,-34,5,8,-.25,0,Math.PI*2);ctx.fill();
+    // Hair highlight (glossy shine)
+    ctx.fillStyle='rgba(255,255,255,.13)';ctx.beginPath();ctx.ellipse(s*(-4),-46,8,4,-.2,0,Math.PI*2);ctx.fill();
+    // Hair darker underside accent
+    ctx.fillStyle=darken(ch.hair,.12);
+    ctx.beginPath();ctx.ellipse(s*(-8),-37,5,3,s*.1,0,Math.PI*2);ctx.fill();
+    ctx.beginPath();ctx.ellipse(s*7,-37.5,4,2.5,-s*.1,0,Math.PI*2);ctx.fill();
+  }
   // ---- HATS ----
   if(state.equipped.hat==='crown'){const cg=ctx.createLinearGradient(-14,-56,14,-56);cg.addColorStop(0,'#d97706');cg.addColorStop(.5,'#fbbf24');cg.addColorStop(1,'#d97706');ctx.fillStyle=cg;ctx.beginPath();ctx.moveTo(-14,-42);ctx.lineTo(-16,-56);ctx.lineTo(-7,-50);ctx.lineTo(0,-60);ctx.lineTo(7,-50);ctx.lineTo(16,-56);ctx.lineTo(14,-42);ctx.closePath();ctx.fill();ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(0,-51,3,0,Math.PI*2);ctx.fill();ctx.fillStyle='rgba(255,255,255,.3)';ctx.beginPath();ctx.ellipse(-4,-54,5,2,0,0,Math.PI*2);ctx.fill()}
   else if(state.equipped.hat==='wizhat'){const wg=ctx.createLinearGradient(0,-66,0,-40);wg.addColorStop(0,'#4338ca');wg.addColorStop(1,'#6366f1');ctx.fillStyle=wg;ctx.beginPath();ctx.moveTo(-16,-40);ctx.lineTo(0,-66);ctx.lineTo(16,-40);ctx.closePath();ctx.fill();ctx.fillStyle='#fbbf24';ctx.beginPath();ctx.arc(0,-52,4,0,Math.PI*2);ctx.fill()}
@@ -7873,6 +7964,406 @@ function handleMapTap(px,py){
     }
   }
 }
+// ---- CITY HUB ----
+const CITY_BUILDINGS=[
+  {idx:0,name:'School',areaIdx:0,pctX:.38,pctY:.62,w:110,h:130,glowColor:'#fbbf24',
+   roofColor:'#ef4444',wallColor:'#fef3c7',accentColor:'#dc2626',doorColor:'#92400e',drawFn:'drawSchoolBldg'},
+  {idx:1,name:'City',areaIdx:1,pctX:.54,pctY:.58,w:100,h:120,glowColor:'#6366f1',
+   roofColor:'#6366f1',wallColor:'#ede9fe',accentColor:'#4338ca',doorColor:'#374151',drawFn:'drawCityBldg'},
+  {idx:2,name:'Fun Zone',areaIdx:2,pctX:.70,pctY:.60,w:100,h:115,glowColor:'#ec4899',
+   roofColor:'#ec4899',wallColor:'#fce7f3',accentColor:'#be185d',doorColor:'#831843',drawFn:'drawFunBldg'},
+  {idx:3,name:'Airport',areaIdx:3,pctX:.54,pctY:.42,w:110,h:110,glowColor:'#64748b',
+   roofColor:'#475569',wallColor:'#f1f5f9',accentColor:'#334155',doorColor:'#1e293b',drawFn:'drawAirportBldg'},
+  {idx:4,name:'France',areaIdx:4,pctX:.88,pctY:.56,w:70,h:140,glowColor:'#f472b6',
+   roofColor:'#9d174d',wallColor:'#fce7f3',accentColor:'#be185d',doorColor:'#6b7280',drawFn:'drawFranceBldg'},
+  {idx:5,name:'N. Pole',areaIdx:5,pctX:.88,pctY:.28,w:90,h:100,glowColor:'#93c5fd',
+   roofColor:'#e2e8f0',wallColor:'#f0f9ff',accentColor:'#94a3b8',doorColor:'#475569',drawFn:'drawPoleBldg'},
+  {idx:6,name:'Hungary',areaIdx:6,pctX:.12,pctY:.56,w:95,h:110,glowColor:'#dc2626',
+   roofColor:'#dc2626',wallColor:'#fef3c7',accentColor:'#16a34a',doorColor:'#92400e',drawFn:'drawHungaryBldg'},
+  {idx:7,name:'Egypt',areaIdx:7,pctX:.12,pctY:.28,w:100,h:120,glowColor:'#f59e0b',
+   roofColor:'#f59e0b',wallColor:'#fef3c7',accentColor:'#d97706',doorColor:'#78350f',drawFn:'drawEgyptBldg'},
+];
+
+// -- City Hub Canvas Background --
+function drawCityCloud(cx,x,y,sz){
+  cx.fillStyle='rgba(255,255,255,.85)';
+  cx.beginPath();cx.arc(x,y,sz*.5,0,Math.PI*2);cx.arc(x+sz*.4,y-sz*.15,sz*.4,0,Math.PI*2);
+  cx.arc(x+sz*.8,y,sz*.45,0,Math.PI*2);cx.arc(x+sz*.35,y+sz*.1,sz*.35,0,Math.PI*2);cx.fill();
+}
+function drawCityTree(cx,x,y,sz){
+  cx.fillStyle='#78350f';rr(cx,x-sz*.12,y,sz*.24,sz*.6,2,true,false);
+  cx.fillStyle='#22c55e';cx.beginPath();cx.arc(x-sz*.2,y-sz*.1,sz*.35,0,Math.PI*2);ctx.fill?0:0;cx.fill();
+  cx.beginPath();cx.arc(x+sz*.2,y-sz*.1,sz*.35,0,Math.PI*2);cx.fill();
+  cx.fillStyle='#4ade80';cx.beginPath();cx.arc(x,y-sz*.35,sz*.4,0,Math.PI*2);cx.fill();
+}
+function drawCityBush(cx,x,y){
+  cx.fillStyle='#16a34a';cx.beginPath();cx.arc(x,y,8,0,Math.PI*2);cx.fill();
+  cx.beginPath();cx.arc(x+7,y+2,7,0,Math.PI*2);cx.fill();
+  cx.beginPath();cx.arc(x-6,y+2,6,0,Math.PI*2);cx.fill();
+}
+function drawCityMap(){
+  const cc=document.getElementById('city-canvas');
+  const vw=cc.parentElement.clientWidth,vh=cc.parentElement.clientHeight;
+  const dpr=window.devicePixelRatio||1;
+  cc.width=vw*dpr;cc.height=vh*dpr;
+  cc.style.width=vw+'px';cc.style.height=vh+'px';
+  const cx=cc.getContext('2d');cx.scale(dpr,dpr);
+
+  // Sky
+  const sky=cx.createLinearGradient(0,0,0,vh*.5);
+  sky.addColorStop(0,'#7dd3fc');sky.addColorStop(1,'#bae6fd');
+  cx.fillStyle=sky;cx.fillRect(0,0,vw,vh*.5);
+
+  // Clouds
+  drawCityCloud(cx,vw*.12,vh*.08,40);drawCityCloud(cx,vw*.45,vh*.1,55);drawCityCloud(cx,vw*.78,vh*.06,38);
+
+  // Green terrain (rolling hills)
+  const terrain=cx.createLinearGradient(0,vh*.3,0,vh);
+  terrain.addColorStop(0,'#86efac');terrain.addColorStop(.4,'#4ade80');terrain.addColorStop(1,'#16a34a');
+  cx.fillStyle=terrain;
+  cx.beginPath();cx.moveTo(0,vh*.38);
+  cx.bezierCurveTo(vw*.12,vh*.30,vw*.22,vh*.40,vw*.35,vh*.33);
+  cx.bezierCurveTo(vw*.48,vh*.27,vw*.58,vh*.36,vw*.72,vh*.31);
+  cx.bezierCurveTo(vw*.85,vh*.27,vw*.92,vh*.35,vw,vh*.33);
+  cx.lineTo(vw,vh);cx.lineTo(0,vh);cx.closePath();cx.fill();
+
+  // Sandy patch (Egypt side)
+  cx.fillStyle='rgba(254,243,199,.45)';
+  cx.beginPath();cx.ellipse(vw*.12,vh*.35,vw*.1,vh*.12,0,0,Math.PI*2);cx.fill();
+  // Snowy patch (N.Pole side)
+  cx.fillStyle='rgba(226,232,240,.55)';
+  cx.beginPath();cx.ellipse(vw*.88,vh*.22,vw*.1,vh*.1,0,0,Math.PI*2);cx.fill();
+
+  // Main road (connecting bottom-row buildings)
+  cx.save();
+  cx.strokeStyle='#c8956a';cx.lineWidth=14;cx.lineCap='round';cx.lineJoin='round';
+  cx.beginPath();cx.moveTo(vw*.12,vh*.66);
+  cx.quadraticCurveTo(vw*.25,vh*.62,vw*.38,vh*.65);
+  cx.quadraticCurveTo(vw*.46,vh*.60,vw*.54,vh*.58);
+  cx.quadraticCurveTo(vw*.62,vh*.61,vw*.70,vh*.63);
+  cx.quadraticCurveTo(vw*.79,vh*.60,vw*.88,vh*.58);
+  cx.stroke();
+  // Road border (3D depth)
+  cx.strokeStyle='#92400e';cx.lineWidth=16;
+  cx.globalCompositeOperation='destination-over';
+  cx.beginPath();cx.moveTo(vw*.12,vh*.67);
+  cx.quadraticCurveTo(vw*.25,vh*.63,vw*.38,vh*.66);
+  cx.quadraticCurveTo(vw*.46,vh*.61,vw*.54,vh*.59);
+  cx.quadraticCurveTo(vw*.62,vh*.62,vw*.70,vh*.64);
+  cx.quadraticCurveTo(vw*.79,vh*.61,vw*.88,vh*.59);
+  cx.stroke();
+  cx.globalCompositeOperation='source-over';
+  // White dashes on road
+  cx.strokeStyle='rgba(255,255,255,.4)';cx.lineWidth=2;cx.setLineDash([8,8]);
+  cx.beginPath();cx.moveTo(vw*.12,vh*.66);
+  cx.quadraticCurveTo(vw*.25,vh*.62,vw*.38,vh*.65);
+  cx.quadraticCurveTo(vw*.46,vh*.60,vw*.54,vh*.58);
+  cx.quadraticCurveTo(vw*.62,vh*.61,vw*.70,vh*.63);
+  cx.quadraticCurveTo(vw*.79,vh*.60,vw*.88,vh*.58);
+  cx.stroke();cx.setLineDash([]);
+  cx.restore();
+
+  // Dashed flight paths from Airport to travel destinations
+  cx.save();cx.setLineDash([6,6]);cx.strokeStyle='rgba(148,163,184,.5)';cx.lineWidth=2.5;
+  const apX=vw*.54,apY=vh*.40;
+  [[vw*.88,vh*.56],[vw*.88,vh*.28],[vw*.12,vh*.56],[vw*.12,vh*.28]].forEach(([dx,dy])=>{
+    cx.beginPath();cx.moveTo(apX,apY);
+    cx.quadraticCurveTo((apX+dx)/2,Math.min(apY,dy)-30,dx,dy);cx.stroke();
+  });
+  cx.setLineDash([]);cx.restore();
+
+  // Decorative trees
+  drawCityTree(cx,vw*.04,vh*.55,16);drawCityTree(cx,vw*.22,vh*.52,13);
+  drawCityTree(cx,vw*.46,vh*.52,14);drawCityTree(cx,vw*.62,vh*.53,12);
+  drawCityTree(cx,vw*.78,vh*.50,15);drawCityTree(cx,vw*.95,vh*.48,14);
+  // Bushes
+  drawCityBush(cx,vw*.08,vh*.62);drawCityBush(cx,vw*.30,vh*.58);
+  drawCityBush(cx,vw*.50,vh*.56);drawCityBush(cx,vw*.82,vh*.55);
+  drawCityBush(cx,vw*.96,vh*.60);
+
+  // Small mountains in background
+  cx.fillStyle='#d1d5db';
+  cx.beginPath();cx.moveTo(vw*.82,vh*.22);cx.lineTo(vw*.88,vh*.05);cx.lineTo(vw*.94,vh*.22);cx.fill();
+  cx.beginPath();cx.moveTo(vw*.90,vh*.22);cx.lineTo(vw*.95,vh*.08);cx.lineTo(vw,vh*.22);cx.fill();
+  // Snow caps
+  cx.fillStyle='#f8fafc';
+  cx.beginPath();cx.moveTo(vw*.85,vh*.12);cx.lineTo(vw*.88,vh*.05);cx.lineTo(vw*.91,vh*.12);cx.fill();
+  cx.beginPath();cx.moveTo(vw*.93,vh*.13);cx.lineTo(vw*.95,vh*.08);cx.lineTo(vw*.97,vh*.13);cx.fill();
+
+  // Desert pyramids in background (Egypt side)
+  cx.fillStyle='#e5c07b';
+  cx.beginPath();cx.moveTo(vw*.05,vh*.35);cx.lineTo(vw*.10,vh*.18);cx.lineTo(vw*.15,vh*.35);cx.fill();
+  cx.beginPath();cx.moveTo(vw*.12,vh*.35);cx.lineTo(vw*.16,vh*.22);cx.lineTo(vw*.20,vh*.35);cx.fill();
+}
+
+// -- Building Drawing Functions --
+function drawSchoolBldg(cvs,bldg){
+  const c=cvs.getContext('2d'),w=bldg.w,h=bldg.h;c.clearRect(0,0,cvs.width,cvs.height);
+  // Shadow
+  c.fillStyle='rgba(0,0,0,.12)';c.beginPath();c.ellipse(w/2,h-4,w*.42,7,0,0,Math.PI*2);c.fill();
+  const bx=10,by=h*.3,bw=w-20,bh=h*.55;
+  // 3D side face
+  c.fillStyle=darken(bldg.wallColor,.15);
+  c.beginPath();c.moveTo(bx+bw,by);c.lineTo(bx+bw+5,by-4);c.lineTo(bx+bw+5,by+bh-4);c.lineTo(bx+bw,by+bh);c.closePath();c.fill();
+  // 3D top face
+  c.fillStyle=darken(bldg.wallColor,.08);
+  c.beginPath();c.moveTo(bx,by);c.lineTo(bx+5,by-4);c.lineTo(bx+bw+5,by-4);c.lineTo(bx+bw,by);c.closePath();c.fill();
+  // Front wall
+  const wg=c.createLinearGradient(bx,by,bx,by+bh);wg.addColorStop(0,bldg.wallColor);wg.addColorStop(1,darken(bldg.wallColor,.06));
+  c.fillStyle=wg;rr(c,bx,by,bw,bh,5,true,false);
+  // Roof
+  c.fillStyle=bldg.roofColor;
+  c.beginPath();c.moveTo(bx-3,by+2);c.lineTo(w/2,by-h*.18);c.lineTo(bx+bw+3,by+2);c.closePath();c.fill();
+  c.fillStyle='rgba(255,255,255,.2)';
+  c.beginPath();c.moveTo(bx+6,by+2);c.lineTo(w/2,by-h*.16);c.lineTo(w/2,by+2);c.closePath();c.fill();
+  // Windows 2x2
+  c.fillStyle='#bae6fd';
+  const wnW=bw*.2,wnH=bh*.16;
+  for(let r=0;r<2;r++)for(let cl=0;cl<2;cl++){
+    const wx=bx+bw*.15+cl*(bw*.45),wy=by+bh*.12+r*(bh*.3);
+    rr(c,wx,wy,wnW,wnH,2,true,false);
+    c.strokeStyle=bldg.accentColor;c.lineWidth=1.2;rr(c,wx,wy,wnW,wnH,2,false,true);
+    c.beginPath();c.moveTo(wx+wnW/2,wy);c.lineTo(wx+wnW/2,wy+wnH);c.moveTo(wx,wy+wnH/2);c.lineTo(wx+wnW,wy+wnH/2);c.stroke();
+  }
+  // Door
+  const dw=bw*.22,dh=bh*.3,dx=bx+(bw-dw)/2,dy=by+bh-dh;
+  c.fillStyle=bldg.doorColor;rr(c,dx,dy,dw,dh,3,true,false);
+  c.fillStyle='#fbbf24';c.beginPath();c.arc(dx+dw*.75,dy+dh*.55,2.5,0,Math.PI*2);c.fill();
+  // Bell on top
+  c.fillStyle='#fbbf24';c.beginPath();c.arc(w/2,by-h*.18-3,5,0,Math.PI*2);c.fill();
+  // Clock face
+  c.fillStyle='#fff';c.beginPath();c.arc(w/2,by+bh*.22,6,0,Math.PI*2);c.fill();
+  c.strokeStyle='#374151';c.lineWidth=1;c.beginPath();c.arc(w/2,by+bh*.22,6,0,Math.PI*2);c.stroke();
+  c.beginPath();c.moveTo(w/2,by+bh*.22);c.lineTo(w/2,by+bh*.22-4);c.moveTo(w/2,by+bh*.22);c.lineTo(w/2+3,by+bh*.22);c.stroke();
+}
+function drawCityBldg(cvs,bldg){
+  const c=cvs.getContext('2d'),w=bldg.w,h=bldg.h;c.clearRect(0,0,cvs.width,cvs.height);
+  c.fillStyle='rgba(0,0,0,.12)';c.beginPath();c.ellipse(w/2,h-4,w*.4,6,0,0,Math.PI*2);c.fill();
+  // Tall building
+  const bx=15,by=h*.15,bw=w-30,bh=h*.72;
+  c.fillStyle=darken(bldg.wallColor,.12);c.beginPath();c.moveTo(bx+bw,by);c.lineTo(bx+bw+4,by-3);c.lineTo(bx+bw+4,by+bh-3);c.lineTo(bx+bw,by+bh);c.closePath();c.fill();
+  const wg=c.createLinearGradient(bx,by,bx,by+bh);wg.addColorStop(0,bldg.wallColor);wg.addColorStop(1,darken(bldg.wallColor,.08));
+  c.fillStyle=wg;rr(c,bx,by,bw,bh,4,true,false);
+  // Flat roof
+  c.fillStyle=bldg.roofColor;rr(c,bx-3,by-8,bw+6,12,3,true,false);
+  // Windows grid 3x4
+  c.fillStyle='#bae6fd';
+  for(let r=0;r<4;r++)for(let cl=0;cl<3;cl++){
+    rr(c,bx+4+cl*(bw*.32),by+10+r*(bh*.22),bw*.2,bh*.14,2,true,false);
+  }
+  // Door
+  c.fillStyle=bldg.doorColor;rr(c,bx+(bw-bw*.28)/2,by+bh-bh*.22,bw*.28,bh*.22,3,true,false);
+  // Awning
+  c.fillStyle='#f59e0b';
+  c.beginPath();c.moveTo(bx+(bw-bw*.4)/2,by+bh-bh*.22);
+  c.lineTo(bx+(bw+bw*.4)/2,by+bh-bh*.22);c.lineTo(bx+(bw+bw*.5)/2,by+bh-bh*.14);
+  c.lineTo(bx+(bw-bw*.5)/2,by+bh-bh*.14);c.closePath();c.fill();
+}
+function drawFunBldg(cvs,bldg){
+  const c=cvs.getContext('2d'),w=bldg.w,h=bldg.h;c.clearRect(0,0,cvs.width,cvs.height);
+  c.fillStyle='rgba(0,0,0,.12)';c.beginPath();c.ellipse(w/2,h-4,w*.4,6,0,0,Math.PI*2);c.fill();
+  const bx=10,by=h*.25,bw=w-20,bh=h*.6;
+  c.fillStyle=darken(bldg.wallColor,.1);c.beginPath();c.moveTo(bx+bw,by);c.lineTo(bx+bw+4,by-3);c.lineTo(bx+bw+4,by+bh-3);c.lineTo(bx+bw,by+bh);c.closePath();c.fill();
+  c.fillStyle=bldg.wallColor;rr(c,bx,by,bw,bh,5,true,false);
+  // Marquee roof
+  c.fillStyle=bldg.roofColor;rr(c,bx-4,by-10,bw+8,14,4,true,false);
+  // Marquee lights
+  for(let i=0;i<6;i++){c.fillStyle=i%2?'#fbbf24':'#ef4444';c.beginPath();c.arc(bx+6+i*((bw-4)/5),by-3,3,0,Math.PI*2);c.fill();}
+  // Big entrance
+  c.fillStyle=bldg.doorColor;rr(c,bx+(bw-bw*.4)/2,by+bh-bh*.45,bw*.4,bh*.45,4,true,false);
+  // Screen icon
+  c.font='24px '+FONT;c.textAlign='center';c.fillText('\u{1F3AC}',w/2,by+bh*.35);
+}
+function drawAirportBldg(cvs,bldg){
+  const c=cvs.getContext('2d'),w=bldg.w,h=bldg.h;c.clearRect(0,0,cvs.width,cvs.height);
+  c.fillStyle='rgba(0,0,0,.12)';c.beginPath();c.ellipse(w/2,h-4,w*.42,6,0,0,Math.PI*2);c.fill();
+  const bx=8,by=h*.3,bw=w-16,bh=h*.55;
+  // Terminal
+  c.fillStyle=darken(bldg.wallColor,.08);c.beginPath();c.moveTo(bx+bw,by);c.lineTo(bx+bw+4,by-3);c.lineTo(bx+bw+4,by+bh-3);c.lineTo(bx+bw,by+bh);c.closePath();c.fill();
+  c.fillStyle=bldg.wallColor;rr(c,bx,by,bw,bh,4,true,false);
+  // Curved roof
+  c.fillStyle=bldg.roofColor;
+  c.beginPath();c.moveTo(bx-2,by+4);c.quadraticCurveTo(w/2,by-h*.15,bx+bw+2,by+4);c.lineTo(bx+bw+2,by);c.quadraticCurveTo(w/2,by-h*.2,bx-2,by);c.closePath();c.fill();
+  // Control tower
+  c.fillStyle='#94a3b8';rr(c,w/2-6,by-h*.25,12,h*.2,3,true,false);
+  c.fillStyle='#bae6fd';rr(c,w/2-10,by-h*.3,20,8,2,true,false);
+  // Windows
+  c.fillStyle='#bae6fd';for(let i=0;i<5;i++){rr(c,bx+6+i*((bw-18)/4),by+10,bw*.12,bh*.2,2,true,false);}
+  // Plane icon
+  c.font='18px '+FONT;c.textAlign='center';c.fillText('\u2708\uFE0F',w/2,by+bh*.7);
+}
+function drawFranceBldg(cvs,bldg){
+  const c=cvs.getContext('2d'),w=bldg.w,h=bldg.h;c.clearRect(0,0,cvs.width,cvs.height);
+  c.fillStyle='rgba(0,0,0,.12)';c.beginPath();c.ellipse(w/2,h-4,w*.35,5,0,0,Math.PI*2);c.fill();
+  // Eiffel tower shape
+  const cx2=w/2;
+  c.fillStyle='#78716c';
+  c.beginPath();c.moveTo(cx2-22,h-8);c.lineTo(cx2-8,h*.35);c.lineTo(cx2-3,h*.35);c.lineTo(cx2-14,h-8);c.closePath();c.fill();
+  c.beginPath();c.moveTo(cx2+22,h-8);c.lineTo(cx2+8,h*.35);c.lineTo(cx2+3,h*.35);c.lineTo(cx2+14,h-8);c.closePath();c.fill();
+  // Top spire
+  c.fillStyle='#a8a29e';rr(c,cx2-3,h*.1,6,h*.28,2,true,false);
+  c.fillStyle='#78716c';rr(c,cx2-1.5,2,3,h*.12,1,true,false);
+  // Cross beams
+  c.fillStyle='#a8a29e';rr(c,cx2-16,h*.55,32,5,1,true,false);rr(c,cx2-10,h*.35,20,4,1,true,false);
+  // French flag on top
+  c.fillStyle='#3b82f6';c.fillRect(cx2-5,4,3,6);
+  c.fillStyle='#fff';c.fillRect(cx2-2,4,3,6);
+  c.fillStyle='#ef4444';c.fillRect(cx2+1,4,3,6);
+}
+function drawPoleBldg(cvs,bldg){
+  const c=cvs.getContext('2d'),w=bldg.w,h=bldg.h;c.clearRect(0,0,cvs.width,cvs.height);
+  // Snow ground
+  c.fillStyle='#e2e8f0';c.beginPath();c.ellipse(w/2,h-6,w*.45,10,0,0,Math.PI*2);c.fill();
+  // Igloo dome
+  c.fillStyle='#f1f5f9';c.beginPath();c.arc(w/2,h-16,30,Math.PI,0);c.lineTo(w/2+30,h-16);c.lineTo(w/2-30,h-16);c.closePath();c.fill();
+  c.fillStyle='#e2e8f0';c.beginPath();c.arc(w/2,h-16,30,Math.PI,0);c.stroke?0:0;
+  c.strokeStyle='#cbd5e1';c.lineWidth=1;c.beginPath();c.arc(w/2,h-16,30,Math.PI,0);c.stroke();
+  // Door
+  c.fillStyle='#475569';c.beginPath();c.arc(w/2,h-12,8,Math.PI,0);c.lineTo(w/2+8,h-12);c.lineTo(w/2-8,h-12);c.closePath();c.fill();
+  // Snow bricks
+  c.strokeStyle='#cbd5e1';c.lineWidth=.8;
+  for(let i=0;i<3;i++){c.beginPath();c.arc(w/2,h-16,30-i*8,Math.PI+.2,-.2);c.stroke();}
+  // Snowflake
+  c.font='16px '+FONT;c.textAlign='center';c.fillText('\u2744\uFE0F',w/2,h*.22);
+}
+function drawHungaryBldg(cvs,bldg){
+  const c=cvs.getContext('2d'),w=bldg.w,h=bldg.h;c.clearRect(0,0,cvs.width,cvs.height);
+  c.fillStyle='rgba(0,0,0,.12)';c.beginPath();c.ellipse(w/2,h-4,w*.42,6,0,0,Math.PI*2);c.fill();
+  const bx=8,by=h*.32,bw=w-16,bh=h*.55;
+  // Body
+  c.fillStyle=bldg.wallColor;rr(c,bx,by,bw,bh,4,true,false);
+  // Central dome
+  c.fillStyle=bldg.roofColor;
+  c.beginPath();c.arc(w/2,by,18,Math.PI,0);c.fill();
+  // Dome tip
+  c.fillStyle=darken(bldg.roofColor,.15);c.beginPath();c.arc(w/2,by-14,4,0,Math.PI*2);c.fill();
+  // Side towers
+  c.fillStyle=bldg.accentColor;rr(c,bx,by-12,10,16,2,true,false);rr(c,bx+bw-10,by-12,10,16,2,true,false);
+  // Tower tips
+  c.beginPath();c.moveTo(bx,by-12);c.lineTo(bx+5,by-22);c.lineTo(bx+10,by-12);c.fill();
+  c.beginPath();c.moveTo(bx+bw-10,by-12);c.lineTo(bx+bw-5,by-22);c.lineTo(bx+bw,by-12);c.fill();
+  // Windows
+  c.fillStyle='#bae6fd';
+  for(let i=0;i<4;i++){rr(c,bx+6+i*((bw-16)/3),by+10,bw*.14,bh*.2,2,true,false);}
+  // Door
+  c.fillStyle=bldg.doorColor;rr(c,bx+(bw-bw*.2)/2,by+bh-bh*.28,bw*.2,bh*.28,3,true,false);
+}
+function drawEgyptBldg(cvs,bldg){
+  const c=cvs.getContext('2d'),w=bldg.w,h=bldg.h;c.clearRect(0,0,cvs.width,cvs.height);
+  // Sand ground
+  c.fillStyle='rgba(254,243,199,.6)';c.beginPath();c.ellipse(w/2,h-6,w*.45,8,0,0,Math.PI*2);c.fill();
+  // Main pyramid
+  const pg=c.createLinearGradient(w/2,h*.12,w/2,h-10);pg.addColorStop(0,'#fbbf24');pg.addColorStop(1,'#d97706');
+  c.fillStyle=pg;
+  c.beginPath();c.moveTo(w/2,h*.12);c.lineTo(w*.15,h-10);c.lineTo(w*.85,h-10);c.closePath();c.fill();
+  // Shadow side
+  c.fillStyle='rgba(0,0,0,.1)';
+  c.beginPath();c.moveTo(w/2,h*.12);c.lineTo(w*.85,h-10);c.lineTo(w/2,h-10);c.closePath();c.fill();
+  // Small pyramid behind
+  c.fillStyle='#e5c07b';
+  c.beginPath();c.moveTo(w*.72,h*.35);c.lineTo(w*.58,h-10);c.lineTo(w*.86,h-10);c.closePath();c.fill();
+  // Entrance
+  c.fillStyle='#78350f';
+  c.beginPath();c.moveTo(w/2-6,h-10);c.lineTo(w/2,h*.55);c.lineTo(w/2+6,h-10);c.closePath();c.fill();
+  // Eye of Horus
+  c.font='14px '+FONT;c.textAlign='center';c.fillText('\u{1F441}\uFE0F',w/2,h*.4);
+}
+
+// -- Build City Hub DOM --
+function buildCityHub(){
+  const container=document.getElementById('city-buildings');
+  const dockInner=document.getElementById('city-dock-inner');
+  container.innerHTML='';dockInner.innerHTML='';
+
+  CITY_BUILDINGS.forEach(bldg=>{
+    const div=document.createElement('div');
+    div.className='city-building';div.dataset.areaIdx=bldg.areaIdx;
+    const area=MAP_AREAS[bldg.areaIdx];
+    if(area.rooms.includes(state.currentRoom))div.classList.add('current');
+    div.style.left=(bldg.pctX*100)+'%';div.style.top=(bldg.pctY*100)+'%';
+    div.style.transform='translate(-50%,-100%)';
+
+    // Glow
+    const glow=document.createElement('div');glow.className='building-glow';
+    glow.style.background='radial-gradient(circle,'+bldg.glowColor+'55 0%,transparent 70%)';
+    div.appendChild(glow);
+
+    // Building canvas
+    const dpr=window.devicePixelRatio||1;
+    const cvs=document.createElement('canvas');cvs.className='building-canvas';
+    cvs.width=bldg.w*dpr;cvs.height=bldg.h*dpr;
+    cvs.style.width=bldg.w+'px';cvs.style.height=bldg.h+'px';
+    const bCtx=cvs.getContext('2d');bCtx.scale(dpr,dpr);
+    div.appendChild(cvs);
+    // Draw building
+    const fn=window[bldg.drawFn];
+    if(fn)fn(cvs,bldg);
+
+    // Sign
+    const sign=document.createElement('div');sign.className='building-sign';
+    sign.innerHTML='<div class="sign-post"></div><div class="sign-board">'+bldg.name+'</div>';
+    div.appendChild(sign);
+
+    // Pin
+    const pin=document.createElement('div');pin.className='building-pin';pin.textContent='\u{1F4CD}';
+    div.appendChild(pin);
+
+    // Click handler
+    div.addEventListener('click',()=>handleBuildingTap(bldg.areaIdx));
+    container.appendChild(div);
+  });
+
+  // Character dock
+  CHARACTERS.forEach(ch=>{
+    const wrap=document.createElement('div');wrap.className='dock-char';wrap.dataset.charId=ch.id;
+    if(ch.id===state.character)wrap.classList.add('active');
+    const cvs=document.createElement('canvas');cvs.className='dock-char-canvas';
+    cvs.width=96;cvs.height=96;cvs.style.width='40px';cvs.style.height='40px';
+    drawCharPreview(cvs,ch);
+    wrap.appendChild(cvs);
+    const nm=document.createElement('div');nm.className='dock-char-name';nm.textContent=ch.name;
+    wrap.appendChild(nm);
+    wrap.addEventListener('click',()=>{
+      document.querySelectorAll('.dock-char').forEach(d=>d.classList.remove('active'));
+      wrap.classList.add('active');state.character=ch.id;saveGame();
+    });
+    dockInner.appendChild(wrap);
+  });
+
+  // Top bar counts
+  document.getElementById('city-coin-count').textContent=state.coins;
+  const am=state.activeMissions?Object.keys(state.activeMissions).length:0;
+  document.getElementById('city-mission-count').textContent=am;
+}
+
+function openCityHub(){
+  const hub=document.getElementById('city-hub');
+  hub.classList.add('show');hub.classList.remove('hidden');
+  drawCityMap();buildCityHub();
+  document.getElementById('hud').style.display='none';
+  document.getElementById('joystick-zone').style.display='none';
+  document.getElementById('interact-hint').style.display='none';
+  document.getElementById('status-bar').style.display='none';
+  document.getElementById('mission-tracker').style.display='none';
+}
+function closeCityHub(){
+  const hub=document.getElementById('city-hub');
+  hub.classList.add('hidden');
+  setTimeout(()=>{hub.classList.remove('show');hub.classList.remove('hidden')},400);
+  document.getElementById('hud').style.display='';
+  if(isTouchDevice)document.getElementById('joystick-zone').style.display='';
+  document.getElementById('interact-hint').style.display='';
+  document.getElementById('status-bar').style.display='';
+  updateMissionTracker();
+}
+function handleBuildingTap(areaIdx){
+  const area=MAP_AREAS[areaIdx];
+  if(area.rooms.includes(state.currentRoom)){closeCityHub();return}
+  state.currentRoom=area.rooms[0];
+  player.x=W*.3;player.y=FLOOR_BOT-30;player.dir=1;
+  switchRoom();closeCityHub();
+  showToast('Traveled to '+area.name+'! \u{1F5FA}\u{FE0F}');
+}
 // ---- MISSION TRACKER HUD ----
 function updateMissionTracker(){
   const tracker=document.getElementById('mission-tracker');
@@ -7896,10 +8387,12 @@ function setupUI(){
   document.getElementById('btn-tasks').onclick=openTaskPanel;
   document.getElementById('close-tasks').onclick=closeTaskPanel;
   document.getElementById('btn-dismiss').onclick=dismissFromSchool;
-  document.getElementById('btn-map').onclick=openMap;
+  document.getElementById('btn-map').onclick=openCityHub;
   document.getElementById('close-map').onclick=closeMap;
   document.getElementById('map-overlay').onclick=e=>{if(e.target.id==='map-overlay')closeMap()};
   document.getElementById('map-canvas').onclick=e=>{const mc=e.target;const rect=mc.getBoundingClientRect();const scaleX=mc.width/rect.width;const scaleY=mc.height/rect.height;const px=(e.clientX-rect.left)*scaleX;const py=(e.clientY-rect.top)*scaleY;handleMapTap(px,py)};
+  document.getElementById('city-close-btn').onclick=closeCityHub;
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('city-hub').classList.contains('show'))closeCityHub()});
   document.getElementById('close-destination').onclick=()=>document.getElementById('destination-dialog').classList.remove('open');
   document.getElementById('destination-dialog').onclick=e=>{if(e.target.id==='destination-dialog')document.getElementById('destination-dialog').classList.remove('open')};
   document.getElementById('accept-mission').onclick=()=>{if(pendingMission)acceptMission(pendingMission.npc.name,pendingMission.mission)};
@@ -7959,7 +8452,7 @@ function gameLoop(ts){
   // Food stacking physics (cafeteria only)
   if(CFG.WORLD_ROOMS[state.currentRoom]==='cafeteria')updateFoodPhysics();
   // Near object
-  const intR=state.character==='nia'?Math.round(CFG.INTERACT_R*1.3):CFG.INTERACT_R;
+  const intR=state.character==='max'?Math.round(CFG.INTERACT_R*1.3):CFG.INTERACT_R;
   nearObject=null;nearNPC=null;let md=intR;
   for(const ob of roomObjects){if(!ob.interactable)continue;const d=Math.sqrt((player.x-ob.x)**2+(player.y-ob.y)**2);if(d<md){md=d;nearObject=ob}}
   // Near teacher
@@ -8175,10 +8668,13 @@ function drawCharPreview(cvs,charData){
   c.save();c.translate(cvs.width/2,cvs.height*.68);
   const pScale=cvs.width/120;c.scale(pScale,pScale);
   const dir=1,skin1=charData.skin,skin2=charData.skinSh,skinSh=darken(charData.skinSh,.08);
+  const isBoy=charData.gender==='boy';
   // Shadow
   c.fillStyle='rgba(0,0,0,.13)';c.beginPath();c.ellipse(0,40,30,7,0,0,Math.PI*2);c.fill();
   // Legs
   c.fillStyle=skin1;rr(c,-11,18,9,20,4,true,false);rr(c,2,18,9,20,4,true,false);
+  // Shorts (boys only)
+  if(isBoy){const shC=darken(charData.outfit,.15);c.fillStyle=shC;rr(c,-14,16,13,14,3,true,false);rr(c,1,16,13,14,3,true,false);c.fillStyle='rgba(255,255,255,.1)';c.fillRect(-12,17,9,2);c.fillRect(3,17,9,2)}
   // Shoes
   const shoeCol='#ec4899';
   const shG1=c.createLinearGradient(-14,36,-14,44);shG1.addColorStop(0,shoeCol);shG1.addColorStop(1,darken(shoeCol,.15));
@@ -8196,8 +8692,8 @@ function drawCharPreview(cvs,charData){
   c.fillStyle='rgba(0,0,0,.06)';rr(c,8,-14,10,32,6,true,false);
   // Collar
   c.fillStyle='rgba(255,255,255,.8)';c.beginPath();c.moveTo(-8,-16);c.quadraticCurveTo(0,-8,8,-16);c.lineTo(6,-14);c.quadraticCurveTo(0,-4,-6,-14);c.fill();
-  // Skirt flare
-  c.fillStyle=darken(charData.outfit,.1);c.beginPath();c.moveTo(-20,18);c.lineTo(-24,22);c.lineTo(24,22);c.lineTo(20,18);c.fill();
+  // Skirt flare (girls only)
+  if(!isBoy){c.fillStyle=darken(charData.outfit,.1);c.beginPath();c.moveTo(-20,18);c.lineTo(-24,22);c.lineTo(24,22);c.lineTo(20,18);c.fill()}
   // Arms
   // Left arm
   c.save();c.translate(20,-8);c.rotate(0);
@@ -8219,15 +8715,24 @@ function drawCharPreview(cvs,charData){
   c.fillStyle=skin2;rr(c,-5,-20,10,8,3,true,false);
   // Hair back
   c.fillStyle=charData.hair;
-  c.beginPath();c.ellipse(-19,-26,9,16,.2,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(19,-26,9,16,-.2,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(-15,-18,7,10,.15,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(15,-18,7,10,-.15,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(0,-20,14,12,0,0,Math.PI*2);c.fill();
-  // Hair back shadow
-  c.fillStyle=darken(charData.hair,.1);
-  c.beginPath();c.ellipse(-12,-20,6,8,.1,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(12,-20,6,8,-.1,0,Math.PI*2);c.fill();
+  if(isBoy){
+    // Boy: short cropped back hair — compact volume behind head
+    c.beginPath();c.ellipse(0,-22,13,10,0,0,Math.PI*2);c.fill();
+    c.fillStyle=darken(charData.hair,.1);
+    c.beginPath();c.ellipse(-6,-22,5,6,.1,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(6,-22,5,6,-.1,0,Math.PI*2);c.fill();
+  }else{
+    // Girl: voluminous wavy side locks
+    c.beginPath();c.ellipse(-19,-26,9,16,.2,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(19,-26,9,16,-.2,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(-15,-18,7,10,.15,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(15,-18,7,10,-.15,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(0,-20,14,12,0,0,Math.PI*2);c.fill();
+    // Hair back shadow
+    c.fillStyle=darken(charData.hair,.1);
+    c.beginPath();c.ellipse(-12,-20,6,8,.1,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(12,-20,6,8,-.1,0,Math.PI*2);c.fill();
+  }
   // Head
   const hg=c.createRadialGradient(-4,-32,2,0,-30,20);hg.addColorStop(0,skin1);hg.addColorStop(.7,skin1);hg.addColorStop(1,skin2);
   c.fillStyle=hg;c.beginPath();c.arc(0,-30,19,0,Math.PI*2);c.fill();
@@ -8236,9 +8741,9 @@ function drawCharPreview(cvs,charData){
   c.beginPath();c.arc(18,-30,4.5,0,Math.PI*2);c.fill();
   c.fillStyle='rgba(220,160,130,.35)';c.beginPath();c.arc(-18,-30,2.5,0,Math.PI*2);c.fill();
   c.beginPath();c.arc(18,-30,2.5,0,Math.PI*2);c.fill();
-  // Blush
-  c.fillStyle='rgba(240,120,140,.28)';c.beginPath();c.ellipse(-12,-26,5.5,3.2,0,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(12,-26,5.5,3.2,0,0,Math.PI*2);c.fill();
+  // Blush (girls only)
+  if(!isBoy){c.fillStyle='rgba(240,120,140,.28)';c.beginPath();c.ellipse(-12,-26,5.5,3.2,0,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(12,-26,5.5,3.2,0,0,Math.PI*2);c.fill()}
   // Eyebrows
   c.strokeStyle=darken(charData.hair,.12);c.lineWidth=1.5;c.lineCap='round';
   c.beginPath();c.moveTo(-3,-35.5);c.quadraticCurveTo(-6.5,-37.5,-9.5,-35);c.stroke();
@@ -8274,21 +8779,42 @@ function drawCharPreview(cvs,charData){
   c.beginPath();c.arc(0,-19.5,3,.15,Math.PI-.15);c.stroke();
   // Hair top
   c.fillStyle=charData.hair;
-  c.beginPath();c.arc(0,-34,21,Math.PI+.15,Math.PI*2-.15);c.fill();
-  c.beginPath();c.ellipse(0,-42,17,9,0,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(-7,-44,9,6,.15,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(7,-44,9,6,-.15,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(0,-48,11,5,0,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(-6,-37,7,4.5,.08,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(5,-37.5,6,4,-.08,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(-17,-34,5,8,.25,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(17,-34,5,8,-.25,0,Math.PI*2);c.fill();
-  // Hair highlight
-  c.fillStyle='rgba(255,255,255,.13)';c.beginPath();c.ellipse(-4,-46,8,4,-.2,0,Math.PI*2);c.fill();
-  // Hair darker accent
-  c.fillStyle=darken(charData.hair,.12);
-  c.beginPath();c.ellipse(-8,-37,5,3,.1,0,Math.PI*2);c.fill();
-  c.beginPath();c.ellipse(7,-37.5,4,2.5,-.1,0,Math.PI*2);c.fill();
+  if(isBoy){
+    // Boy: short neat cap with spiky fringe
+    c.beginPath();c.arc(0,-34,20,Math.PI+.2,Math.PI*2-.2);c.fill();
+    // Flat top volume
+    c.beginPath();c.ellipse(0,-40,16,6,0,0,Math.PI*2);c.fill();
+    // Spiky fringe tufts
+    c.beginPath();c.moveTo(-8,-36);c.lineTo(-11,-46);c.lineTo(-4,-38);c.fill();
+    c.beginPath();c.moveTo(-2,-38);c.lineTo(0,-49);c.lineTo(3,-38);c.fill();
+    c.beginPath();c.moveTo(5,-36);c.lineTo(10,-46);c.lineTo(8,-36);c.fill();
+    // Small side hair
+    c.beginPath();c.ellipse(-15,-33,4,6,.2,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(15,-33,4,6,-.2,0,Math.PI*2);c.fill();
+    // Hair highlight
+    c.fillStyle='rgba(255,255,255,.13)';c.beginPath();c.ellipse(-3,-42,6,3,-.2,0,Math.PI*2);c.fill();
+    // Hair darker accent
+    c.fillStyle=darken(charData.hair,.12);
+    c.beginPath();c.ellipse(-6,-37,4,2.5,.1,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(6,-37,3.5,2,-.1,0,Math.PI*2);c.fill();
+  }else{
+    // Girl: voluminous wavy curls
+    c.beginPath();c.arc(0,-34,21,Math.PI+.15,Math.PI*2-.15);c.fill();
+    c.beginPath();c.ellipse(0,-42,17,9,0,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(-7,-44,9,6,.15,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(7,-44,9,6,-.15,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(0,-48,11,5,0,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(-6,-37,7,4.5,.08,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(5,-37.5,6,4,-.08,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(-17,-34,5,8,.25,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(17,-34,5,8,-.25,0,Math.PI*2);c.fill();
+    // Hair highlight
+    c.fillStyle='rgba(255,255,255,.13)';c.beginPath();c.ellipse(-4,-46,8,4,-.2,0,Math.PI*2);c.fill();
+    // Hair darker accent
+    c.fillStyle=darken(charData.hair,.12);
+    c.beginPath();c.ellipse(-8,-37,5,3,.1,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(7,-37.5,4,2.5,-.1,0,Math.PI*2);c.fill();
+  }
   c.restore();
 }
 
@@ -8342,12 +8868,13 @@ function buildCharSelect(){
     initAudio();gameStarted=true;
     if(state.musicOn)startBgm();
     saveGame();updateStatusBar();
+    setTimeout(()=>openCityHub(),550);
   };
 }
 
 function init(){
   canvas=document.getElementById('game');ctx=canvas.getContext('2d');resize();
-  window.addEventListener('resize',()=>{resize();roomObjects=buildRoom(CFG.WORLD_ROOMS[state.currentRoom])});
+  window.addEventListener('resize',()=>{resize();roomObjects=buildRoom(CFG.WORLD_ROOMS[state.currentRoom]);if(document.getElementById('city-hub').classList.contains('show'))drawCityMap()});
   const loaded=loadGame();
   if(loaded){player.x=state.playerX||W*.3;player.y=state.playerY||FLOOR_BOT-30;player.dir=state.playerDir||1}
   else{player.x=W*.3;player.y=FLOOR_BOT-30;player.dir=1}
@@ -8370,6 +8897,7 @@ function init(){
       setTimeout(()=>document.getElementById('splash').style.display='none',500);
       if(state.musicOn)startBgm();
       saveGame();updateStatusBar();
+      setTimeout(()=>openCityHub(),550);
     }else{
       // New player — show character select
       document.getElementById('splash').classList.add('hidden');
