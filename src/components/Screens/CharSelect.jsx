@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useGame } from '../../contexts/GameContext';
 import { CHARACTERS } from '../../constants';
-import { state, drawCharPreview, initAudio, startBgm, saveGame, openCityHub } from '../../engine/gameEngine';
+import { state, drawCharPreview, initAudio, startBgm, saveGame, openCityHub, setGameStarted } from '../../engine/gameEngine';
 
 export default function CharSelect() {
   const { gameScreen, setGameScreen, selectCharacter, syncFromEngine } = useGame();
@@ -13,7 +13,7 @@ export default function CharSelect() {
     if (!selectedId) return;
     selectCharacter(selectedId);
     initAudio();
-    window._gameStarted = true;
+    setGameStarted(true);
     if (state.musicOn) startBgm();
     saveGame();
     setGameScreen('playing');
@@ -34,7 +34,7 @@ export default function CharSelect() {
           />
         ))}
       </div>
-      <button id="char-play-btn" onClick={handlePlay}>Start Adventure!</button>
+      <button id="char-play-btn" className={selectedId ? 'enabled' : ''} onClick={handlePlay}>Start Adventure!</button>
     </div>
   );
 }

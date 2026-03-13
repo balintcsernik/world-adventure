@@ -1,6 +1,6 @@
 import React from 'react';
 import { useGame } from '../../contexts/GameContext';
-import { state, initAudio, startBgm, saveGame, openCityHub } from '../../engine/gameEngine';
+import { state, initAudio, startBgm, saveGame, openCityHub, setGameStarted } from '../../engine/gameEngine';
 
 export default function SplashScreen() {
   const { gameScreen, setGameScreen, syncFromEngine } = useGame();
@@ -11,7 +11,7 @@ export default function SplashScreen() {
     if (state.character) {
       // Returning player
       initAudio();
-      window._gameStarted = true;
+      setGameStarted(true);
       if (state.musicOn) startBgm();
       saveGame();
       setGameScreen('playing');

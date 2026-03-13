@@ -97,6 +97,7 @@ let roomObjects=[],roomNPCs=[];
 let nearObject=null,nearNPC=null;
 let transitioning=false,transProgress=0,transDir=0;
 let gameStarted=false,lastTime=0;
+function setGameStarted(v){gameStarted=v}
 let challengeBubbleShown={};
 let tapTarget=null,touchId=null;
 let npcDialogTimer=0;
@@ -8387,7 +8388,7 @@ export {
   openTaskPanel, closeTaskPanel, openMap, closeMap,
   drawCharPreview, buildCityHub, drawCityMap, drawCityRoads,
   player, gameLoop, resize, setupInput, setupUI, buildCharSelect,
-  initAudio, startBgm, stopBgm, updateMissionTracker,
+  initAudio, startBgm, stopBgm, updateMissionTracker, setGameStarted,
   handleBuildingTap, handleMapTap,
   MINIGAMES, SLOT_MACHINE, ROOM_CHALLENGES,
 };
