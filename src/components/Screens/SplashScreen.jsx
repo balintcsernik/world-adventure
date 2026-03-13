@@ -1,0 +1,38 @@
+import React from 'react';
+import { useGame } from '../../contexts/GameContext';
+import { state, initAudio, startBgm, saveGame, openCityHub } from '../../engine/gameEngine';
+
+export default function SplashScreen() {
+  const { gameScreen, setGameScreen, syncFromEngine } = useGame();
+
+  if (gameScreen !== 'splash') return null;
+
+  const handleStart = () => {
+    if (state.character) {
+      // Returning player
+      initAudio();
+      window._gameStarted = true;
+      if (state.musicOn) startBgm();
+      saveGame();
+      setGameScreen('playing');
+      syncFromEngine();
+      setTimeout(() => openCityHub(), 550);
+    } else {
+      // New player
+      setGameScreen('charSelect');
+    }
+  };
+
+  return (
+    <div id="splash">
+      <div id="splash-deco" aria-hidden="true"></div>
+      <h1>World Adventure</h1>
+      <p>Explore Hannah's World!</p>
+      <button id="start-btn" onClick={handleStart}>Play!</button>
+      <div id="hc-brand">
+        brought to you by<br />
+        <span id="hc-logo">HC Studios</span>
+      </div>
+    </div>
+  );
+}
