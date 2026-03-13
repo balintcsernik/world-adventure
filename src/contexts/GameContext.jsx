@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, useRef, useEffect } from 'react';
+import React, { createContext, useContext, useState, useCallback, useRef, useMemo } from 'react';
 import { state as engineState, saveGame, init as engineInit } from '../engine/gameEngine';
+import { CHARACTERS } from '../constants';
 
 const GameContext = createContext(null);
 
@@ -12,7 +13,14 @@ export function GameProvider({ children }) {
   const [activeMissions, setActiveMissions] = useState({});
   const [gameScreen, setGameScreen] = useState('splash'); // splash, charSelect, playing, cityHub
   const [cityHubOpen, setCityHubOpen] = useState(false);
+  const [activeView, setActiveView] = useState('map'); // map, classroom, gym
   const engineInitialized = useRef(false);
+
+  // Derive the full selectedCharacter object from the character ID
+  const selectedCharacter = useMemo(() => {
+    if (!character) return null;
+    return CHARACTERS.find(c => c.id === character) || null;
+  }, [character]);
 
   const syncFromEngine = useCallback(() => {
     setCoins(engineState.coins);
@@ -36,9 +44,10 @@ export function GameProvider({ children }) {
   }, []);
 
   const value = {
-    coins, currentRoom, character, inventory, equipped, activeMissions,
+    coins, currentRoom, character, selectedCharacter, inventory, equipped, activeMissions,
     gameScreen, setGameScreen,
     cityHubOpen, setCityHubOpen,
+    activeView, setActiveView,
     syncFromEngine, updateCoins, selectCharacter,
     engineInitialized,
   };

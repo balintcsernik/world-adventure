@@ -1,10 +1,11 @@
-import React, { useEffect, useRef } from 'react';
+import React from 'react';
 import { GameProvider, useGame } from './contexts/GameContext';
 import SplashScreen from './components/Screens/SplashScreen';
 import CharSelect from './components/Screens/CharSelect';
 import GameCanvas from './components/Game/GameCanvas';
 import HUD from './components/HUD/HUD';
 import CityHub from './components/CityHub/CityHub';
+import GameLayout from './components/GameLayout';
 import InventoryPanel from './components/Panels/InventoryPanel';
 import EquipPanel from './components/Panels/EquipPanel';
 import TaskPanel from './components/Panels/TaskPanel';
