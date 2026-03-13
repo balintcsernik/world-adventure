@@ -203,7 +203,7 @@
     <button class="mission-btn decline" id="decline-mission">Not now</button>
   </div>
 </div>
-<div id="grab-hint">Press G to grab / drop</div>
+<div id="grab-hint">Tap to grab / drop</div>
 <div id="destination-dialog">
   <div class="trade-box">
     <h2>&#9992;&#65039; Departure Board</h2>
@@ -7268,13 +7268,19 @@ function handleTap(tx,ty){
     if(mgs.mg.type==='breaker'&&!mgs.started){mgs.started=true;return}
     return;
   }
+  // Tap to drop if carrying
+  if(grabbedObject){toggleGrab();tapTarget=null;return}
   const rk=CFG.WORLD_ROOMS[state.currentRoom];
   // Check NPCs (teacher)
   const teacher=TEACHERS[rk];
   if(teacher){const td=Math.sqrt((tx-W*.5)**2+(ty-(FLOOR_TOP+22))**2);if(td<50){talkToNPC(teacher);return}}
   // Check street NPCs
   for(const sn of streetNPCInstances){const sd=Math.sqrt((tx-sn.x)**2+(ty-sn.y)**2);if(sd<45){talkToNPC(sn.data);return}}
-  // Check objects
+  // Check movable objects (tap to grab)
+  let movObj=null,movD=50;
+  for(const ob of roomObjects){if(!ob.movable)continue;const d=Math.sqrt((tx-ob.x)**2+(ty-ob.y)**2);if(d<movD){movD=d;movObj=ob}}
+  if(movObj){tapTarget={x:movObj.x,y:Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,movObj.y+30)),obj:movObj,_grab:true};return}
+  // Check interactable objects
   let tObj=null;
   for(const ob of roomObjects){if(!ob.interactable)continue;const d=Math.sqrt((tx-ob.x)**2+(ty-ob.y)**2);if(d<Math.max(ob.w,ob.h)*.7){tObj=ob;break}}
   if(tObj){tapTarget={x:tObj.x,y:Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,tObj.y+30)),obj:tObj}}
@@ -7551,7 +7557,7 @@ function toggleGrab(){
     for(const ob of roomObjects){if(!ob.movable)continue;const d=Math.sqrt((player.x-ob.x)**2+(player.y-ob.y)**2);if(d<bd){bd=d;best=ob}}
     if(best){
       if(best._isFood)unstackFood(best);
-      grabbedObject=best;sfxInteract();showToast('Grabbed '+best.label+'! Move around & press G to drop');
+      grabbedObject=best;sfxInteract();showToast('Grabbed '+best.label+'! Tap to drop \u{1F4E6}');
     }
   }
 }
@@ -7809,7 +7815,7 @@ function gameLoop(ts){
   if(state.character==='milo')spd=Math.round(spd*1.25);
   if(joystick.active&&(Math.abs(joystick.dx)>5||Math.abs(joystick.dy)>5)){
     const m=Math.sqrt(joystick.dx**2+joystick.dy**2);player.vx=joystick.dx/m*spd*dt;player.vy=joystick.dy/m*spd*dt;tapTarget=null}
-  else if(tapTarget){const dx=tapTarget.x-player.x,dy=tapTarget.y-player.y,d=Math.sqrt(dx*dx+dy*dy);if(tapTarget.obj){if(d<50){player.vx=0;player.vy=0;interactObj(tapTarget.obj);tapTarget=null}else{player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}}else if(d>8){player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}else{player.vx=0;player.vy=0;tapTarget=null}}
+  else if(tapTarget){const dx=tapTarget.x-player.x,dy=tapTarget.y-player.y,d=Math.sqrt(dx*dx+dy*dy);if(tapTarget.obj){if(d<50){player.vx=0;player.vy=0;if(tapTarget._grab)toggleGrab();else interactObj(tapTarget.obj);tapTarget=null}else{player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}}else if(d>8){player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}else{player.vx=0;player.vy=0;tapTarget=null}}
   else{player.vx*=.7;player.vy*=.7;if(Math.abs(player.vx)<.1)player.vx=0;if(Math.abs(player.vy)<.1)player.vy=0}
   player.x+=player.vx;player.y+=player.vy;
   player.x=Math.max(5,Math.min(W-5,player.x));player.y=Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,player.y));
@@ -7853,7 +7859,7 @@ function gameLoop(ts){
   for(const sn of streetNPCInstances){const sd=Math.sqrt((player.x-sn.x)**2+(player.y-sn.y)**2);if(sd<intR&&(!nearObject||sd<md)){nearNPC=sn.data;nearObject=null;md=sd}}
   // Grab hint: show when near movable and nothing grabbed
   const gh=document.getElementById('grab-hint');
-  if(!grabbedObject){let nearMov=false;for(const ob of roomObjects){if(!ob.movable)continue;const d=Math.sqrt((player.x-ob.x)**2+(player.y-ob.y)**2);if(d<50){nearMov=true;break}}gh.style.display=nearMov?'block':'none'}else{gh.style.display='block';gh.textContent='Press G to drop'}
+  if(!grabbedObject){let nearMov=false;for(const ob of roomObjects){if(!ob.movable)continue;const d=Math.sqrt((player.x-ob.x)**2+(player.y-ob.y)**2);if(d<50){nearMov=true;break}}gh.style.display=nearMov?'block':'none'}else{gh.style.display='block';gh.textContent='Tap to drop'}
   // Hint button
   const hb=document.getElementById('hint-btn');
   if(nearObject){hb.classList.add('visible');hb.style.background='#6366f1';hb.textContent='👆'}
