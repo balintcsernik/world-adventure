@@ -1,21 +1,22 @@
 import React from 'react';
+import schoolBuildingImg from '../../assets/school-building.png';
 
 /* ─── High-fidelity SVG building assets for the City Map ─── */
 
-/* ── School: Placeholder image asset with grounding shadow + hover ── */
+/* ── School: Cartoon school building asset with grounding shadow + hover ── */
 export function SchoolSvg({ w = 130, h = 140 }) {
   return (
     <div
       className="school-asset-wrapper"
       style={{
         width: w, height: h,
-        filter: 'drop-shadow(0px 15px 10px rgba(0,0,0,0.3))',
+        filter: 'drop-shadow(0px 10px 8px rgba(0,0,0,0.2))',
         transformOrigin: 'bottom center',
         transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
       }}
     >
       <img
-        src="https://placehold.co/260x280/fef3c7/92400e?text=School+Asset"
+        src={schoolBuildingImg}
         alt="School building"
         style={{
           width: '100%', height: '100%',
