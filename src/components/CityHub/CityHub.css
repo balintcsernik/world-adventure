@@ -109,42 +109,32 @@
   pointer-events: none; z-index: 20;
 }
 
-/* === Layer 3: HUD — Top Token Bar (z-index: 50) === */
+/* === Layer 3: HUD — Top Bar matching game HUD (z-index: 50) === */
 #city-top-bar {
   position: absolute; top: 0; left: 0; right: 0; z-index: 50;
-  display: flex; align-items: center; gap: 16px;
+  display: flex; justify-content: space-between; align-items: flex-start;
   padding: 10px 14px;
-  flex-wrap: nowrap;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
 }
-#city-top-bar::-webkit-scrollbar { display: none; }
 
-/* Enamel-pin token — chunky circle buttons */
-.city-token {
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-  width: 48px; height: 48px;
-  background: #fff; border-radius: 50%;
-  padding: 0;
-  box-shadow: 0px 4px 0px #ccc, 0px 8px 15px rgba(0,0,0,0.1);
-  border: 2px solid #f0f0f0;
-  font-size: 15px; font-weight: 800;
-  transition: transform 0.15s ease, box-shadow 0.15s ease;
-  cursor: pointer; user-select: none;
+/* Coin display inside City Hub — reuses global #coin-display style */
+.city-hud-coin {
   flex-shrink: 0;
 }
-/* Wide tokens (e.g. coin counter with label) need pill shape */
-.city-token--wide {
-  width: auto; border-radius: 24px;
-  padding: 0 14px 0 6px; gap: 8px;
+
+/* Room label in City Hub */
+#city-room-label {
+  background: rgba(255,255,255,0.95);
+  border-radius: 16px;
+  padding: 5px 16px;
+  font-size: 14px; font-weight: 800;
+  color: #6366f1;
+  box-shadow: 0 4px 0 rgba(0,0,0,.15), 0 4px 12px rgba(0,0,0,.12);
+  border: 2px solid rgba(99,102,241,.2);
 }
-.city-token:hover {
-  transform: translateY(-2px);
-  box-shadow: 0px 7px 0px #d4d4d4, 0px 10px 20px rgba(0,0,0,0.14);
-}
-.city-token:active {
-  transform: translateY(2px);
-  box-shadow: 0px 2px 0px #d4d4d4, 0px 3px 6px rgba(0,0,0,0.06);
+
+/* Button row in City Hub */
+.city-btn-row {
+  display: flex; gap: 7px;
 }
 
 /* === Layer 3: HUD — Bottom Character Dock (z-index: 50) === */
@@ -280,8 +270,9 @@
 /* ============ RESPONSIVE ============ */
 
 @media (max-width: 768px) {
-  #city-top-bar { gap: 5px; padding: 6px 8px; }
-  .city-token { padding: 3px 6px; font-size: 13px; border-radius: 12px; }
+  #city-top-bar { padding: 6px 8px; }
+  .city-btn-row { gap: 4px; }
+  .city-btn-row .hud-btn { width: 36px; height: 36px; font-size: 14px; }
   #city-dock { padding: 8px 14px; bottom: 8px; border-radius: 30px; }
   #city-dock-inner { gap: 6px; }
   #city-welcome { top: 44px; }
@@ -295,7 +286,7 @@
 
 @media (max-height: 400px) {
   #city-top-bar { padding: 4px 8px; }
-  .city-token { padding: 2px 6px; }
+  .city-btn-row .hud-btn { width: 32px; height: 32px; font-size: 13px; }
   #city-dock { padding: 6px 12px; bottom: 4px; }
   #city-welcome { top: 36px; }
   #city-welcome h2 { font-size: 15px; }
