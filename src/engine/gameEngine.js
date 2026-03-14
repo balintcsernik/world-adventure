@@ -105,6 +105,9 @@ let npcDialogTimer=0;
 let musicPlaying=false;
 let streetNPCInstances=[];
 let grabbedObject=null;
+let holdTimer=null,holdStartPos=null,dragObject=null,dragOffset={x:0,y:0};
+let cosmeticHeldItem=null;
+const HOLD_MS=200,HOLD_MOVE_THRESH=12,DROP_ON_PLAYER_R=60;
 let foodSpawnCounter=0;
 let pendingMission=null;
 let miniGameActive=null;
@@ -1343,6 +1346,8 @@ function drawPlayer(px,py,dir,bobT){
   if(isIdle){ctx.restore()}
   // Tool
   if(state.equipped.tool){ctx.font='18px '+FONT;ctx.textAlign='center';const tm={magnifier:'🔍',flashlight:'🔦',bubble_wand:'🫧',camera:'📷',skateboard:'🛹',lollipop:'🍭',kite:'🪁',umbrella:'☂️'};ctx.fillText(tm[state.equipped.tool]||'🔧',s*26,4)}
+  // Cosmetic held item (opposite hand from tool)
+  if(cosmeticHeldItem){ctx.font='16px '+FONT;ctx.textAlign='center';ctx.fillText(cosmeticHeldItem.emoji,-s*26,4)}
   ctx.restore();
 }
 function drawInactiveCharacter(charId,px,py,dir,bobT){
@@ -1782,6 +1787,8 @@ function launchMiniGame(roomKey){
   else if(mg.type==='invaders')gs=initInvaders(mg);
   else if(mg.type==='breaker')gs=initBreaker(mg);
   else if(mg.type==='memory')gs=initMemory(mg);
+  // Clear drag/hold state before entering mini-game
+  if(holdTimer){clearTimeout(holdTimer);holdTimer=null}holdStartPos=null;dragObject=null;
   miniGameActive={type:mg.type,roomKey,gs};
   // Hide HUD overlay so mini-game is unobstructed
   document.getElementById('hud').style.display='none';
@@ -1792,6 +1799,8 @@ function launchMiniGame(roomKey){
 }
 function closeMiniGame(){
   if(!miniGameActive)return;
+  // Clear drag/hold state when entering/leaving mini-game
+  if(holdTimer){clearTimeout(holdTimer);holdTimer=null}holdStartPos=null;dragObject=null;
   const gs=miniGameActive.gs;
   const mg=gs.mg;
   const rk=miniGameActive.roomKey;
@@ -6849,6 +6858,8 @@ function dismissFromSchool(){
   state.currentRoom=9;player.x=W*.3;player.y=FLOOR_BOT-30;switchRoom();saveGame();
 }
 function switchRoom(){
+  // Clear drag/hold state on room change
+  if(holdTimer){clearTimeout(holdTimer);holdTimer=null}holdStartPos=null;dragObject=null;
   sfxDoor();
   const rk=CFG.WORLD_ROOMS[state.currentRoom];
   roomObjects=buildRoom(rk);
@@ -6896,13 +6907,14 @@ function setupInput(){
         else if(tx>W*0.65)mgs.px=Math.min(7,mgs.px+0.8);
         else{if(mgs.shootCooldown===0){mgs.bullets.push({x:mgs.px,y:8.5});mgs.shootCooldown=8}}
       }
-      handleTap(tx,ty);
+      handleMiniGameTap(tx,ty);
       return;
     }
-    if(transitioning)return;handleTap(tx,ty)
+    if(transitioning)return;handlePointerDown(tx,ty)
   },{passive:false});
   canvas.addEventListener('touchmove',e=>{
-    if(bookReaderActive||bookshelfActive||chalkboardActive){if(chalkboardActive){e.preventDefault();const t=e.changedTouches[0];const[mx,my]=toVirtual(t.clientX,t.clientY);handleChalkboardPointerMove(mx,my)}return}
+    if(bookReaderActive||bookshelfActive)return;
+    if(chalkboardActive){e.preventDefault();const t=e.changedTouches[0];const[mx,my]=toVirtual(t.clientX,t.clientY);handleChalkboardPointerMove(mx,my);return}
     if(miniGameActive){
       const t=e.changedTouches[0];const[mx,my]=toVirtual(t.clientX,t.clientY);
       const mgs=miniGameActive.gs;
@@ -6910,7 +6922,10 @@ function setupInput(){
         const mgw=Math.min(W*0.9,420),mox=(W-mgw)/2;
         mgs.px=Math.max(mgs.pw/2,Math.min(7-mgs.pw/2,(mx-mox)/(mgw/7)));
       }
+      return;
     }
+    const t=e.changedTouches[0];const[mx,my]=toVirtual(t.clientX,t.clientY);
+    handlePointerMove(mx,my);
   },{passive:false});
   canvas.addEventListener('touchend',e=>{
     if(bookReaderActive)return;
@@ -6930,11 +6945,14 @@ function setupInput(){
         }
       }
       mgTouchStart=null;
+      return;
     }
+    const t=e.changedTouches[0];const[ex,ey]=toVirtual(t.clientX,t.clientY);
+    handlePointerUp(ex,ey);
   });
-  canvas.addEventListener('mousedown',e=>{const[mx,my]=toVirtual(e.clientX,e.clientY);if(bookReaderActive){handleBookReaderTap(mx,my);return}if(bookshelfActive){handleBookshelfTap(mx,my);return}if(chalkboardActive){handleChalkboardPointerDown(mx,my);return}if(transitioning&&!miniGameActive)return;handleTap(mx,my)});
-  canvas.addEventListener('mousemove',e=>{if(bookReaderActive)return;if(bookshelfActive)return;if(chalkboardActive){const[mx,my]=toVirtual(e.clientX,e.clientY);handleChalkboardPointerMove(mx,my)}});
-  canvas.addEventListener('mouseup',e=>{if(bookReaderActive)return;if(bookshelfActive)return;if(chalkboardActive)chalkboardActive.drawing=false});
+  canvas.addEventListener('mousedown',e=>{const[mx,my]=toVirtual(e.clientX,e.clientY);if(bookReaderActive){handleBookReaderTap(mx,my);return}if(bookshelfActive){handleBookshelfTap(mx,my);return}if(chalkboardActive){handleChalkboardPointerDown(mx,my);return}if(miniGameActive){handleMiniGameTap(mx,my);return}if(transitioning)return;handlePointerDown(mx,my)});
+  canvas.addEventListener('mousemove',e=>{if(bookReaderActive)return;if(bookshelfActive)return;if(chalkboardActive){const[mx,my]=toVirtual(e.clientX,e.clientY);handleChalkboardPointerMove(mx,my);return}const[mx,my]=toVirtual(e.clientX,e.clientY);handlePointerMove(mx,my)});
+  canvas.addEventListener('mouseup',e=>{if(bookReaderActive)return;if(bookshelfActive)return;if(chalkboardActive){chalkboardActive.drawing=false;return}const[mx,my]=toVirtual(e.clientX,e.clientY);handlePointerUp(mx,my)});
   const keys={};
   window.addEventListener('keydown',e=>{
     if(bookReaderActive){if(e.key==='Escape')closeBookReader();else if(e.key==='ArrowLeft'&&bookReaderActive.page>0){bookReaderActive.page--;sfxInteract()}else if(e.key==='ArrowRight'&&bookReaderActive.page<bookReaderActive.totalPages-1){bookReaderActive.page++;sfxInteract()}return}
@@ -6965,38 +6983,87 @@ function setupInput(){
   window.addEventListener('keyup',e=>{keys[e.key]=false});
   setInterval(()=>{if(!gameStarted)return;let kx=0,ky=0;if(keys.ArrowLeft||keys.a)kx--;if(keys.ArrowRight||keys.d)kx++;if(keys.ArrowUp||keys.w)ky--;if(keys.ArrowDown||keys.s)ky++;if(kx||ky){joystick.dx=kx*joystick.radius*.7;joystick.dy=ky*joystick.radius*.7;joystick.active=true}else if(!touchId){joystick.active=false;joystick.dx=0;joystick.dy=0}},16);
 }
-function handleTap(tx,ty){
-  if(bookReaderActive)return;
-  if(bookshelfActive)return;
-  if(chalkboardActive)return;
-  // Mini-game input
-  if(miniGameActive){
-    const mgs=miniGameActive.gs;
-    if(tx<50&&ty<50){closeMiniGame();return}
-    if(mgs.gameOver||mgs.win){closeMiniGame();return}
-    if(mgs.mg.type==='memory'){handleMemoryTap(mgs,tx,ty);return}
-    if(mgs.mg.type==='slots'){handleSlotsTap(mgs,tx,ty);return}
-    if(mgs.mg.type==='invaders'){if(mgs.shootCooldown===0){mgs.bullets.push({x:mgs.px,y:8.5});mgs.shootCooldown=8}return}
-    if(mgs.mg.type==='breaker'&&!mgs.started){mgs.started=true;return}
-    return;
-  }
-  // Tap to drop if carrying
+function handleMiniGameTap(tx,ty){
+  const mgs=miniGameActive.gs;
+  if(tx<50&&ty<50){closeMiniGame();return}
+  if(mgs.gameOver||mgs.win){closeMiniGame();return}
+  if(mgs.mg.type==='memory'){handleMemoryTap(mgs,tx,ty);return}
+  if(mgs.mg.type==='slots'){handleSlotsTap(mgs,tx,ty);return}
+  if(mgs.mg.type==='invaders'){if(mgs.shootCooldown===0){mgs.bullets.push({x:mgs.px,y:8.5});mgs.shootCooldown=8}return}
+  if(mgs.mg.type==='breaker'&&!mgs.started){mgs.started=true;return}
+}
+function handlePointerDown(tx,ty){
+  if(bookReaderActive||bookshelfActive||chalkboardActive)return;
+  if(miniGameActive){handleMiniGameTap(tx,ty);return}
+  if(dragObject){finishDrag(tx,ty);return}
   if(grabbedObject){toggleGrab();tapTarget=null;return}
   const rk=CFG.WORLD_ROOMS[state.currentRoom];
-  // Check NPCs (teacher)
+  // Check NPCs
   const teacher=TEACHERS[rk];
   if(teacher){const td=Math.sqrt((tx-W*.5)**2+(ty-(FLOOR_TOP+22))**2);if(td<50){talkToNPC(teacher);return}}
-  // Check street NPCs
   for(const sn of streetNPCInstances){const sd=Math.sqrt((tx-sn.x)**2+(ty-sn.y)**2);if(sd<45){talkToNPC(sn.data);return}}
-  // Check movable objects (tap to grab)
+  // Check movable objects — start hold timer for drag
   let movObj=null,movD=50;
   for(const ob of roomObjects){if(!ob.movable)continue;const d=Math.sqrt((tx-ob.x)**2+(ty-ob.y)**2);if(d<movD){movD=d;movObj=ob}}
-  if(movObj){tapTarget={x:movObj.x,y:Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,movObj.y+30)),obj:movObj,_grab:true};return}
-  // Check interactable objects
+  if(movObj){
+    holdStartPos={x:tx,y:ty};
+    const target=movObj;
+    holdTimer=setTimeout(()=>{
+      if(target._isFood)unstackFood(target);
+      target._anim={type:'stretch',t:0};
+      dragObject=target;dragOffset={x:target.x-holdStartPos.x,y:target.y-holdStartPos.y};
+      holdTimer=null;
+    },HOLD_MS);
+    return;
+  }
+  // Check non-movable interactables — instant interact
   let tObj=null;
   for(const ob of roomObjects){if(!ob.interactable)continue;const d=Math.sqrt((tx-ob.x)**2+(ty-ob.y)**2);if(d<Math.max(ob.w,ob.h)*.7){tObj=ob;break}}
-  if(tObj){tapTarget={x:tObj.x,y:Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,tObj.y+30)),obj:tObj}}
-  else{tapTarget={x:tx,y:Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,ty)),obj:null}}
+  if(tObj){interactObj(tObj);return}
+  // Empty space — walk there
+  tapTarget={x:tx,y:Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,ty)),obj:null};
+}
+function handlePointerMove(tx,ty){
+  if(holdTimer&&holdStartPos){
+    const dx=tx-holdStartPos.x,dy=ty-holdStartPos.y;
+    if(Math.sqrt(dx*dx+dy*dy)>HOLD_MOVE_THRESH){
+      clearTimeout(holdTimer);holdTimer=null;holdStartPos=null;
+      tapTarget={x:tx,y:Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,ty)),obj:null};
+    }
+  }
+  if(dragObject){
+    dragObject.x=tx+dragOffset.x;dragObject.y=ty+dragOffset.y;
+    dragObject.x=Math.max(5,Math.min(W-5,dragObject.x));
+    dragObject.y=Math.max(FLOOR_TOP-20,Math.min(FLOOR_BOT,dragObject.y));
+    if(dragObject._isFood)moveStackWithParent(dragObject);
+  }
+}
+function handlePointerUp(tx,ty){
+  if(holdTimer){
+    clearTimeout(holdTimer);holdTimer=null;
+    const sx=holdStartPos.x,sy=holdStartPos.y;holdStartPos=null;
+    let movObj=null,movD=50;
+    for(const ob of roomObjects){if(!ob.movable)continue;const d=Math.sqrt((sx-ob.x)**2+(sy-ob.y)**2);if(d<movD){movD=d;movObj=ob}}
+    if(movObj&&movObj.interactable)interactObj(movObj);
+    return;
+  }
+  holdStartPos=null;
+  if(dragObject)finishDrag(tx,ty);
+}
+function finishDrag(tx,ty){
+  if(!dragObject)return;
+  const obj=dragObject;dragObject=null;
+  const distP=Math.sqrt((obj.x-player.x)**2+(obj.y-player.y)**2);
+  if(distP<DROP_ON_PLAYER_R){
+    if(obj._isFood)consumeFood(obj);
+    else attachCosmeticItem(obj);
+  }else{
+    obj._anim={type:'squash',t:0};
+    const rk=CFG.WORLD_ROOMS[state.currentRoom];
+    if(obj._isFood)handleFoodDrop(obj,rk);
+    else{state.movedObjects[rk+'_'+obj.id]={x:obj.x,y:obj.y}}
+    saveGame();
+  }
 }
 function checkChallengeProgress(objectId,roomKey){const ch=ROOM_CHALLENGES[roomKey];if(!ch)return;if(!state.challengeProgress[roomKey])state.challengeProgress[roomKey]={step:0,completed:false};const prog=state.challengeProgress[roomKey];if(prog.completed)return;if(objectId===ch.steps[prog.step]){prog.step++;sfxInteract();if(prog.step>=ch.steps.length){prog.completed=true;addCoin(player.x,player.y-40,ch.reward);showToast(`Challenge complete! +${ch.reward} ⭐ Game Boy unlocked!`);setTimeout(()=>{roomObjects=buildRoom(roomKey)},400)}else{showToast(`Step ${prog.step}/${ch.steps.length}! ${ch.hints[prog.step]}`)}saveGame();updateStatusBar()}}
 function interactObj(ob){if(ob&&ob.onInteract){ob.onInteract(ob);player._int=true;const icd=state.character==='ravi'?240:300;setTimeout(()=>player._int=false,icd);trackMissionProgress('interact',ob.id,CFG.WORLD_ROOMS[state.currentRoom]);checkChallengeProgress(ob.id,CFG.WORLD_ROOMS[state.currentRoom])}}
@@ -7137,6 +7204,30 @@ function handleFoodDrop(food,rk){
   }
   // 4. Normal drop
   saveFoodState(food,rk);
+}
+
+function consumeFood(food){
+  const rk=CFG.WORLD_ROOMS[state.currentRoom];
+  const idx=roomObjects.indexOf(food);if(idx>=0)roomObjects.splice(idx,1);
+  if(state.foodSpawns[rk])state.foodSpawns[rk]=state.foodSpawns[rk].filter(fs=>fs.id!==food.id);
+  delete state.movedObjects[rk+'_'+food.id];
+  if(food._stackChildren){for(const ch of food._stackChildren){ch._stackParent=null;ch._stackOffsetY=0;ch._stackIndex=0}}
+  spawnP(player.x,player.y-20,'#34d399',12);spawnP(player.x,player.y-10,'#fbbf24',8);
+  spawnText(player.x,player.y-40,food._foodEmoji+' Yum!','#22c55e');
+  showToast(food._foodEmoji+' Yummy '+food.label+'! \u{1F60B}');
+  sfxInteract();saveGame();
+}
+
+function attachCosmeticItem(obj){
+  const rk=CFG.WORLD_ROOMS[state.currentRoom];
+  const emojiMap={'Basketball':'\u{1F3C0}','Soccer Ball':'\u26BD','Football':'\u{1F3C8}','Tennis Ball':'\u{1F3BE}','Volleyball':'\u{1F3D0}','Pizza':'\u{1F355}','Salad':'\u{1F957}','Apple':'\u{1F34E}','Milk':'\u{1F95B}'};
+  cosmeticHeldItem={emoji:emojiMap[obj.label]||obj._foodEmoji||'\u{1F4E6}',label:obj.label||'Item'};
+  const idx=roomObjects.indexOf(obj);if(idx>=0)roomObjects.splice(idx,1);
+  delete state.movedObjects[rk+'_'+obj.id];
+  spawnP(player.x,player.y-20,'#8b5cf6',10);
+  spawnText(player.x,player.y-40,'\u2728 '+cosmeticHeldItem.label,'#8b5cf6');
+  showToast('Holding '+cosmeticHeldItem.emoji+' '+cosmeticHeldItem.label+'!');
+  sfxInteract();saveGame();
 }
 
 function unstackFood(food){
@@ -7901,7 +7992,7 @@ function gameLoop(ts){
   if(state.character==='hannah')spd=Math.round(spd*1.20);
   if(joystick.active&&(Math.abs(joystick.dx)>5||Math.abs(joystick.dy)>5)){
     const m=Math.sqrt(joystick.dx**2+joystick.dy**2);player.vx=joystick.dx/m*spd*dt;player.vy=joystick.dy/m*spd*dt;tapTarget=null}
-  else if(tapTarget){const dx=tapTarget.x-player.x,dy=tapTarget.y-player.y,d=Math.sqrt(dx*dx+dy*dy);if(tapTarget.obj){if(d<50){player.vx=0;player.vy=0;if(tapTarget._grab)toggleGrab();else interactObj(tapTarget.obj);tapTarget=null}else{player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}}else if(d>8){player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}else{player.vx=0;player.vy=0;tapTarget=null}}
+  else if(tapTarget){const dx=tapTarget.x-player.x,dy=tapTarget.y-player.y,d=Math.sqrt(dx*dx+dy*dy);if(d>8){player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}else{player.vx=0;player.vy=0;tapTarget=null}}
   else{player.vx*=.7;player.vy*=.7;if(Math.abs(player.vx)<.1)player.vx=0;if(Math.abs(player.vy)<.1)player.vy=0}
   player.x+=player.vx;player.y+=player.vy;
   player.x=Math.max(5,Math.min(W-5,player.x));player.y=Math.max(FLOOR_TOP+17,Math.min(FLOOR_BOT-10,player.y));
@@ -8000,6 +8091,8 @@ function gameLoop(ts){
   // Street NPCs
   for(const sn of streetNPCInstances)dr.push({t:'snpc',d:sn,y:sn.y});
   dr.sort((a,b)=>a.y-b.y);
+  // Drop zone glow when dragging near player
+  if(dragObject){const dd=Math.sqrt((dragObject.x-player.x)**2+(dragObject.y-player.y)**2);if(dd<DROP_ON_PLAYER_R*1.5){const alpha=Math.max(0,1-dd/(DROP_ON_PLAYER_R*1.5));const pulse=.5+.2*Math.sin(Date.now()*.006);const dg=ctx.createRadialGradient(player.x,player.y+10,5,player.x,player.y+10,DROP_ON_PLAYER_R);dg.addColorStop(0,'rgba(74,222,128,'+(alpha*pulse*.5)+')');dg.addColorStop(.7,'rgba(74,222,128,'+(alpha*pulse*.25)+')');dg.addColorStop(1,'rgba(74,222,128,0)');ctx.fillStyle=dg;ctx.beginPath();ctx.ellipse(player.x,player.y+10,DROP_ON_PLAYER_R,DROP_ON_PLAYER_R*.5,0,0,Math.PI*2);ctx.fill()}}
   for(const d of dr){
     if(d.t==='p')drawPlayer(player.x,player.y,player.dir,player.bobT);
     else if(d.t==='ic')drawInactiveCharacter(d.d.charId,d.d.x,d.d.y,d.d.dir,player.bobT);
@@ -8049,6 +8142,7 @@ function gameLoop(ts){
       if(o.interactable&&!o._isFood&&o.w>20){ctx.save();ctx.beginPath();ctx.rect(o.x-o.w*.55,o.y-o.h*.55,o.w*1.1,o.h*.35);ctx.clip();ctx.strokeStyle='rgba(255,255,240,.25)';ctx.lineWidth=1.5;rr(ctx,o.x-o.w*.5,o.y-o.h*.5,o.w,o.h,4,false,true);ctx.restore()}
       // Grabbed object glow
       if(o===grabbedObject){ctx.strokeStyle='rgba(99,102,241,.7)';ctx.lineWidth=2;ctx.setLineDash([3,3]);ctx.beginPath();ctx.arc(o.x+(o._wobbleX||0),o.y+(o._stackOffsetY||0),Math.max(o.w,o.h)*.55,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}
+      if(o===dragObject){ctx.strokeStyle='rgba(251,146,60,.8)';ctx.lineWidth=2;ctx.setLineDash([4,3]);ctx.beginPath();ctx.arc(o.x+(o._wobbleX||0),o.y+(o._stackOffsetY||0),Math.max(o.w,o.h)*.6,0,Math.PI*2);ctx.stroke();ctx.setLineDash([])}
       if(o===nearObject){const ny=o.y+(o._stackOffsetY||0);ctx.strokeStyle='rgba(255,255,255,.6)';ctx.lineWidth=2;ctx.setLineDash([4,4]);ctx.beginPath();ctx.arc(o.x,ny,Math.max(o.w,o.h)*.55,0,Math.PI*2);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='rgba(0,0,0,.7)';ctx.font='bold 10px '+FONT;ctx.textAlign='center';rr(ctx,o.x-38,ny-Math.max(o.h,30)-22,76,16,8,true,false);ctx.fillStyle='#fff';ctx.fillText(o.label||'',o.x,ny-Math.max(o.h,30)-10)}}}
   // NPC highlight (teachers + street NPCs)
   if(nearNPC){
