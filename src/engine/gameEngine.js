@@ -7806,6 +7806,7 @@ function buildCityHub(){
       saveCharacterPosition(state.character);
       const incoming=state.characterPositions[ch.id];
       if(incoming){state.currentRoom=incoming.room;player.x=incoming.x;player.y=incoming.y;player.dir=incoming.dir;delete state.characterPositions[ch.id]}
+      else{player.x+=60;player.dir=-1}
       state.character=ch.id;saveGame();
     });
     dockInner.appendChild(wrap);

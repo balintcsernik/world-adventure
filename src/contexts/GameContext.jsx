@@ -56,6 +56,10 @@ export function GameProvider({ children }) {
       enginePlayer.y = incoming.y;
       enginePlayer.dir = incoming.dir;
       delete engineState.characterPositions[charId];
+    } else {
+      // New character — offset slightly so they don't overlap the outgoing one
+      enginePlayer.x += 60;
+      enginePlayer.dir = -1;
     }
     engineState.character = charId;
     setCharacter(charId);
