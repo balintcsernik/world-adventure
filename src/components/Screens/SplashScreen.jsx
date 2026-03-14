@@ -26,8 +26,8 @@ export default function SplashScreen() {
   return (
     <div id="splash">
       <div id="splash-deco" aria-hidden="true"></div>
-      <h1>World Adventure</h1>
-      <p>Explore the World!</p>
+      <h1>Miu's World Adventure</h1>
+      <p>Explore Miu's World!</p>
       <button id="start-btn" onClick={handleStart}>Play!</button>
       <div id="hc-brand">
         brought to you by<br />

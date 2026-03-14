@@ -7901,10 +7901,10 @@ function buildCityHub(){
     dockInner.appendChild(wrap);
   });
 
-  // Top bar counts
-  document.getElementById('city-coin-count').textContent=state.coins;
+  // Top bar counts (guarded — CityTopBar may not render these elements)
+  const cce=document.getElementById('city-coin-count');if(cce)cce.textContent=state.coins;
   const am=state.activeMissions?Object.keys(state.activeMissions).length:0;
-  document.getElementById('city-mission-count').textContent=am;
+  const mce=document.getElementById('city-mission-count');if(mce)mce.textContent=am;
 }
 
 function openCityHub(){
@@ -7964,8 +7964,8 @@ function setupUI(){
   document.getElementById('close-map').onclick=closeMap;
   document.getElementById('map-overlay').onclick=e=>{if(e.target.id==='map-overlay')closeMap()};
   document.getElementById('map-canvas').onclick=e=>{const mc=e.target;const rect=mc.getBoundingClientRect();const scaleX=mc.width/rect.width;const scaleY=mc.height/rect.height;const px=(e.clientX-rect.left)*scaleX;const py=(e.clientY-rect.top)*scaleY;handleMapTap(px,py)};
-  document.getElementById('city-close-btn').onclick=closeCityHub;
-  document.getElementById('city-settings-btn').onclick=()=>{/* TODO: open settings panel */};
+  const ccb=document.getElementById('city-close-btn');if(ccb)ccb.onclick=closeCityHub;
+  const csb=document.getElementById('city-settings-btn');if(csb)csb.onclick=()=>{};
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&document.getElementById('city-hub').classList.contains('show'))closeCityHub()});
   document.getElementById('close-destination').onclick=()=>document.getElementById('destination-dialog').classList.remove('open');
   document.getElementById('destination-dialog').onclick=e=>{if(e.target.id==='destination-dialog')document.getElementById('destination-dialog').classList.remove('open')};
