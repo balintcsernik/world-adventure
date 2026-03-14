@@ -7804,9 +7804,6 @@ function buildCityHub(){
       document.querySelectorAll('.dock-char').forEach(d=>d.classList.remove('active'));
       wrap.classList.add('active');
       saveCharacterPosition(state.character);
-      const incoming=state.characterPositions[ch.id];
-      if(incoming){state.currentRoom=incoming.room;player.x=incoming.x;player.y=incoming.y;player.dir=incoming.dir;delete state.characterPositions[ch.id]}
-      else{player.x+=60;player.dir=-1}
       state.character=ch.id;saveGame();
     });
     dockInner.appendChild(wrap);
@@ -7843,6 +7840,8 @@ function handleBuildingTap(areaIdx){
   if(area.rooms.includes(state.currentRoom)){closeCityHub();return}
   state.currentRoom=area.rooms[0];
   player.x=W*.3;player.y=FLOOR_BOT-30;player.dir=1;
+  // Remove active character from idle positions (they're now the active player here)
+  if(state.character&&state.characterPositions)delete state.characterPositions[state.character];
   switchRoom();closeCityHub();
   showToast('Traveled to '+area.name+'! \u{1F5FA}\u{FE0F}');
 }

@@ -40,7 +40,7 @@ export function GameProvider({ children }) {
 
   const selectCharacter = useCallback((charId) => {
     if (charId === engineState.character) return;
-    // Save outgoing character's position
+    // Save outgoing character's position (stays as idle NPC in their room)
     if (engineState.character) {
       if (!engineState.characterPositions) engineState.characterPositions = {};
       engineState.characterPositions[engineState.character] = {
@@ -48,19 +48,9 @@ export function GameProvider({ children }) {
         x: enginePlayer.x, y: enginePlayer.y, dir: enginePlayer.dir
       };
     }
-    // Load incoming character's saved position (if any)
-    const incoming = engineState.characterPositions?.[charId];
-    if (incoming) {
-      engineState.currentRoom = incoming.room;
-      enginePlayer.x = incoming.x;
-      enginePlayer.y = incoming.y;
-      enginePlayer.dir = incoming.dir;
-      delete engineState.characterPositions[charId];
-    } else {
-      // New character — offset slightly so they don't overlap the outgoing one
-      enginePlayer.x += 60;
-      enginePlayer.dir = -1;
-    }
+    // Don't teleport to incoming character's saved room —
+    // room is determined by building tap on the City Hub map.
+    // Just switch who the active character is.
     engineState.character = charId;
     setCharacter(charId);
     saveGame();
