@@ -7120,7 +7120,7 @@ function handleFoodDrop(food,rk){
     const base=getStackBase(food);
     recalcStackPositions(base);
     spawnP(food.x,food.y-10,'#34d399',4);
-    if(state.character==='suki'){state.coins+=1;updateCoinDisplay();spawnText(food.x,food.y-20,'+1 \u2B50');saveGame()}
+    // (Suki's chef bonus removed — replaced by Hannah the Dancer)
     showToast('Stacked! \u{1F37D}\u{FE0F}');
     saveStackState(base,rk);
     return;
@@ -7883,6 +7883,7 @@ function gameLoop(ts){
   player.bobT++;
   let spd=state.equipped.shoes?CFG.FAST_SPEED:CFG.SPEED;
   if(state.character==='milo')spd=Math.round(spd*1.25);
+  if(state.character==='hannah')spd=Math.round(spd*1.20);
   if(joystick.active&&(Math.abs(joystick.dx)>5||Math.abs(joystick.dy)>5)){
     const m=Math.sqrt(joystick.dx**2+joystick.dy**2);player.vx=joystick.dx/m*spd*dt;player.vy=joystick.dy/m*spd*dt;tapTarget=null}
   else if(tapTarget){const dx=tapTarget.x-player.x,dy=tapTarget.y-player.y,d=Math.sqrt(dx*dx+dy*dy);if(tapTarget.obj){if(d<50){player.vx=0;player.vy=0;if(tapTarget._grab)toggleGrab();else interactObj(tapTarget.obj);tapTarget=null}else{player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}}else if(d>8){player.vx=dx/d*spd*dt;player.vy=dy/d*spd*dt}else{player.vx=0;player.vy=0;tapTarget=null}}
