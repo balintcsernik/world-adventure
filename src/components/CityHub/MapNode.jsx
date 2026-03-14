@@ -45,8 +45,9 @@ export default function MapNode({ position, label, imageAsset, isSelected, onTap
       />
 
       {/* Building content — physical grounding via drop-shadow */}
-      <div className="map-node__content">
-        {imageAsset || children}
+      <div className="map-node__content" style={{ position: 'relative' }}>
+        {imageAsset}
+        {children}
       </div>
 
       {/* Chunky wooden sign post */}

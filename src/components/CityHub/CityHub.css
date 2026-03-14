@@ -187,6 +187,12 @@
 #city-welcome {
   position: absolute; top: 56px; left: 50%; transform: translateX(-50%);
   z-index: 50; text-align: center; pointer-events: none;
+  background: rgba(255,255,255,0.35);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  padding: 8px 24px;
+  border-radius: 20px;
+  border: 1.5px solid rgba(255,255,255,0.5);
 }
 #city-welcome h2 {
   font-size: 26px; font-weight: 900; color: #fff;
@@ -237,6 +243,12 @@
   100% { transform: translate(-50%,-100%) scale(1); }
 }
 
+/* Character pin floating on map */
+@keyframes charPinFloat {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50%      { transform: translateX(-50%) translateY(-6px); }
+}
+
 /* Character portrait glow breathing */
 @keyframes charGlowBreath {
   0%, 100% { box-shadow: 0 0 16px rgba(251,191,36,0.35), 0 4px 12px rgba(251,191,36,0.2); }
@@ -270,26 +282,51 @@
 /* ============ RESPONSIVE ============ */
 
 @media (max-width: 768px) {
-  #city-top-bar { padding: 6px 8px; }
-  .city-btn-row { gap: 4px; }
-  .city-btn-row .hud-btn { width: 36px; height: 36px; font-size: 14px; }
-  #city-dock { padding: 8px 14px; bottom: 8px; border-radius: 30px; }
-  #city-dock-inner { gap: 6px; }
-  #city-welcome { top: 44px; }
-  #city-welcome h2 { font-size: 18px; }
-  #city-welcome p { font-size: 11px; }
-  #city-mascot { top: 14%; }
-  #city-mascot svg { width: 50px; height: 56px; }
-  #city-dock-prompt { bottom: 65px; }
-  #city-dock-prompt span { font-size: 9px; }
+  #city-top-bar { padding: 5px 6px; }
+  .city-btn-row { gap: 3px; }
+  .city-btn-row .hud-btn { width: 30px; height: 30px; font-size: 12px; }
+  #city-room-label { font-size: 11px; padding: 3px 10px; border-radius: 12px; }
+  #city-dock { padding: 5px 10px; bottom: 6px; border-radius: 24px; }
+  #city-dock-inner { gap: 4px; }
+  #city-welcome { top: 36px; }
+  #city-welcome h2 { font-size: 14px; }
+  #city-welcome p { font-size: 9px; }
+  #city-mascot { top: 12%; }
+  #city-mascot svg { width: 36px; height: 40px; }
+  #city-dock-prompt { bottom: 52px; }
+  #city-dock-prompt span { font-size: 8px; }
+  /* Scale down buildings layer on mobile */
+  .city-buildings-react { transform: scale(0.6); transform-origin: center center; }
+  /* Scale down map node signs */
+  .map-node__sign-board { font-size: 8px; padding: 3px 8px; border-radius: 4px; border-width: 2px; border-bottom-width: 3px; }
+  .map-node__sign-post { width: 4px; height: 12px; }
+  /* Shrink character portraits in dock */
+  .char-portrait { padding: 2px !important; min-width: 36px !important; border-radius: 10px !important; }
+  .char-portrait canvas { width: 32px !important; height: 38px !important; border-radius: 8px !important; }
+  .char-portrait span { font-size: 6px !important; }
+  /* Back button on mobile */
+  .city-back-btn { width: 32px !important; height: 32px !important; font-size: 13px !important; border-radius: 10px !important; }
+  /* Welcome background on mobile */
+  #city-welcome { padding: 5px 14px; border-radius: 14px; }
 }
 
 @media (max-height: 400px) {
-  #city-top-bar { padding: 4px 8px; }
-  .city-btn-row .hud-btn { width: 32px; height: 32px; font-size: 13px; }
-  #city-dock { padding: 6px 12px; bottom: 4px; }
-  #city-welcome { top: 36px; }
-  #city-welcome h2 { font-size: 15px; }
+  #city-top-bar { padding: 3px 6px; }
+  .city-btn-row { gap: 3px; }
+  .city-btn-row .hud-btn { width: 28px; height: 28px; font-size: 11px; }
+  #city-room-label { font-size: 10px; padding: 2px 8px; }
+  #city-dock { padding: 4px 8px; bottom: 3px; border-radius: 20px; }
+  #city-dock-inner { gap: 3px; }
+  #city-welcome { top: 28px; }
+  #city-welcome h2 { font-size: 13px; }
+  #city-welcome p { font-size: 8px; }
   #city-mascot { display: none; }
-  #city-dock-prompt { bottom: 55px; }
+  #city-dock-prompt { bottom: 42px; }
+  #city-dock-prompt span { font-size: 7px; }
+  .city-buildings-react { transform: scale(0.5); transform-origin: center center; }
+  .char-portrait { padding: 2px !important; min-width: 30px !important; }
+  .char-portrait canvas { width: 28px !important; height: 32px !important; }
+  .char-portrait span { font-size: 5px !important; }
+  .city-back-btn { width: 28px !important; height: 28px !important; font-size: 11px !important; border-radius: 8px !important; }
+  #city-welcome { padding: 4px 10px; border-radius: 12px; }
 }

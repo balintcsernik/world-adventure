@@ -84,8 +84,8 @@ export default function CityHub() {
       <CityTopBar />
 
       <div id="city-welcome">
-        <h2>WELCOME TO THE CITY!</h2>
-        <p>TAP TO VISIT YOUR WORLD.</p>
+        <h2>WELCOME TO MIU'S WORLD</h2>
+        <p>TAP A PLACE TO EXPLORE!</p>
       </div>
 
       {/* Dock prompt text */}
