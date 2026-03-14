@@ -59,7 +59,7 @@ function CharCard({ char: ch, selected, onSelect }) {
       <div className="char-skill">
         <span className="skill-icon">{ch.icon}</span> {ch.skill}
       </div>
-      <div className="char-desc">{ch.skillDesc}</div>
+      <div className="char-skill-desc">{ch.skillDesc}</div>
     </div>
   );
 }
