@@ -1,10 +1,9 @@
 import React from 'react';
-import schoolBuildingImg from '../../assets/school-building.png';
 
 /* ─── High-fidelity SVG building assets for the City Map ─── */
 
-/* ── School: Cartoon school building asset with grounding shadow + hover ── */
-export function SchoolSvg({ w = 130, h = 140 }) {
+/* ── School: Detailed cartoon school building (warm yellow, bell tower, clock) ── */
+export function SchoolSvg({ w = 150, h = 160 }) {
   return (
     <div
       className="school-asset-wrapper"
@@ -15,15 +14,125 @@ export function SchoolSvg({ w = 130, h = 140 }) {
         transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
       }}
     >
-      <img
-        src={schoolBuildingImg}
-        alt="School building"
-        style={{
-          width: '100%', height: '100%',
-          objectFit: 'contain',
-          display: 'block',
-        }}
-      />
+      <svg width={w} height={h} viewBox="0 0 150 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          {/* Main wall warm yellow gradient */}
+          <linearGradient id="schoolWall" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#f5d98a"/>
+            <stop offset="100%" stopColor="#e8c55a"/>
+          </linearGradient>
+          {/* Bell tower gradient */}
+          <linearGradient id="towerWall" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#f0d070"/>
+            <stop offset="100%" stopColor="#dbb94e"/>
+          </linearGradient>
+          {/* Roof brown gradient */}
+          <linearGradient id="roofBrown" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#c47433"/>
+            <stop offset="100%" stopColor="#9e5520"/>
+          </linearGradient>
+          {/* Tower roof */}
+          <linearGradient id="towerRoof" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#b86830"/>
+            <stop offset="100%" stopColor="#8e4a18"/>
+          </linearGradient>
+          {/* Door gradient */}
+          <linearGradient id="schoolDoor" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#b8650f"/>
+            <stop offset="100%" stopColor="#7a4008"/>
+          </linearGradient>
+          {/* Bush gradient */}
+          <radialGradient id="bushGrad" cx="0.5" cy="0.6" r="0.5">
+            <stop offset="0%" stopColor="#5cb85c"/>
+            <stop offset="100%" stopColor="#3a7d3a"/>
+          </radialGradient>
+        </defs>
+
+        {/* ── Left wing ── */}
+        <rect x="8" y="62" width="48" height="68" rx="4" fill="url(#schoolWall)" stroke="#c9a84a" strokeWidth="1"/>
+        {/* Left wing roof */}
+        <path d="M4 64L32 48L60 64Z" fill="url(#roofBrown)" stroke="#8e4a18" strokeWidth="0.8"/>
+        {/* Left wing windows — 2×2 grid */}
+        {[0,1].map(r => [0,1].map(c => (
+          <React.Fragment key={`lw${r}${c}`}>
+            <rect x={15 + c * 20} y={72 + r * 24} width="14" height="16" rx="2" fill="#7ec8e3" stroke="#5a8fa8" strokeWidth="0.8"/>
+            {/* Window cross */}
+            <line x1={22 + c * 20} y1={72 + r * 24} x2={22 + c * 20} y2={88 + r * 24} stroke="#5a8fa8" strokeWidth="0.5"/>
+            <line x1={15 + c * 20} y1={80 + r * 24} x2={29 + c * 20} y2={80 + r * 24} stroke="#5a8fa8" strokeWidth="0.5"/>
+          </React.Fragment>
+        )))}
+
+        {/* ── Right wing ── */}
+        <rect x="94" y="62" width="48" height="68" rx="4" fill="url(#schoolWall)" stroke="#c9a84a" strokeWidth="1"/>
+        {/* Right wing roof */}
+        <path d="M90 64L118 48L146 64Z" fill="url(#roofBrown)" stroke="#8e4a18" strokeWidth="0.8"/>
+        {/* Right wing windows — 2×2 grid */}
+        {[0,1].map(r => [0,1].map(c => (
+          <React.Fragment key={`rw${r}${c}`}>
+            <rect x={101 + c * 20} y={72 + r * 24} width="14" height="16" rx="2" fill="#7ec8e3" stroke="#5a8fa8" strokeWidth="0.8"/>
+            <line x1={108 + c * 20} y1={72 + r * 24} x2={108 + c * 20} y2={88 + r * 24} stroke="#5a8fa8" strokeWidth="0.5"/>
+            <line x1={101 + c * 20} y1={80 + r * 24} x2={115 + c * 20} y2={80 + r * 24} stroke="#5a8fa8" strokeWidth="0.5"/>
+          </React.Fragment>
+        )))}
+
+        {/* ── Center section (taller) ── */}
+        <rect x="42" y="52" width="66" height="78" rx="4" fill="url(#schoolWall)" stroke="#c9a84a" strokeWidth="1"/>
+
+        {/* ── Bell tower ── */}
+        <rect x="58" y="16" width="34" height="40" rx="3" fill="url(#towerWall)" stroke="#c9a84a" strokeWidth="0.8"/>
+        {/* Tower pointed roof with ornament */}
+        <path d="M55 18L75 0L95 18Z" fill="url(#towerRoof)" stroke="#7a3c10" strokeWidth="0.8"/>
+        {/* Roof ornament — small triangle finial */}
+        <path d="M72 4L75 -2L78 4Z" fill="#c47433"/>
+        {/* Bell arch opening */}
+        <path d="M65 18Q75 10 85 18" fill="#a08040" stroke="#8a6e30" strokeWidth="0.6"/>
+        <rect x="65" y="18" width="20" height="12" fill="#a08040"/>
+        {/* Bell */}
+        <path d="M71 20Q75 16 79 20L80 26H70Z" fill="#daa520" stroke="#b8860b" strokeWidth="0.6"/>
+        <circle cx="75" cy="27" r="1.5" fill="#b8860b"/>
+
+        {/* ── Clock ── */}
+        <circle cx="75" cy="40" r="9" fill="#f0f0f0" stroke="#888" strokeWidth="1"/>
+        <circle cx="75" cy="40" r="7.5" fill="#fff" stroke="#aaa" strokeWidth="0.5"/>
+        {/* Clock hands */}
+        <line x1="75" y1="40" x2="75" y2="34" stroke="#333" strokeWidth="1" strokeLinecap="round"/>
+        <line x1="75" y1="40" x2="79" y2="38" stroke="#333" strokeWidth="0.8" strokeLinecap="round"/>
+        <circle cx="75" cy="40" r="1" fill="#333"/>
+        {/* Hour markers */}
+        {[0,1,2,3,4,5,6,7,8,9,10,11].map(i => {
+          const angle = (i * 30 - 90) * Math.PI / 180;
+          const x = 75 + Math.cos(angle) * 6.5;
+          const y = 40 + Math.sin(angle) * 6.5;
+          return <circle key={`h${i}`} cx={x} cy={y} r="0.5" fill="#666"/>;
+        })}
+
+        {/* ── SCHOOL sign board on center section ── */}
+        <rect x="50" y="56" width="50" height="18" rx="3" fill="#faf5e0" stroke="#c9a84a" strokeWidth="1"/>
+        <text x="75" y="69" textAnchor="middle" fontSize="11" fontWeight="900" fill="#5a4020"
+          fontFamily="'Nunito', sans-serif" letterSpacing="0.08em">SCHOOL</text>
+
+        {/* ── Main entrance door ── */}
+        <rect x="63" y="106" width="24" height="24" rx="12 12 2 2" fill="url(#schoolDoor)" stroke="#5a3008" strokeWidth="1"/>
+        {/* Door panels */}
+        <line x1="75" y1="108" x2="75" y2="130" stroke="#5a3008" strokeWidth="0.6"/>
+        {/* Door knobs */}
+        <circle cx="72" cy="120" r="1.2" fill="#daa520"/>
+        <circle cx="78" cy="120" r="1.2" fill="#daa520"/>
+        {/* Steps */}
+        <rect x="58" y="128" width="34" height="4" rx="1.5" fill="#d4c8a0" stroke="#bbb090" strokeWidth="0.5"/>
+
+        {/* ── Bushes on sides ── */}
+        <ellipse cx="18" cy="132" rx="12" ry="8" fill="url(#bushGrad)"/>
+        <ellipse cx="10" cy="134" rx="8" ry="6" fill="#4a9e4a"/>
+        <ellipse cx="132" cy="132" rx="12" ry="8" fill="url(#bushGrad)"/>
+        <ellipse cx="140" cy="134" rx="8" ry="6" fill="#4a9e4a"/>
+        {/* Small bushes near door */}
+        <ellipse cx="56" cy="130" rx="6" ry="4" fill="#5cb85c"/>
+        <ellipse cx="94" cy="130" rx="6" ry="4" fill="#5cb85c"/>
+
+        {/* ── Ground shadow ── */}
+        <ellipse cx="75" cy="136" rx="65" ry="4" fill="rgba(0,0,0,0.06)"/>
+      </svg>
     </div>
   );
 }
