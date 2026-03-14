@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
+import { useGame } from '../../contexts/GameContext';
 import CityTopBar from './CityTopBar';
 import CityDock from './CityDock';
 import CityBuildingsLayer from './CityBuildingsLayer';
@@ -6,8 +7,24 @@ import CityEnvironment from './CityEnvironment';
 import './CityHub.css';
 
 export default function CityHub() {
+  const { syncFromEngine } = useGame();
+  const hubRef = useRef(null);
+
+  // Auto-sync React state from engine whenever the City Hub becomes visible
+  useEffect(() => {
+    const hub = hubRef.current;
+    if (!hub) return;
+    const observer = new MutationObserver(() => {
+      if (hub.classList.contains('show')) {
+        syncFromEngine();
+      }
+    });
+    observer.observe(hub, { attributes: true, attributeFilter: ['class'] });
+    return () => observer.disconnect();
+  }, [syncFromEngine]);
+
   return (
-    <div id="city-hub">
+    <div id="city-hub" ref={hubRef}>
       {/* Layer 1: Full illustrated environment background (SVG) */}
       <CityEnvironment />
 

@@ -1,30 +1,112 @@
 import React from 'react';
-import schoolBuildingImg from '../../../assets/school-building.png';
 
 /* ─── High-fidelity SVG building assets for the City Map ─── */
 
-/* ── School: Cartoon school building from PNG asset ── */
+/* ── School: Cartoon red-brick school with clock tower ── */
 export function SchoolSvg({ w = 150, h = 140 }) {
   return (
-    <div
-      className="school-asset-wrapper"
-      style={{
-        width: w, height: h,
-        filter: 'drop-shadow(0px 10px 8px rgba(0,0,0,0.2))',
-        transformOrigin: 'bottom center',
-        transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-      }}
-    >
-      <img
-        src={schoolBuildingImg}
-        alt="School building"
-        style={{
-          width: '100%', height: '100%',
-          objectFit: 'contain',
-          display: 'block',
-        }}
-      />
-    </div>
+    <svg width={w} height={h} viewBox="0 0 150 140" fill="none">
+      {/* Main building body */}
+      <rect x="10" y="44" width="130" height="86" rx="4" fill="url(#schWall)" stroke="#92400e" strokeWidth="1.2"/>
+      {/* 3D side edge */}
+      <path d="M140 48L148 40V126L140 134Z" fill="#b45309" opacity=".2"/>
+
+      {/* Clock tower */}
+      <rect x="52" y="10" width="46" height="38" rx="3" fill="url(#schTower)" stroke="#92400e" strokeWidth="1"/>
+      {/* Tower roof — triangular */}
+      <path d="M48 10L75 -4L102 10Z" fill="#16a34a" stroke="#15803d" strokeWidth="1"/>
+      {/* Flag pole */}
+      <line x1="75" y1="-4" x2="75" y2="-16" stroke="#6b7280" strokeWidth="1.5"/>
+      <path d="M75 -16L86 -12L75 -8Z" fill="#ef4444"/>
+      {/* Clock face */}
+      <circle cx="75" cy="28" r="10" fill="#fef9c3" stroke="#92400e" strokeWidth="1"/>
+      <circle cx="75" cy="28" r="8" fill="#fff" stroke="#d4a24e" strokeWidth=".5"/>
+      <line x1="75" y1="28" x2="75" y2="22" stroke="#1e293b" strokeWidth="1.2" strokeLinecap="round"/>
+      <line x1="75" y1="28" x2="80" y2="28" stroke="#1e293b" strokeWidth="1" strokeLinecap="round"/>
+      <circle cx="75" cy="28" r="1.2" fill="#1e293b"/>
+      {/* Hour markers */}
+      {[0,1,2,3].map(i => (
+        <circle key={i} cx={75 + Math.sin(i * Math.PI/2) * 7} cy={28 - Math.cos(i * Math.PI/2) * 7} r=".8" fill="#92400e"/>
+      ))}
+
+      {/* Windows — top row (6 windows) */}
+      {[0,1,2].map(i => (
+        <React.Fragment key={`wt${i}`}>
+          <rect x={18 + i * 16} y="52" width="12" height="16" rx="2" fill="#bae6fd" stroke="#92400e" strokeWidth=".6"/>
+          <line x1={24 + i * 16} y1="52" x2={24 + i * 16} y2="68" stroke="#92400e" strokeWidth=".3"/>
+          <line x1={18 + i * 16} y1="60" x2={30 + i * 16} y2="60" stroke="#92400e" strokeWidth=".3"/>
+        </React.Fragment>
+      ))}
+      {[0,1,2].map(i => (
+        <React.Fragment key={`wt2${i}`}>
+          <rect x={88 + i * 16} y="52" width="12" height="16" rx="2" fill="#bae6fd" stroke="#92400e" strokeWidth=".6"/>
+          <line x1={94 + i * 16} y1="52" x2={94 + i * 16} y2="68" stroke="#92400e" strokeWidth=".3"/>
+          <line x1={88 + i * 16} y1="60" x2={100 + i * 16} y2="60" stroke="#92400e" strokeWidth=".3"/>
+        </React.Fragment>
+      ))}
+
+      {/* Windows — bottom row (6 windows) */}
+      {[0,1,2].map(i => (
+        <React.Fragment key={`wb${i}`}>
+          <rect x={18 + i * 16} y="78" width="12" height="16" rx="2" fill="#bae6fd" stroke="#92400e" strokeWidth=".6"/>
+          <line x1={24 + i * 16} y1="78" x2={24 + i * 16} y2="94" stroke="#92400e" strokeWidth=".3"/>
+          <line x1={18 + i * 16} y1="86" x2={30 + i * 16} y2="86" stroke="#92400e" strokeWidth=".3"/>
+        </React.Fragment>
+      ))}
+      {[0,1,2].map(i => (
+        <React.Fragment key={`wb2${i}`}>
+          <rect x={88 + i * 16} y="78" width="12" height="16" rx="2" fill="#bae6fd" stroke="#92400e" strokeWidth=".6"/>
+          <line x1={94 + i * 16} y1="78" x2={94 + i * 16} y2="94" stroke="#92400e" strokeWidth=".3"/>
+          <line x1={88 + i * 16} y1="86" x2={100 + i * 16} y2="86" stroke="#92400e" strokeWidth=".3"/>
+        </React.Fragment>
+      ))}
+
+      {/* Front door — green arched */}
+      <rect x="62" y="98" width="26" height="32" rx="13 13 2 2" fill="#15803d" stroke="#166534" strokeWidth="1"/>
+      <rect x="65" y="100" width="20" height="24" rx="10 10 1 1" fill="#22c55e" opacity=".3"/>
+      <circle cx="82" cy="116" r="2" fill="#fbbf24"/>
+      {/* Door window */}
+      <rect x="68" y="102" width="14" height="10" rx="7 7 1 1" fill="#bae6fd" stroke="#166534" strokeWidth=".5"/>
+
+      {/* SCHOOL text above door */}
+      <rect x="56" y="88" width="38" height="9" rx="2" fill="#1e293b"/>
+      <text x="75" y="95" textAnchor="middle" fontSize="7" fontWeight="900" fill="#fef9c3"
+        fontFamily="Nunito,sans-serif">SCHOOL</text>
+
+      {/* Left chimney */}
+      <rect x="22" y="34" width="8" height="14" rx="1" fill="#78716c" stroke="#57534e" strokeWidth=".6"/>
+      <rect x="20" y="32" width="12" height="4" rx="1.5" fill="#57534e"/>
+
+      {/* Right chimney */}
+      <rect x="120" y="34" width="8" height="14" rx="1" fill="#78716c" stroke="#57534e" strokeWidth=".6"/>
+      <rect x="118" y="32" width="12" height="4" rx="1.5" fill="#57534e"/>
+
+      {/* Steps */}
+      <rect x="56" y="128" width="38" height="5" rx="1" fill="#d6d3d1"/>
+      <rect x="52" y="132" width="46" height="5" rx="1" fill="#e7e5e4"/>
+
+      {/* Bushes */}
+      <circle cx="22" cy="126" r="8" fill="#22c55e" opacity=".7"/>
+      <circle cx="16" cy="128" r="6" fill="#16a34a" opacity=".6"/>
+      <circle cx="128" cy="126" r="8" fill="#22c55e" opacity=".7"/>
+      <circle cx="134" cy="128" r="6" fill="#16a34a" opacity=".6"/>
+
+      {/* Bell on tower */}
+      <path d="M71 40Q75 36 79 40" fill="#fbbf24" stroke="#d97706" strokeWidth=".6"/>
+      <circle cx="75" cy="41" r="1.5" fill="#d97706"/>
+
+      {/* Ground shadow */}
+      <ellipse cx="75" cy="138" rx="68" ry="3" fill="rgba(0,0,0,.06)"/>
+
+      <defs>
+        <linearGradient id="schWall" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fca5a5"/><stop offset="100%" stopColor="#ef4444"/>
+        </linearGradient>
+        <linearGradient id="schTower" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#fca5a5"/><stop offset="100%" stopColor="#f87171"/>
+        </linearGradient>
+      </defs>
+    </svg>
   );
 }
 
