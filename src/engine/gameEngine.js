@@ -5,6 +5,7 @@
 import { CFG, PAL, WEATHER, FONT, CHARACTERS, SHOP_ITEMS, CITY_STORE_ITEMS, ALL_ITEMS,
   TEACHERS, PETS, STREET_NPCS, MAP_AREAS, CITY_BUILDINGS, DESTINATIONS, MISSION_TEMPLATES
 } from '../constants';
+import { loadAll, isReady } from './assetManager.js';
 
 // Expose building functions on window for dynamic lookup by buildFn name
 function registerBuildFns() {
@@ -8455,6 +8456,8 @@ function buildCharSelect(){
 
 function init(){
   canvas=document.getElementById('game');ctx=canvas.getContext('2d');resize();
+  // Preload sprite assets (non-blocking — game uses procedural fallback until loaded)
+  loadAll((loaded,total)=>{if(total>0)console.log(`[Assets] ${loaded}/${total}`)}).catch(()=>{});
   window.addEventListener('resize',()=>{resize();roomObjects=buildRoom(CFG.WORLD_ROOMS[state.currentRoom]);if(document.getElementById('city-hub').classList.contains('show'))drawCityMap()});
   const loaded=loadGame();
   if(loaded){player.x=state.playerX||W*.3;player.y=state.playerY||FLOOR_BOT-30;player.dir=state.playerDir||1}
