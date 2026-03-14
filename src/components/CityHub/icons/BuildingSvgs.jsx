@@ -1,5 +1,5 @@
 import React from 'react';
-import schoolBuildingImg from '../../assets/school-building.png';
+import schoolBuildingImg from '../../../assets/school-building.png';
 
 /* ─── High-fidelity SVG building assets for the City Map ─── */
 
