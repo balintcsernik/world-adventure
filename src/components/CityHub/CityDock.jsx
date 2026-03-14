@@ -2,6 +2,9 @@ import React from 'react';
 import { useGame } from '../../contexts/GameContext';
 import { CHARACTERS } from '../../constants';
 
+/* Map character gender to face avatar emoji instead of tool/skill icon */
+const FACE_AVATARS = { boy: '\u{1F466}', girl: '\u{1F467}' };
+
 /* ─── Character Portrait with glow + scale animation ─── */
 function CharPortrait({ char, isActive, onSelect }) {
   return (
@@ -35,7 +38,7 @@ function CharPortrait({ char, isActive, onSelect }) {
         transition: 'border-color 0.2s, box-shadow 0.35s',
         position: 'relative',
       }}>
-        {char.icon}
+        {FACE_AVATARS[char.gender] || char.icon}
         {/* Active glow ring */}
         {isActive && (
           <div style={{

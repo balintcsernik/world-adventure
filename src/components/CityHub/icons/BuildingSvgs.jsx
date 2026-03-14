@@ -2,70 +2,28 @@ import React from 'react';
 
 /* ─── High-fidelity SVG building assets for the City Map ─── */
 
-/* ── School: Large school with bell tower, clock, columns ── */
+/* ── School: Placeholder image asset with grounding shadow + hover ── */
 export function SchoolSvg({ w = 130, h = 140 }) {
   return (
-    <svg width={w} height={h} viewBox="0 0 130 140" fill="none">
-      {/* Main building body */}
-      <rect x="10" y="50" width="110" height="82" rx="4" fill="url(#schWall)" stroke="#b45309" strokeWidth="1.5"/>
-      {/* 3D right side */}
-      <path d="M120 54L128 46V128L120 136Z" fill="#c49870" opacity=".5"/>
-      {/* Roof */}
-      <path d="M4 52L65 12L126 52Z" fill="url(#schRoof)" stroke="#b91c1c" strokeWidth="1.5" strokeLinejoin="round"/>
-      <path d="M65 12L4 52H22L65 24L108 52H126Z" fill="rgba(255,255,255,.1)"/>
-      {/* Bell tower */}
-      <rect x="52" y="6" width="26" height="18" rx="3" fill="#fef9c3" stroke="#b45309" strokeWidth="1"/>
-      <path d="M49 24L65 2L81 24Z" fill="url(#schRoof)" stroke="#b91c1c" strokeWidth=".8"/>
-      {/* Clock */}
-      <circle cx="65" cy="14" r="6" fill="#fff" stroke="#92400e" strokeWidth="1"/>
-      <line x1="65" y1="14" x2="65" y2="10" stroke="#1e293b" strokeWidth="1" strokeLinecap="round"/>
-      <line x1="65" y1="14" x2="68" y2="14" stroke="#1e293b" strokeWidth="1" strokeLinecap="round"/>
-      <circle cx="65" cy="14" r="1" fill="#1e293b"/>
-      {/* Bell */}
-      <path d="M62 22Q65 18 68 22" fill="#fbbf24" stroke="#92400e" strokeWidth=".6"/>
-      {/* Columns */}
-      <rect x="40" y="70" width="5" height="42" rx="2" fill="#f5f0e0" stroke="#b45309" strokeWidth=".5"/>
-      <rect x="85" y="70" width="5" height="42" rx="2" fill="#f5f0e0" stroke="#b45309" strokeWidth=".5"/>
-      {/* Pediment */}
-      <path d="M36 70L65 55L94 70Z" fill="#fef9c3" stroke="#b45309" strokeWidth=".8"/>
-      {/* Windows row 1 */}
-      {[0,1,2].map(i => (
-        <React.Fragment key={`w1${i}`}>
-          <rect x={18 + i * 35} y={60} width={18} height={14} rx="3" fill="#bae6fd" stroke="#b45309" strokeWidth=".8"/>
-          <line x1={27 + i * 35} y1={60} x2={27 + i * 35} y2={74} stroke="#b45309" strokeWidth=".5"/>
-          <line x1={18 + i * 35} y1={67} x2={36 + i * 35} y2={67} stroke="#b45309" strokeWidth=".5"/>
-        </React.Fragment>
-      ))}
-      {/* Windows row 2 */}
-      {[0,1].map(i => (
-        <rect key={`w2${i}`} x={18 + i * 72} y={82} width={18} height={14} rx="3"
-          fill="#bae6fd" stroke="#b45309" strokeWidth=".8"/>
-      ))}
-      {/* Door — arched */}
-      <rect x="50" y="94" width="30" height="38" rx="15 15 3 3" fill="url(#schDoor)" stroke="#78350f" strokeWidth="1.2"/>
-      <circle cx="72" cy="114" r="2" fill="#fbbf24"/>
-      {/* Door window */}
-      <rect x="56" y="98" width="18" height="12" rx="9" fill="#bae6fd" stroke="#92400e" strokeWidth=".5"/>
-      {/* Steps */}
-      <rect x="44" y="130" width="42" height="5" rx="1.5" fill="#d6d3d1" stroke="#a8a29e" strokeWidth=".5"/>
-      <rect x="48" y="126" width="34" height="5" rx="1" fill="#e7e5e4"/>
-      {/* Flag */}
-      <line x1="65" y1="0" x2="65" y2="6" stroke="#6b7280" strokeWidth="1.2"/>
-      <path d="M65 0L76 3L65 6Z" fill="#ef4444"/>
-      {/* Awning */}
-      <path d="M46 94Q65 90 84 94" fill="#ef4444" stroke="#b91c1c" strokeWidth=".6"/>
-      <defs>
-        <linearGradient id="schWall" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fef9c3"/><stop offset="100%" stopColor="#fde68a"/>
-        </linearGradient>
-        <linearGradient id="schRoof" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#f87171"/><stop offset="100%" stopColor="#dc2626"/>
-        </linearGradient>
-        <linearGradient id="schDoor" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#a16207"/><stop offset="100%" stopColor="#78350f"/>
-        </linearGradient>
-      </defs>
-    </svg>
+    <div
+      className="school-asset-wrapper"
+      style={{
+        width: w, height: h,
+        filter: 'drop-shadow(0px 15px 10px rgba(0,0,0,0.3))',
+        transformOrigin: 'bottom center',
+        transition: 'transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+      }}
+    >
+      <img
+        src="https://placehold.co/260x280/fef3c7/92400e?text=School+Asset"
+        alt="School building"
+        style={{
+          width: '100%', height: '100%',
+          objectFit: 'contain',
+          display: 'block',
+        }}
+      />
+    </div>
   );
 }
 

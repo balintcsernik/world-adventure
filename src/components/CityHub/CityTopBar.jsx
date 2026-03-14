@@ -10,20 +10,12 @@ function Token({ children, label, wide, onClick, title, id }) {
   return (
     <button
       id={id}
-      className="city-token"
+      className={`city-token${wide ? ' city-token--wide' : ''}`}
       onClick={onClick}
       title={title}
       style={{
-        display: 'flex', alignItems: 'center', gap: wide ? 8 : 0,
-        background: '#fff', borderRadius: 16,
-        padding: wide ? '5px 14px 5px 6px' : '5px 8px',
-        boxShadow: '0px 6px 0px #e0e0e0, 0px 8px 15px rgba(0,0,0,0.1)',
-        border: '2.5px solid #f5f5f5',
-        fontSize: 15, fontWeight: 800, fontFamily: 'Nunito, sans-serif',
-        cursor: 'pointer', userSelect: 'none',
-        transition: 'transform 0.15s ease, box-shadow 0.15s ease',
-        flexShrink: 0, lineHeight: 1,
-        outline: 'none', color: 'inherit',
+        fontFamily: 'Nunito, sans-serif',
+        outline: 'none', color: 'inherit', lineHeight: 1,
       }}
     >
       {children}
