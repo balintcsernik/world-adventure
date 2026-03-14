@@ -49,9 +49,9 @@ function CharPortrait({ char, isActive, onSelect }) {
       />
       {/* Name label */}
       <span style={{
-        fontSize: 9, fontWeight: 800,
+        fontSize: 7, fontWeight: 800,
         color: isActive ? '#92400e' : '#374151',
-        marginTop: 3, letterSpacing: '0.02em',
+        marginTop: 2, letterSpacing: '0.02em',
         transition: 'color 0.2s',
       }}>
         {char.name}
