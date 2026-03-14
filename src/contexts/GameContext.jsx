@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useCallback, useRef, useMemo } from 'react';
-import { state as engineState, saveGame, init as engineInit } from '../engine/gameEngine';
+import { state as engineState, saveGame, player as enginePlayer, init as engineInit } from '../engine/gameEngine';
 import { CHARACTERS } from '../constants';
 
 const GameContext = createContext(null);
@@ -39,6 +39,24 @@ export function GameProvider({ children }) {
   }, []);
 
   const selectCharacter = useCallback((charId) => {
+    if (charId === engineState.character) return;
+    // Save outgoing character's position
+    if (engineState.character) {
+      if (!engineState.characterPositions) engineState.characterPositions = {};
+      engineState.characterPositions[engineState.character] = {
+        room: engineState.currentRoom,
+        x: enginePlayer.x, y: enginePlayer.y, dir: enginePlayer.dir
+      };
+    }
+    // Load incoming character's saved position (if any)
+    const incoming = engineState.characterPositions?.[charId];
+    if (incoming) {
+      engineState.currentRoom = incoming.room;
+      enginePlayer.x = incoming.x;
+      enginePlayer.y = incoming.y;
+      enginePlayer.dir = incoming.dir;
+      delete engineState.characterPositions[charId];
+    }
     engineState.character = charId;
     setCharacter(charId);
     saveGame();

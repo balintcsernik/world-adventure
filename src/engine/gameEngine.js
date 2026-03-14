@@ -85,6 +85,7 @@ let state = {
   miniGameHighScore:{},
   challengeProgress:{},
   foodSpawns:{},
+  characterPositions:{},
 };
 
 // Runtime (FONT imported from constants)
@@ -366,7 +367,9 @@ function stopBgm(){if(bgmInterval){clearInterval(bgmInterval);bgmInterval=null;}
 // ---- SAVE / LOAD ----
 const SAVE_KEY='world_adventure_v4';
 function saveGame(){state.playerX=player.x;state.playerY=player.y;state.playerDir=player.dir;try{localStorage.setItem(SAVE_KEY,JSON.stringify(state))}catch(e){}}
-function loadGame(){try{let d=localStorage.getItem(SAVE_KEY);if(d){Object.assign(state,JSON.parse(d));if(!state.challengeProgress)state.challengeProgress={};if(!state.foodSpawns)state.foodSpawns={};return true}d=localStorage.getItem('world_adventure_v3');if(d){const old=JSON.parse(d);Object.assign(state,old);state.unlockedRoom=13;state.activeMissions={};state.missionCounts={};if(!state.challengeProgress)state.challengeProgress={};saveGame();return true}}catch(e){}return false}
+function loadGame(){try{let d=localStorage.getItem(SAVE_KEY);if(d){Object.assign(state,JSON.parse(d));if(!state.challengeProgress)state.challengeProgress={};if(!state.foodSpawns)state.foodSpawns={};if(!state.characterPositions)state.characterPositions={};return true}d=localStorage.getItem('world_adventure_v3');if(d){const old=JSON.parse(d);Object.assign(state,old);state.unlockedRoom=13;state.activeMissions={};state.missionCounts={};if(!state.challengeProgress)state.challengeProgress={};saveGame();return true}}catch(e){}return false}
+function saveCharacterPosition(charId){if(!charId)return;state.characterPositions[charId]={room:state.currentRoom,x:player.x,y:player.y,dir:player.dir}}
+function getInactiveCharsInRoom(roomIdx){const result=[];for(const[cid,pos]of Object.entries(state.characterPositions)){if(cid!==state.character&&pos.room===roomIdx)result.push({charId:cid,...pos})}return result}
 
 // ---- RESIZE ----
 function resize(){const vw=window.innerWidth,vh=window.innerHeight,MIN_W=550,MIN_H=480,scale=Math.max(1,MIN_W/vw,MIN_H/vh);W=Math.round(vw*scale);H=Math.round(vh*scale);canvas.width=W;canvas.height=H;FLOOR_TOP=H*.55;FLOOR_BOT=H*.9;joystick.baseX=Math.round(72*scale);joystick.baseY=H-Math.round(72*scale);joystick.x=joystick.baseX;joystick.y=joystick.baseY;joystick.radius=Math.round(44*scale)}
@@ -1341,6 +1344,13 @@ function drawPlayer(px,py,dir,bobT){
   // Tool
   if(state.equipped.tool){ctx.font='18px '+FONT;ctx.textAlign='center';const tm={magnifier:'🔍',flashlight:'🔦',bubble_wand:'🫧',camera:'📷',skateboard:'🛹',lollipop:'🍭',kite:'🪁',umbrella:'☂️'};ctx.fillText(tm[state.equipped.tool]||'🔧',s*26,4)}
   ctx.restore();
+}
+function drawInactiveCharacter(charId,px,py,dir,bobT){
+  const sc=state.character,se=state.equipped,svx=player.vx,svy=player.vy;
+  state.character=charId;state.equipped={hat:null,cape:null,shoes:null,tool:null,accessory:null};
+  player.vx=0;player.vy=0;
+  drawPlayer(px,py,dir,bobT);
+  state.character=sc;state.equipped=se;player.vx=svx;player.vy=svy;
 }
 
 // ---- MINI-GAME ENGINES ----
@@ -7790,8 +7800,13 @@ function buildCityHub(){
     const nm=document.createElement('div');nm.className='dock-char-name';nm.textContent=ch.name;
     wrap.appendChild(nm);
     wrap.addEventListener('click',()=>{
+      if(ch.id===state.character)return;
       document.querySelectorAll('.dock-char').forEach(d=>d.classList.remove('active'));
-      wrap.classList.add('active');state.character=ch.id;saveGame();
+      wrap.classList.add('active');
+      saveCharacterPosition(state.character);
+      const incoming=state.characterPositions[ch.id];
+      if(incoming){state.currentRoom=incoming.room;player.x=incoming.x;player.y=incoming.y;player.dir=incoming.dir;delete state.characterPositions[ch.id]}
+      state.character=ch.id;saveGame();
     });
     dockInner.appendChild(wrap);
   });
@@ -7976,6 +7991,8 @@ function gameLoop(ts){
     return{t:'o',d:o,y:sortY};
   })];
   dr.push({t:'p',y:player.y});
+  // Inactive characters in this room
+  for(const ic of getInactiveCharsInRoom(state.currentRoom))dr.push({t:'ic',d:ic,y:ic.y});
   // Teacher
   if(teacher)dr.push({t:'t',d:teacher,y:FLOOR_TOP+40});
   // Pet (room-specific positioning)
@@ -7985,6 +8002,7 @@ function gameLoop(ts){
   dr.sort((a,b)=>a.y-b.y);
   for(const d of dr){
     if(d.t==='p')drawPlayer(player.x,player.y,player.dir,player.bobT);
+    else if(d.t==='ic')drawInactiveCharacter(d.d.charId,d.d.x,d.d.y,d.d.dir,player.bobT);
     else if(d.t==='t')drawTeacher(ctx,W*.82,FLOOR_TOP+40,d.d,player.bobT);
     else if(d.t==='pet')drawPet(ctx,d.px||W*.76,d.y,d.d,player.bobT);
     else if(d.t==='snpc'){const sn=d.d;if(sn.data.accessory)drawStreetNPC(ctx,sn.x,sn.y,sn.data,sn.bobT);else drawTeacher(ctx,sn.x,sn.y,sn.data,sn.bobT)}
