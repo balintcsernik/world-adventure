@@ -18,7 +18,7 @@ export default function CharSelect() {
     saveGame();
     setGameScreen('playing');
     syncFromEngine();
-    setTimeout(() => openCityHub(), 550);
+    openCityHub();
   };
 
   return (

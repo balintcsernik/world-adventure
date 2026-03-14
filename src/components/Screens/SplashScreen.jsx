@@ -16,7 +16,7 @@ export default function SplashScreen() {
       saveGame();
       setGameScreen('playing');
       syncFromEngine();
-      setTimeout(() => openCityHub(), 550);
+      openCityHub();
     } else {
       // New player
       setGameScreen('charSelect');
