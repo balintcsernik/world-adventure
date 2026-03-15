@@ -20,8 +20,8 @@ function CharPortrait({ char, isActive, onSelect }) {
       style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center',
         cursor: 'pointer', padding: 4, borderRadius: 16,
-        border: `3px solid ${isActive ? '#fbbf24' : 'transparent'}`,
-        background: isActive ? 'rgba(251,191,36,0.12)' : `linear-gradient(135deg, ${char.outfit}18, ${char.outfit}30)`,
+        border: `3px solid ${isActive ? '#fbbf24' : char.outfit + '44'}`,
+        background: isActive ? 'rgba(251,191,36,0.12)' : `linear-gradient(135deg, ${char.outfit}20, ${char.outfit}35)`,
         boxShadow: isActive
           ? '0 0 18px rgba(251,191,36,0.4), 0 0 6px rgba(251,191,36,0.25), 0 4px 12px rgba(251,191,36,0.2)'
           : 'none',
@@ -49,10 +49,9 @@ function CharPortrait({ char, isActive, onSelect }) {
       />
       {/* Name label */}
       <span style={{
-        fontSize: 9, fontWeight: 800,
-        color: isActive ? '#92400e' : '#374151',
-        marginTop: 2, letterSpacing: '0.05em',
-        textTransform: 'uppercase',
+        fontSize: 7, fontWeight: 800,
+        color: isActive ? '#92400e' : char.outfit,
+        marginTop: 2, letterSpacing: '0.02em',
         transition: 'color 0.2s',
       }}>
         {char.name}

@@ -8401,6 +8401,114 @@ function drawCharPreview(cvs,charData){
   c.restore();
 }
 
+/**
+ * drawCharFace — Draws only the character's face/head, centered on the canvas.
+ * Used by the Google Maps pin overlay to show a close-up portrait.
+ */
+function drawCharFace(cvs,charData){
+  const c=cvs.getContext('2d');
+  c.clearRect(0,0,cvs.width,cvs.height);
+  c.save();
+  // Scale so the face (~62 units wide) fills the canvas. Center head (char-space y=-30).
+  const pScale=cvs.width/62;
+  c.translate(cvs.width/2,cvs.height*0.58+30*pScale);
+  c.scale(pScale,pScale);
+  const skin1=charData.skin,skin2=charData.skinSh;
+  const isBoy=charData.gender==='boy';
+  // Neck
+  c.fillStyle=skin2;rr(c,-5,-20,10,8,3,true,false);
+  // Hair back
+  c.fillStyle=charData.hair;
+  if(isBoy){
+    c.beginPath();c.ellipse(0,-22,13,10,0,0,Math.PI*2);c.fill();
+    c.fillStyle=darken(charData.hair,.1);
+    c.beginPath();c.ellipse(-6,-22,5,6,.1,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(6,-22,5,6,-.1,0,Math.PI*2);c.fill();
+  }else{
+    c.beginPath();c.ellipse(-19,-26,9,16,.2,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(19,-26,9,16,-.2,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(-15,-18,7,10,.15,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(15,-18,7,10,-.15,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(0,-20,14,12,0,0,Math.PI*2);c.fill();
+    c.fillStyle=darken(charData.hair,.1);
+    c.beginPath();c.ellipse(-12,-20,6,8,.1,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(12,-20,6,8,-.1,0,Math.PI*2);c.fill();
+  }
+  // Head
+  const hg=c.createRadialGradient(-4,-32,2,0,-30,20);hg.addColorStop(0,skin1);hg.addColorStop(.7,skin1);hg.addColorStop(1,skin2);
+  c.fillStyle=hg;c.beginPath();c.arc(0,-30,19,0,Math.PI*2);c.fill();
+  // Ears
+  c.fillStyle=skin1;c.beginPath();c.arc(-18,-30,4.5,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(18,-30,4.5,0,Math.PI*2);c.fill();
+  c.fillStyle='rgba(220,160,130,.35)';c.beginPath();c.arc(-18,-30,2.5,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(18,-30,2.5,0,Math.PI*2);c.fill();
+  // Blush (girls)
+  if(!isBoy){c.fillStyle='rgba(240,120,140,.28)';c.beginPath();c.ellipse(-12,-26,5.5,3.2,0,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(12,-26,5.5,3.2,0,0,Math.PI*2);c.fill()}
+  // Eyebrows
+  c.strokeStyle=darken(charData.hair,.12);c.lineWidth=1.5;c.lineCap='round';
+  c.beginPath();c.moveTo(-3,-35.5);c.quadraticCurveTo(-6.5,-37.5,-9.5,-35);c.stroke();
+  c.beginPath();c.moveTo(3,-35.5);c.quadraticCurveTo(6.5,-37.5,9.5,-35);c.stroke();
+  // Eyes
+  const eyeY=-28.5,eyeSpX=7;
+  c.fillStyle='#fff';
+  c.beginPath();c.ellipse(-eyeSpX,eyeY,5.5,5,0,0,Math.PI*2);c.fill();
+  c.beginPath();c.ellipse(eyeSpX,eyeY,5.5,5,0,0,Math.PI*2);c.fill();
+  c.strokeStyle='rgba(80,60,40,.12)';c.lineWidth=.6;
+  c.beginPath();c.ellipse(-eyeSpX,eyeY,5.5,5,0,0,Math.PI*2);c.stroke();
+  c.beginPath();c.ellipse(eyeSpX,eyeY,5.5,5,0,0,Math.PI*2);c.stroke();
+  // Iris
+  c.fillStyle=charData.iris;
+  c.beginPath();c.arc(-eyeSpX+.8,eyeY+.5,3.8,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(eyeSpX+.8,eyeY+.5,3.8,0,Math.PI*2);c.fill();
+  // Pupil
+  c.fillStyle='#0f0d1a';
+  c.beginPath();c.arc(-eyeSpX+.8,eyeY+.8,1.8,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(eyeSpX+.8,eyeY+.8,1.8,0,Math.PI*2);c.fill();
+  // Eye highlights
+  c.fillStyle='rgba(255,255,255,.92)';
+  c.beginPath();c.arc(-eyeSpX-1.2,eyeY-1.5,1.8,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(eyeSpX-1.2,eyeY-1.5,1.8,0,Math.PI*2);c.fill();
+  c.fillStyle='rgba(255,255,255,.7)';
+  c.beginPath();c.arc(-eyeSpX+2,eyeY+2,0.9,0,Math.PI*2);c.fill();
+  c.beginPath();c.arc(eyeSpX+2,eyeY+2,0.9,0,Math.PI*2);c.fill();
+  // Nose
+  c.fillStyle='rgba(200,160,130,.25)';c.beginPath();c.arc(0,-23,1.8,0,Math.PI*2);c.fill();
+  // Mouth
+  c.strokeStyle='#c0606a';c.lineWidth=1.4;c.lineCap='round';
+  c.beginPath();c.arc(0,-19.5,3,.15,Math.PI-.15);c.stroke();
+  // Hair top
+  c.fillStyle=charData.hair;
+  if(isBoy){
+    c.beginPath();c.arc(0,-34,20,Math.PI+.2,Math.PI*2-.2);c.fill();
+    c.beginPath();c.ellipse(0,-40,16,6,0,0,Math.PI*2);c.fill();
+    c.beginPath();c.moveTo(-8,-36);c.lineTo(-11,-46);c.lineTo(-4,-38);c.fill();
+    c.beginPath();c.moveTo(-2,-38);c.lineTo(0,-49);c.lineTo(3,-38);c.fill();
+    c.beginPath();c.moveTo(5,-36);c.lineTo(10,-46);c.lineTo(8,-36);c.fill();
+    c.beginPath();c.ellipse(-15,-33,4,6,.2,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(15,-33,4,6,-.2,0,Math.PI*2);c.fill();
+    c.fillStyle='rgba(255,255,255,.13)';c.beginPath();c.ellipse(-3,-42,6,3,-.2,0,Math.PI*2);c.fill();
+    c.fillStyle=darken(charData.hair,.12);
+    c.beginPath();c.ellipse(-6,-37,4,2.5,.1,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(6,-37,3.5,2,-.1,0,Math.PI*2);c.fill();
+  }else{
+    c.beginPath();c.arc(0,-34,21,Math.PI+.15,Math.PI*2-.15);c.fill();
+    c.beginPath();c.ellipse(0,-42,17,9,0,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(-7,-44,9,6,.15,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(7,-44,9,6,-.15,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(0,-48,11,5,0,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(-6,-37,7,4.5,.08,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(5,-37.5,6,4,-.08,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(-17,-34,5,8,.25,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(17,-34,5,8,-.25,0,Math.PI*2);c.fill();
+    c.fillStyle='rgba(255,255,255,.13)';c.beginPath();c.ellipse(-4,-46,8,4,-.2,0,Math.PI*2);c.fill();
+    c.fillStyle=darken(charData.hair,.12);
+    c.beginPath();c.ellipse(-8,-37,5,3,.1,0,Math.PI*2);c.fill();
+    c.beginPath();c.ellipse(7,-37.5,4,2.5,-.1,0,Math.PI*2);c.fill();
+  }
+  c.restore();
+}
+
 function buildCharSelect(){
   const container=document.getElementById('char-cards');
   if(!container)return;
@@ -8504,7 +8612,7 @@ export {
   init, state, saveGame, loadGame, openCityHub, closeCityHub,
   openInventory, closeInventory, openEquipment, closeEquipment,
   openTaskPanel, closeTaskPanel, openMap, closeMap,
-  drawCharPreview, buildCityHub, drawCityMap, drawCityRoads,
+  drawCharPreview, drawCharFace, buildCityHub, drawCityMap, drawCityRoads,
   player, gameLoop, resize, setupInput, setupUI, buildCharSelect,
   initAudio, startBgm, stopBgm, updateMissionTracker, setGameStarted,
   handleBuildingTap, handleMapTap,
