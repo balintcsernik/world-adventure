@@ -13,6 +13,7 @@ export function GameProvider({ children }) {
   const [activeMissions, setActiveMissions] = useState({});
   const [gameScreen, setGameScreen] = useState('splash');
   const [cityHubOpen, setCityHubOpen] = useState(false);
+  const [characterPositions, setCharacterPositions] = useState({});
   const [activeView, setActiveView] = useState('map');
   const [selectedNodeIdx, setSelectedNodeIdx] = useState(null);
   const engineInitialized = useRef(false);
@@ -30,6 +31,7 @@ export function GameProvider({ children }) {
     setInventory([...engineState.inventory]);
     setEquipped({...engineState.equipped});
     setActiveMissions({...(engineState.activeMissions || {})});
+    setCharacterPositions({...(engineState.characterPositions || {})});
   }, []);
 
   const updateCoins = useCallback((newCoins) => {
@@ -53,11 +55,12 @@ export function GameProvider({ children }) {
     // Just switch who the active character is.
     engineState.character = charId;
     setCharacter(charId);
+    setCharacterPositions({...(engineState.characterPositions || {})});
     saveGame();
   }, []);
 
   const value = {
-    coins, currentRoom, character, selectedCharacter, inventory, equipped, activeMissions,
+    coins, currentRoom, character, selectedCharacter, inventory, equipped, activeMissions, characterPositions,
     gameScreen, setGameScreen,
     cityHubOpen, setCityHubOpen,
     activeView, setActiveView,

@@ -10,29 +10,29 @@ export const MAP_AREAS = [
 ];
 
 export const CITY_BUILDINGS = [
-  // School — large, bottom-center (dominant)
-  {idx:0,name:'School',areaIdx:0,pctX:.48,pctY:.78,buildW:130,buildH:140,glowColor:'#fbbf24',
+  // School — center, above character dock (main hub)
+  {idx:0,name:'School',areaIdx:0,pctX:.50,pctY:.65,buildW:130,buildH:140,glowColor:'#fbbf24',
    roofColor:'#ef4444',wallColor:'#fef3c7',accentColor:'#dc2626',doorColor:'#92400e',buildFn:'buildSchoolEl'},
-  // City — cluster of buildings, center-upper
-  {idx:1,name:'City',areaIdx:1,pctX:.40,pctY:.48,buildW:120,buildH:140,glowColor:'#6366f1',
+  // City — upper-left green area
+  {idx:1,name:'City',areaIdx:1,pctX:.35,pctY:.50,buildW:120,buildH:140,glowColor:'#6366f1',
    roofColor:'#6366f1',wallColor:'#ede9fe',accentColor:'#4338ca',doorColor:'#374151',buildFn:'buildCityEl'},
-  // Fun Zone — right of center
-  {idx:2,name:'Fun Zone',areaIdx:2,pctX:.68,pctY:.52,buildW:90,buildH:100,glowColor:'#ec4899',
+  // Fun Zone — center-right green area
+  {idx:2,name:'Fun Zone',areaIdx:2,pctX:.65,pctY:.46,buildW:90,buildH:100,glowColor:'#ec4899',
    roofColor:'#ec4899',wallColor:'#fce7f3',accentColor:'#be185d',doorColor:'#831843',buildFn:'buildFunEl'},
-  // Airport — upper-right area
-  {idx:3,name:'Airport',areaIdx:3,pctX:.68,pctY:.32,buildW:110,buildH:90,glowColor:'#64748b',
+  // Airport — upper center, on green ground
+  {idx:3,name:'Airport',areaIdx:3,pctX:.48,pctY:.44,buildW:110,buildH:90,glowColor:'#64748b',
    roofColor:'#475569',wallColor:'#f1f5f9',accentColor:'#334155',doorColor:'#1e293b',buildFn:'buildAirportEl'},
-  // France — far right
-  {idx:4,name:'France',areaIdx:4,pctX:.90,pctY:.62,buildW:65,buildH:130,glowColor:'#f472b6',
+  // France — bottom-right green, east side of river
+  {idx:4,name:'France',areaIdx:4,pctX:.62,pctY:.80,buildW:65,buildH:130,glowColor:'#f472b6',
    roofColor:'#9d174d',wallColor:'#fce7f3',accentColor:'#be185d',doorColor:'#6b7280',buildFn:'buildFranceEl'},
-  // N. Pole — upper right with mountains
-  {idx:5,name:'N. Pole',areaIdx:5,pctX:.88,pctY:.32,buildW:95,buildH:95,glowColor:'#93c5fd',
+  // N. Pole — snow area, near frozen lake
+  {idx:5,name:'N. Pole',areaIdx:5,pctX:.82,pctY:.58,buildW:95,buildH:95,glowColor:'#93c5fd',
    roofColor:'#e2e8f0',wallColor:'#f0f9ff',accentColor:'#94a3b8',doorColor:'#475569',buildFn:'buildPoleEl'},
-  // Hungary — far left
-  {idx:6,name:'Hungary',areaIdx:6,pctX:.12,pctY:.60,buildW:105,buildH:110,glowColor:'#dc2626',
+  // Hungary — bottom-left green, west side of river
+  {idx:6,name:'Hungary',areaIdx:6,pctX:.42,pctY:.80,buildW:105,buildH:110,glowColor:'#dc2626',
    roofColor:'#dc2626',wallColor:'#fef3c7',accentColor:'#16a34a',doorColor:'#92400e',buildFn:'buildHungaryEl'},
-  // Egypt — upper left
-  {idx:7,name:'Egypt',areaIdx:7,pctX:.12,pctY:.32,buildW:110,buildH:120,glowColor:'#f59e0b',
+  // Egypt — desert ground, next to oasis
+  {idx:7,name:'Egypt',areaIdx:7,pctX:.18,pctY:.58,buildW:110,buildH:120,glowColor:'#f59e0b',
    roofColor:'#f59e0b',wallColor:'#fef3c7',accentColor:'#d97706',doorColor:'#78350f',buildFn:'buildEgyptEl'},
 ];
 

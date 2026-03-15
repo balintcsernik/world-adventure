@@ -4,10 +4,13 @@ import { handleBuildingTap } from '../../engine/gameEngine';
 import { useGame } from '../../contexts/GameContext';
 import SVG_BUILDINGS from './icons/BuildingSvgs';
 import MapNode from './MapNode';
-import CharacterPin from './CharacterPin';
+import BuildingPins from './BuildingPins';
+import { useBuildingCharacters } from './useBuildingCharacters';
 
 export default function CityBuildingsLayer() {
-  const { currentRoom, selectedCharacter } = useGame();
+  const { currentRoom, character, characterPositions } = useGame();
+  const buildingChars = useBuildingCharacters(character, currentRoom, characterPositions);
+
   return (
     <div className="city-buildings-react">
       {CITY_BUILDINGS.map(bldg => (
@@ -15,14 +18,14 @@ export default function CityBuildingsLayer() {
           key={bldg.idx}
           bldg={bldg}
           currentRoom={currentRoom}
-          selectedCharacter={selectedCharacter}
+          characters={buildingChars[bldg.areaIdx] || []}
         />
       ))}
     </div>
   );
 }
 
-function CityMapNode({ bldg, currentRoom, selectedCharacter }) {
+function CityMapNode({ bldg, currentRoom, characters }) {
   const area = MAP_AREAS[bldg.areaIdx];
   const isCurrent = area.rooms.includes(currentRoom);
   const SvgBuilding = SVG_BUILDINGS[bldg.buildFn];
@@ -40,8 +43,8 @@ function CityMapNode({ bldg, currentRoom, selectedCharacter }) {
       glowColor={bldg.glowColor}
       imageAsset={SvgBuilding ? <SvgBuilding w={bldg.buildW} h={bldg.buildH} /> : null}
     >
-      {isCurrent && selectedCharacter && (
-        <CharacterPin charData={selectedCharacter} />
+      {characters.length > 0 && (
+        <BuildingPins characters={characters} buildingIdx={bldg.idx} />
       )}
     </MapNode>
   );

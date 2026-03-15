@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import { MapPinIcon } from './icons/HudIcons';
 
 /**
  * MapNode — An interactive city-map node.
@@ -56,12 +55,6 @@ export default function MapNode({ position, label, imageAsset, isSelected, onTap
         <div className="map-node__sign-board">{label}</div>
       </div>
 
-      {/* Animated floating Map Pin — visible when selected */}
-      {isSelected && (
-        <div className="map-node__pin">
-          <MapPinIcon size={28} />
-        </div>
-      )}
     </div>
   );
 }

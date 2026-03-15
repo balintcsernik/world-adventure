@@ -169,17 +169,79 @@ export function CloseIcon({ size = 28 }) {
 }
 
 export function MapPinIcon({ size = 32 }) {
+  return <CharacterMapPin size={size} fillColor="#ef4444" gradientId="pinGrad" />;
+}
+
+/* ─── Hex color helpers ─── */
+function hexToRgb(hex) {
+  const h = hex.replace('#', '');
+  const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+function rgbToHex(r, g, b) {
+  return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('');
+}
+function lightenHex(hex, amount = 0.3) {
+  const [r, g, b] = hexToRgb(hex);
+  return rgbToHex(r + (255 - r) * amount, g + (255 - g) * amount, b + (255 - b) * amount);
+}
+function darkenHex(hex, amount = 0.25) {
+  const [r, g, b] = hexToRgb(hex);
+  return rgbToHex(r * (1 - amount), g * (1 - amount), b * (1 - amount));
+}
+
+/**
+ * CharacterMapPin — Google Maps pin shape with configurable color.
+ * The inner white circle is sized for a character face overlay.
+ *
+ * Props:
+ *   size        - SVG width/height (default 38)
+ *   fillColor   - pin body color (default '#ef4444')
+ *   gradientId  - unique gradient ID to avoid collisions (required when multiple on screen)
+ *   innerR      - radius of the inner circle (default 5.5)
+ */
+export function CharacterMapPin({ size = 38, fillColor = '#ef4444', gradientId = 'cmpGrad', innerR = 5.5 }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none">
-      <path d="M16 2C11 2 7 6 7 11c0 7 9 18 9 18s9-11 9-18c0-5-4-9-9-9z"
-        fill="url(#pinGrad)" stroke="#b91c1c" strokeWidth="1.5"/>
-      <circle cx="16" cy="11" r="3.5" fill="#fff"/>
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" style={{ display: 'block' }}>
       <defs>
-        <radialGradient id="pinGrad" cx=".45" cy=".3" r=".65">
-          <stop offset="0%" stopColor="#fca5a5"/>
-          <stop offset="100%" stopColor="#ef4444"/>
+        <radialGradient id={gradientId} cx=".45" cy=".3" r=".65">
+          <stop offset="0%" stopColor={lightenHex(fillColor, 0.35)} />
+          <stop offset="100%" stopColor={fillColor} />
         </radialGradient>
       </defs>
+      <path d="M16 2C11 2 7 6 7 11c0 7 9 18 9 18s9-11 9-18c0-5-4-9-9-9z"
+        fill={`url(#${gradientId})`}
+        stroke={darkenHex(fillColor, 0.3)}
+        strokeWidth="1.5"
+      />
+      <circle cx="16" cy="11" r={innerR} fill="#fff" />
+    </svg>
+  );
+}
+
+/**
+ * MultiColorMapPin — Google Maps pin with a gradient of multiple outfit colors + count.
+ */
+export function MultiColorMapPin({ size = 38, colors = [], count = 0, gradientId = 'mcpGrad' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" style={{ display: 'block' }}>
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
+          {colors.map((c, i) => (
+            <stop key={i} offset={`${(i / Math.max(colors.length - 1, 1)) * 100}%`} stopColor={c} />
+          ))}
+        </linearGradient>
+      </defs>
+      <path d="M16 2C11 2 7 6 7 11c0 7 9 18 9 18s9-11 9-18c0-5-4-9-9-9z"
+        fill={`url(#${gradientId})`}
+        stroke="rgba(0,0,0,0.3)"
+        strokeWidth="1.5"
+      />
+      <circle cx="16" cy="11" r="5.5" fill="#fff" />
+      <text x="16" y="13.5" textAnchor="middle" fontSize="8" fontWeight="900"
+        fill="#374151" fontFamily="Nunito, sans-serif">
+        {count}
+      </text>
     </svg>
   );
 }

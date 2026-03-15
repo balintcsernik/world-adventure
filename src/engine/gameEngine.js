@@ -7582,6 +7582,7 @@ function drawCityBush(cx,x,y){
 }
 function drawCityMap(){
   const cc=document.getElementById('city-canvas');
+  if(!cc)return; // React CityHub no longer uses canvas
   const vw=cc.parentElement.clientWidth,vh=cc.parentElement.clientHeight;
   const dpr=window.devicePixelRatio||1;
   cc.width=vw*dpr;cc.height=vh*dpr;
@@ -7636,6 +7637,7 @@ function drawCityMap(){
 // -- SVG Roads --
 function drawCityRoads(){
   const svg=document.getElementById('city-roads');
+  if(!svg)return; // React CityHub no longer uses this SVG element
   svg.innerHTML='';
   const ns='http://www.w3.org/2000/svg';
   // Main road connecting bottom-row buildings

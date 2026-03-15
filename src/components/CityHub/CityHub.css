@@ -32,17 +32,6 @@
 #city-buildings { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
 .city-buildings-react { position: absolute; inset: 0; z-index: 10; pointer-events: none; }
 
-/* === Mascot Character === */
-#city-mascot {
-  position: absolute;
-  top: 18%; left: 50%;
-  transform: translateX(-50%);
-  z-index: 12;
-  pointer-events: none;
-  filter: drop-shadow(0 8px 12px rgba(0,0,0,0.25));
-  animation: mascotBob 3s ease-in-out infinite;
-}
-
 /* === MapNode — Interactive Map Nodes === */
 .map-node {
   transition: transform 0.18s cubic-bezier(.34,1.56,.64,1);
@@ -221,12 +210,6 @@
 
 /* ============ KEYFRAMES ============ */
 
-/* Mascot bob */
-@keyframes mascotBob {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%      { transform: translateX(-50%) translateY(-8px); }
-}
-
 /* Map Pin floating animation */
 @keyframes mapPinFloat {
   0%, 100% { transform: translateX(-50%) translateY(0); }
@@ -241,12 +224,6 @@
   65%  { transform: translate(-50%,-100%) scaleX(1.06) scaleY(0.96); }
   85%  { transform: translate(-50%,-100%) scaleX(0.98) scaleY(1.02); }
   100% { transform: translate(-50%,-100%) scale(1); }
-}
-
-/* Character pin floating on map */
-@keyframes charPinFloat {
-  0%, 100% { transform: translateX(-50%) translateY(0); }
-  50%      { transform: translateX(-50%) translateY(-6px); }
 }
 
 /* Character portrait glow breathing */
@@ -291,8 +268,6 @@
   #city-welcome { top: 36px; }
   #city-welcome h2 { font-size: 14px; }
   #city-welcome p { font-size: 9px; }
-  #city-mascot { top: 12%; }
-  #city-mascot svg { width: 36px; height: 40px; }
   #city-dock-prompt { bottom: 52px; }
   #city-dock-prompt span { font-size: 8px; }
   /* Scale down buildings layer on mobile */
@@ -320,7 +295,6 @@
   #city-welcome { top: 28px; }
   #city-welcome h2 { font-size: 13px; }
   #city-welcome p { font-size: 8px; }
-  #city-mascot { display: none; }
   #city-dock-prompt { bottom: 42px; }
   #city-dock-prompt span { font-size: 7px; }
   .city-buildings-react { transform: scale(0.5); transform-origin: center center; }
