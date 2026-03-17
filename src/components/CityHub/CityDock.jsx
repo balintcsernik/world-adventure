@@ -9,7 +9,18 @@ function CharPortrait({ char, isActive, onSelect }) {
 
   useEffect(() => {
     if (canvasRef.current) {
-      drawCharPreview(canvasRef.current, char);
+      const cvs = canvasRef.current;
+      drawCharPreview(cvs, char);
+      // Draw outfit-colored background BEHIND the character using composite mode
+      const ctx = cvs.getContext('2d');
+      ctx.save();
+      ctx.globalCompositeOperation = 'destination-over';
+      const grad = ctx.createLinearGradient(0, 0, cvs.width, cvs.height);
+      grad.addColorStop(0, char.outfit + 'AA');
+      grad.addColorStop(1, char.outfit + 'DD');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, cvs.width, cvs.height);
+      ctx.restore();
     }
   }, [char]);
 
@@ -39,7 +50,6 @@ function CharPortrait({ char, isActive, onSelect }) {
         style={{
           width: 48, height: 56,
           borderRadius: 12,
-          background: `linear-gradient(135deg, ${char.outfit}55, ${char.outfit}99)`,
           border: `2px solid ${isActive ? '#fbbf24' : char.outfit + '88'}`,
           boxShadow: isActive
             ? '0 0 12px rgba(251,191,36,0.3)'

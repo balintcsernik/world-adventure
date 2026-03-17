@@ -7849,8 +7849,7 @@ function buildEgyptEl(bldg){
 // -- Build City Hub DOM --
 function buildCityHub(){
   const container=document.getElementById('city-buildings');
-  const dockInner=document.getElementById('city-dock-inner');
-  container.innerHTML='';dockInner.innerHTML='';
+  container.innerHTML='';
 
   CITY_BUILDINGS.forEach(bldg=>{
     const div=document.createElement('div');
@@ -7881,26 +7880,6 @@ function buildCityHub(){
     // Click handler
     div.addEventListener('click',()=>handleBuildingTap(bldg.areaIdx));
     container.appendChild(div);
-  });
-
-  // Character dock
-  CHARACTERS.forEach(ch=>{
-    const wrap=document.createElement('div');wrap.className='dock-char';wrap.dataset.charId=ch.id;
-    if(ch.id===state.character)wrap.classList.add('active');
-    const cvs=document.createElement('canvas');cvs.className='dock-char-canvas';
-    cvs.width=96;cvs.height=96;cvs.style.width='40px';cvs.style.height='40px';
-    drawCharPreview(cvs,ch);
-    wrap.appendChild(cvs);
-    const nm=document.createElement('div');nm.className='dock-char-name';nm.textContent=ch.name;
-    wrap.appendChild(nm);
-    wrap.addEventListener('click',()=>{
-      if(ch.id===state.character)return;
-      document.querySelectorAll('.dock-char').forEach(d=>d.classList.remove('active'));
-      wrap.classList.add('active');
-      saveCharacterPosition(state.character);
-      state.character=ch.id;saveGame();
-    });
-    dockInner.appendChild(wrap);
   });
 
   // Top bar counts (guarded — CityTopBar may not render these elements)
