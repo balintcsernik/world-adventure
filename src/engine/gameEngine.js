@@ -4167,6 +4167,10 @@ function buildRoom(rk){
           c.restore();
         });
       },()=>{});
+    // Classroom deco shelf
+    P('c_deco_shelf',cw*.05,ch*.45,45,55,'Shelf',drawDecoShelf,()=>{sfxInteract();showToast('A little shelf!')});
+    PM('c_si_star',cw*.03,ch*.40,14,14,'Star Sticker',makeSmallItemDraw('\u2B50'),()=>{sfxInteract();showToast('Sparkly! \u2B50')});
+    PM('c_si_apple2',cw*.07,ch*.40,14,14,'Apple',makeSmallItemDraw('\u{1F34E}'),()=>{sfxInteract();showToast('Yummy apple! \u{1F34E}')});
   }
 
   else if(rk==='cafeteria'){
@@ -4493,6 +4497,10 @@ function buildRoom(rk){
         c.fillStyle='rgba(255,255,255,.1)';[[-8,-2],[6,-1],[0,2]].forEach(p=>{c.beginPath();c.arc(ob.x+p[0],ob.y+p[1],2,0,Math.PI*2);c.fill();for(let t=0;t<3;t++){c.beginPath();c.arc(ob.x+p[0]-2+t*2,ob.y+p[1]-3,.8,0,Math.PI*2);c.fill()}});
         if(ob._pet>0){c.font='10px '+FONT;c.textAlign='center';for(let h=0;h<Math.min(ob._pet,3);h++){c.globalAlpha=.6+Math.sin(Date.now()*.003+h)*.3;c.fillText('\u{1F495}',ob.x-10+h*12,ob.y-14-h*4)}c.globalAlpha=1}},
       (ob)=>{ob._pet=(ob._pet||0)+1;sfxInteract();spawnP(ob.x,ob.y-10,'#f472b6');if(ob._pet===3&&!state.interactedObjects.ca_petbed){state.interactedObjects.ca_petbed=1;addCoin(ob.x,ob.y-25,3);showToast('Whiskers loves you! +3 \u2B50')}else if(ob._pet<3){showToast('Purrrr! '+ob._pet+'/3 \u{1F431}')}else{showToast('Purrrr! \u{1F431}')}});
+    // Cafeteria snack shelf
+    P('caf_deco_shelf',cw*.94,ch*.45,45,55,'Snack Shelf',drawDecoShelf,()=>{sfxInteract();showToast('Snack shelf!')});
+    PM('caf_si_cookie',cw*.92,ch*.40,14,14,'Cookie',makeSmallItemDraw('\u{1F36A}'),()=>{sfxInteract();showToast('Yum! \u{1F36A}')});
+    PM('caf_si_juice',cw*.96,ch*.40,14,14,'Juice Box',makeSmallItemDraw('\u{1F9C3}'),()=>{sfxInteract();showToast('Refreshing! \u{1F9C3}')});
   }
 
   else if(rk==='gymnasium'){
@@ -4658,6 +4666,10 @@ function buildRoom(rk){
         rules.forEach((r,i)=>c.fillText(r,-11,-4+i*7));
         c.restore()},
       ()=>{sfxInteract();showToast('Safety first! 📋')});
+    // Gymnasium trophy shelf
+    P('gym_deco_shelf',cw*.05,ch*.45,45,55,'Trophy Shelf',drawDecoShelf,()=>{sfxInteract();showToast('Trophy shelf!')});
+    PM('gym_si_juice',cw*.03,ch*.40,14,14,'Juice Box',makeSmallItemDraw('\u{1F9C3}'),()=>{sfxInteract();showToast('Juice! \u{1F9C3}')});
+    PM('gym_si_star',cw*.07,ch*.40,14,14,'Star Sticker',makeSmallItemDraw('\u2B50'),()=>{sfxInteract();showToast('Star! \u2B50')});
   }
 
   else if(rk==='playground'){
@@ -4956,6 +4968,10 @@ function buildRoom(rk){
     P('globe2',cw*.92,ch*.65,34,44,'Globe',
       (c,ob)=>{const sg=c.createLinearGradient(ob.x-8,ob.y+20,ob.x+8,ob.y+20);sg.addColorStop(0,'#5c3a1a');sg.addColorStop(.5,'#92400e');sg.addColorStop(1,'#5c3a1a');c.fillStyle=sg;c.beginPath();c.ellipse(ob.x,ob.y+22,14,4,0,0,Math.PI*2);c.fill();c.fillStyle='#78350f';c.fillRect(ob.x-2,ob.y+6,4,16);const rg=c.createLinearGradient(ob.x-16,ob.y-2,ob.x+16,ob.y-2);rg.addColorStop(0,'#92400e');rg.addColorStop(.5,'#b45309');rg.addColorStop(1,'#92400e');c.strokeStyle=rg;c.lineWidth=2;c.beginPath();c.arc(ob.x,ob.y-2,17,0,Math.PI*2);c.stroke();const bg=c.createRadialGradient(ob.x-4,ob.y-6,2,ob.x,ob.y-2,16);bg.addColorStop(0,'#60a5fa');bg.addColorStop(1,'#1e40af');c.fillStyle=bg;c.beginPath();c.arc(ob.x,ob.y-2,16,0,Math.PI*2);c.fill();c.fillStyle='#22c55e';c.beginPath();c.arc(ob.x+5,ob.y-5,7,0,Math.PI*2);c.fill();c.fillStyle=darken('#22c55e',.15);c.beginPath();c.arc(ob.x+7,ob.y-3,4,0,Math.PI*2);c.fill();c.fillStyle='#22c55e';c.beginPath();c.arc(ob.x-7,ob.y+2,5,0,Math.PI*2);c.fill();c.strokeStyle='rgba(255,255,255,.12)';c.lineWidth=.5;c.beginPath();c.ellipse(ob.x,ob.y-2,16,8,0,0,Math.PI*2);c.stroke();c.beginPath();c.ellipse(ob.x,ob.y-2,6,16,0,0,Math.PI*2);c.stroke();c.fillStyle='rgba(255,255,255,.2)';c.beginPath();c.arc(ob.x-6,ob.y-9,5,0,Math.PI*2);c.fill()},
       (ob)=>{sfxInteract();if(!state.foundCoins.l_globe){state.foundCoins.l_globe=1;addCoin(ob.x,ob.y-30,2);showToast('Globe coin! +2 ⭐')}});
+    // Library deco shelf
+    P('lib_deco_shelf',cw*.94,ch*.45,45,55,'Reading Shelf',drawDecoShelf,()=>{sfxInteract();showToast('Reading shelf!')});
+    PM('lib_si_candy',cw*.92,ch*.40,14,14,'Candy',makeSmallItemDraw('\u{1F36C}'),()=>{sfxInteract();showToast('Sweet! \u{1F36C}')});
+    PM('lib_si_flower',cw*.96,ch*.40,14,14,'Flower',makeSmallItemDraw('\u{1F338}'),()=>{sfxInteract();showToast('Pretty! \u{1F338}')});
   }
 
   else if(rk==='artroom'){
@@ -4974,6 +4990,10 @@ function buildRoom(rk){
     P('supplies',cw*.08,ch*.45,48,66,'Supplies',
       (c,ob)=>{gRect(c,ob.x-24,ob.y-33,48,66,4,'#e8e5f0','#d4d0e0');c.strokeStyle='rgba(0,0,0,.08)';c.lineWidth=.5;c.beginPath();c.moveTo(ob.x,ob.y-29);c.lineTo(ob.x,ob.y+29);c.stroke();c.fillStyle='rgba(0,0,0,.06)';c.fillRect(ob.x-22,ob.y-12,44,1);c.fillRect(ob.x-22,ob.y+8,44,1);const bg=c.createRadialGradient(ob.x-3,ob.y-2,0,ob.x-3,ob.y-2,2);bg.addColorStop(0,'#d4d4d8');bg.addColorStop(1,'#71717a');c.fillStyle=bg;c.beginPath();c.arc(ob.x-3,ob.y-2,2,0,Math.PI*2);c.fill();const bg2=c.createRadialGradient(ob.x+3,ob.y-2,0,ob.x+3,ob.y-2,2);bg2.addColorStop(0,'#d4d4d8');bg2.addColorStop(1,'#71717a');c.fillStyle=bg2;c.beginPath();c.arc(ob.x+3,ob.y-2,2,0,Math.PI*2);c.fill();c.strokeStyle='#f59e0b';c.lineWidth=2;c.beginPath();c.moveTo(ob.x-16,ob.y-26);c.lineTo(ob.x-16,ob.y-16);c.stroke();c.fillStyle='#fbbf24';c.beginPath();c.moveTo(ob.x-16,ob.y-27);c.lineTo(ob.x-17,ob.y-28);c.lineTo(ob.x-15,ob.y-28);c.fill();c.strokeStyle='#ef4444';c.lineWidth=1.5;c.beginPath();c.moveTo(ob.x-5,ob.y-26);c.lineTo(ob.x-5,ob.y-16);c.stroke();c.fillStyle='#fde68a';c.beginPath();c.moveTo(ob.x-5,ob.y-27);c.lineTo(ob.x-6,ob.y-28);c.lineTo(ob.x-4,ob.y-28);c.fill();c.strokeStyle='#6b7280';c.lineWidth=1;c.beginPath();c.moveTo(ob.x+8,ob.y-24);c.lineTo(ob.x+4,ob.y-18);c.stroke();c.beginPath();c.moveTo(ob.x+8,ob.y-24);c.lineTo(ob.x+12,ob.y-18);c.stroke();c.fillStyle='#6366f1';rr(c,ob.x-16,ob.y-8,20,3,1,true,false);c.strokeStyle='#78350f';c.lineWidth=1.5;c.beginPath();c.moveTo(ob.x+6,ob.y-6);c.lineTo(ob.x+6,ob.y+4);c.stroke();c.fillStyle='#a855f7';c.beginPath();c.moveTo(ob.x+4,ob.y+4);c.quadraticCurveTo(ob.x+6,ob.y+7,ob.x+8,ob.y+4);c.fill();c.fillStyle='#f97316';rr(c,ob.x-14,ob.y+12,8,14,1,true,false);c.fillStyle='#fbbf24';c.fillRect(ob.x-13,ob.y+13,6,3)},
       (ob)=>{sfxInteract();if(!state.foundCoins.ar_sup){state.foundCoins.ar_sup=1;addCoin(ob.x,ob.y-40,2);showToast('Supply coin! +2 ⭐')}});
+    // Art room deco shelf
+    P('art_deco_shelf',cw*.94,ch*.45,45,55,'Art Shelf',drawDecoShelf,()=>{sfxInteract();showToast('Art shelf!')});
+    PM('art_si_bow',cw*.92,ch*.40,14,14,'Bow',makeSmallItemDraw('\u{1F380}'),()=>{sfxInteract();showToast('Cute bow! \u{1F380}')});
+    PM('art_si_sunglasses',cw*.96,ch*.40,14,14,'Sunglasses',makeSmallItemDraw('\u{1F576}'),()=>{sfxInteract();showToast('Cool shades! \u{1F576}')});
   }
 
   else if(rk==='musicroom'){
@@ -4989,6 +5009,10 @@ function buildRoom(rk){
     P('speakers',cw*.1,ch*.59,34,44,'Speakers',
       (c,ob)=>{const bg=c.createLinearGradient(ob.x-16,ob.y,ob.x+16,ob.y);bg.addColorStop(0,'#111827');bg.addColorStop(.3,'#1f2937');bg.addColorStop(.7,'#1f2937');bg.addColorStop(1,'#111827');c.fillStyle=bg;rr(c,ob.x-16,ob.y-20,32,40,4,true,false);c.fillStyle='rgba(255,255,255,.04)';rr(c,ob.x-14,ob.y-18,28,36,3,true,false);c.fillStyle='rgba(255,255,255,.03)';for(let dy=-16;dy<18;dy+=3)for(let dx=-12;dx<14;dx+=3){c.beginPath();c.arc(ob.x+dx,ob.y+dy,0.5,0,Math.PI*2);c.fill()}const wg=c.createRadialGradient(ob.x-2,ob.y-8,1,ob.x,ob.y-6,10);wg.addColorStop(0,'#6b7280');wg.addColorStop(.4,'#4b5563');wg.addColorStop(.8,'#374151');wg.addColorStop(1,'#1f2937');c.fillStyle=wg;c.beginPath();c.arc(ob.x,ob.y-6,9,0,Math.PI*2);c.fill();c.strokeStyle='#4b5563';c.lineWidth=.5;for(let r=3;r<=9;r+=3){c.beginPath();c.arc(ob.x,ob.y-6,r,0,Math.PI*2);c.stroke()}c.fillStyle='#1f2937';c.beginPath();c.arc(ob.x,ob.y-6,2,0,Math.PI*2);c.fill();const tg=c.createRadialGradient(ob.x-1,ob.y+9,0,ob.x,ob.y+10,7);tg.addColorStop(0,'#6b7280');tg.addColorStop(.5,'#4b5563');tg.addColorStop(1,'#1f2937');c.fillStyle=tg;c.beginPath();c.arc(ob.x,ob.y+10,6,0,Math.PI*2);c.fill();c.strokeStyle='#4b5563';c.lineWidth=.5;c.beginPath();c.arc(ob.x,ob.y+10,3,0,Math.PI*2);c.stroke();c.fillStyle='#1f2937';c.beginPath();c.arc(ob.x,ob.y+10,1.5,0,Math.PI*2);c.fill();c.fillStyle='#22c55e';c.beginPath();c.arc(ob.x-10,ob.y+16,1.5,0,Math.PI*2);c.fill();c.fillStyle='rgba(34,197,94,.3)';c.beginPath();c.arc(ob.x-10,ob.y+16,3,0,Math.PI*2);c.fill()},
       (ob)=>{sfxInteract();if(!state.foundCoins.m_speak){state.foundCoins.m_speak=1;addCoin(ob.x,ob.y-30,2);showToast('Bass drop! +2 ⭐')}});
+    // Music room deco shelf
+    P('mus_deco_shelf',cw*.94,ch*.45,45,55,'Music Shelf',drawDecoShelf,()=>{sfxInteract();showToast('Music shelf!')});
+    PM('mus_si_star',cw*.92,ch*.40,14,14,'Star Sticker',makeSmallItemDraw('\u2B50'),()=>{sfxInteract();showToast('Star! \u2B50')});
+    PM('mus_si_candy',cw*.96,ch*.40,14,14,'Candy',makeSmallItemDraw('\u{1F36C}'),()=>{sfxInteract();showToast('Sweet! \u{1F36C}')});
   }
 
   else if(rk==='sciencelab'){
@@ -5007,6 +5031,10 @@ function buildRoom(rk){
     P('coats',cw*.08,ch*.55,34,60,'Lab Coats',
       (c,ob)=>{const pg=c.createLinearGradient(ob.x-2,ob.y,ob.x+2,ob.y);pg.addColorStop(0,'#5c2a0e');pg.addColorStop(.5,'#92400e');pg.addColorStop(1,'#5c2a0e');c.fillStyle=pg;c.fillRect(ob.x-2,ob.y-28,4,55);c.fillStyle='rgba(255,255,255,.1)';c.fillRect(ob.x-1,ob.y-28,1.5,55);const hg=c.createLinearGradient(ob.x-16,ob.y-28,ob.x+16,ob.y-28);hg.addColorStop(0,'#5c2a0e');hg.addColorStop(.5,'#a16207');hg.addColorStop(1,'#5c2a0e');c.fillStyle=hg;rr(c,ob.x-16,ob.y-28,32,4,2,true,false);c.fillStyle='#78350f';c.beginPath();c.arc(ob.x,ob.y-28,4,0,Math.PI*2);c.fill();c.fillStyle='#a16207';c.beginPath();c.arc(ob.x,ob.y-28,2.5,0,Math.PI*2);c.fill();c.fillStyle='#78350f';c.beginPath();c.arc(ob.x,ob.y+27,6,0,Math.PI*2);c.fill();c.fillStyle='#5c2a0e';c.beginPath();c.arc(ob.x,ob.y+27,4,0,Math.PI*2);c.fill();const cg1=c.createLinearGradient(ob.x-16,ob.y,ob.x-4,ob.y);cg1.addColorStop(0,'#e5e7eb');cg1.addColorStop(1,'#f9fafb');c.fillStyle=cg1;c.beginPath();c.moveTo(ob.x-4,ob.y-26);c.lineTo(ob.x-8,ob.y-24);c.lineTo(ob.x-14,ob.y-20);c.lineTo(ob.x-14,ob.y+10);c.lineTo(ob.x-4,ob.y+10);c.closePath();c.fill();c.fillStyle='#d1d5db';c.beginPath();c.moveTo(ob.x-4,ob.y-26);c.lineTo(ob.x-7,ob.y-22);c.lineTo(ob.x-4,ob.y-18);c.closePath();c.fill();c.fillStyle='rgba(0,0,0,.06)';rr(c,ob.x-12,ob.y,6,5,1,true,false);c.fillStyle='#9ca3af';c.beginPath();c.arc(ob.x-7,ob.y-14,1,0,Math.PI*2);c.fill();c.beginPath();c.arc(ob.x-7,ob.y-8,1,0,Math.PI*2);c.fill();const cg2=c.createLinearGradient(ob.x+4,ob.y,ob.x+16,ob.y);cg2.addColorStop(0,'#f9fafb');cg2.addColorStop(1,'#e5e7eb');c.fillStyle=cg2;c.beginPath();c.moveTo(ob.x+4,ob.y-24);c.lineTo(ob.x+8,ob.y-22);c.lineTo(ob.x+14,ob.y-17);c.lineTo(ob.x+14,ob.y+13);c.lineTo(ob.x+4,ob.y+13);c.closePath();c.fill();c.fillStyle='#d1d5db';c.beginPath();c.moveTo(ob.x+4,ob.y-24);c.lineTo(ob.x+7,ob.y-20);c.lineTo(ob.x+4,ob.y-16);c.closePath();c.fill();c.fillStyle='rgba(0,0,0,.06)';rr(c,ob.x+6,ob.y+2,6,5,1,true,false);c.fillStyle='#9ca3af';c.beginPath();c.arc(ob.x+7,ob.y-12,1,0,Math.PI*2);c.fill()},
       (ob)=>{sfxInteract();if(!state.foundCoins.s_coat){state.foundCoins.s_coat=1;addCoin(ob.x,ob.y-30,2);showToast('Pocket coin! +2 ⭐')}});
+    // Science lab deco shelf
+    P('sci_deco_shelf',cw*.94,ch*.45,45,55,'Lab Shelf',drawDecoShelf,()=>{sfxInteract();showToast('Lab shelf!')});
+    PM('sci_si_candy',cw*.92,ch*.40,14,14,'Candy',makeSmallItemDraw('\u{1F36C}'),()=>{sfxInteract();showToast('Sweet! \u{1F36C}')});
+    PM('sci_si_star',cw*.96,ch*.40,14,14,'Star Sticker',makeSmallItemDraw('\u2B50'),()=>{sfxInteract();showToast('Star! \u2B50')});
   }
 
   else if(rk==='shop'){
@@ -6868,8 +6896,6 @@ function switchRoom(){
   // Init street NPCs
   const snpcs=STREET_NPCS[rk]||[];
   streetNPCInstances=snpcs.map((npc,i)=>({data:npc,x:W*(0.2+i*0.22),y:FLOOR_TOP+29+Math.random()*22,vx:npc.wander?(Math.random()>.5?.4:-.4):0,dir:1,bobT:Math.random()*100|0}));
-  // Show/hide bell
-  const bb=document.getElementById('btn-dismiss');if(bb)bb.style.display=state.currentRoom<=8?'flex':'none';
   // When returning to school, reset dismissed
   if(state.currentRoom<=8)state.dismissed=false;
   // Track visit for missions
@@ -6999,10 +7025,12 @@ function handlePointerDown(tx,ty){
   if(dragObject){finishDrag(tx,ty);return}
   if(grabbedObject){toggleGrab();tapTarget=null;return}
   const rk=CFG.WORLD_ROOMS[state.currentRoom];
-  // Check NPCs
+  // Check NPCs (clickable from anywhere in room)
   const teacher=TEACHERS[rk];
-  if(teacher){const td=Math.sqrt((tx-W*.5)**2+(ty-(FLOOR_TOP+22))**2);if(td<50){talkToNPC(teacher);return}}
-  for(const sn of streetNPCInstances){const sd=Math.sqrt((tx-sn.x)**2+(ty-sn.y)**2);if(sd<45){talkToNPC(sn.data);return}}
+  if(teacher){const td=Math.sqrt((tx-W*.82)**2+(ty-(FLOOR_TOP+40))**2);if(td<200){talkToNPC(teacher);return}}
+  for(const sn of streetNPCInstances){const sd=Math.sqrt((tx-sn.x)**2+(ty-sn.y)**2);if(sd<150){talkToNPC(sn.data);return}}
+  // Check inactive player characters
+  for(const ic of getInactiveCharsInRoom(state.currentRoom)){const icd=Math.sqrt((tx-ic.x)**2+(ty-ic.y)**2);if(icd<80){talkToInactiveChar(ic);return}}
   // Check movable objects — start hold timer for drag
   let movObj=null,movD=50;
   for(const ob of roomObjects){if(!ob.movable)continue;const d=Math.sqrt((tx-ob.x)**2+(ty-ob.y)**2);if(d<movD){movD=d;movObj=ob}}
@@ -7051,11 +7079,27 @@ function handlePointerUp(tx,ty){
   holdStartPos=null;
   if(dragObject)finishDrag(tx,ty);
 }
+function isObjectNeededForMission(objectId){
+  for(const[npcName,active]of Object.entries(state.activeMissions)){
+    const tmpls=MISSION_TEMPLATES[npcName];if(!tmpls)continue;
+    const t=tmpls[active.templateIdx];if(!t)continue;
+    if(t.targets&&t.targets.includes(objectId))return true;
+  }
+  const rk=CFG.WORLD_ROOMS[state.currentRoom];
+  const ch=ROOM_CHALLENGES[rk];
+  if(ch){const prog=state.challengeProgress[rk];if(!prog||!prog.completed){if(ch.steps.includes(objectId))return true}}
+  return false;
+}
 function finishDrag(tx,ty){
   if(!dragObject)return;
   const obj=dragObject;dragObject=null;
   const distP=Math.sqrt((obj.x-player.x)**2+(obj.y-player.y)**2);
   if(distP<DROP_ON_PLAYER_R){
+    if(!obj._isFood&&isObjectNeededForMission(obj.id)){
+      obj._anim={type:'squash',t:0};const rk=CFG.WORLD_ROOMS[state.currentRoom];
+      state.movedObjects[rk+'_'+obj.id]={x:obj.x,y:obj.y};
+      showToast('Needed for a mission! \u{1F4CB}');sfxInteract();saveGame();return;
+    }
     if(obj._isFood)consumeFood(obj);
     else attachCosmeticItem(obj);
   }else{
@@ -7076,6 +7120,20 @@ const FOOD_TYPES=[
   {type:'apple',emoji:'\u{1F34E}',label:'Apple'},
   {type:'milk', emoji:'\u{1F95B}',label:'Milk'}
 ];
+
+// Decorative shelf drawing function
+function drawDecoShelf(c,ob){
+  c.save();const hw=ob.w/2,hh=ob.h/2;
+  c.fillStyle='rgba(0,0,0,.08)';rr(c,ob.x-hw+2,ob.y-hh+2,ob.w,ob.h,3,true,false);
+  gRect(c,ob.x-hw,ob.y-hh,ob.w,ob.h,4,'#92400e','#5c2607');
+  c.fillStyle='rgba(255,255,255,.08)';c.fillRect(ob.x-hw+1,ob.y-hh+1,2,ob.h-2);
+  for(let i=1;i<=2;i++){const sy=ob.y-hh+i*(ob.h/3);c.fillStyle='#b45309';c.fillRect(ob.x-hw+2,sy,ob.w-4,3);c.fillStyle='rgba(255,255,255,.1)';c.fillRect(ob.x-hw+2,sy,ob.w-4,1)}
+  c.fillStyle='#78350f';c.fillRect(ob.x-hw+3,ob.y+hh-2,3,2);c.fillRect(ob.x+hw-6,ob.y+hh-2,3,2);
+  outlineRR(c,ob.x-hw,ob.y-hh,ob.w,ob.h,4,2);c.restore();
+}
+function makeSmallItemDraw(emoji){
+  return(c,ob)=>{c.save();c.fillStyle='rgba(0,0,0,.05)';c.beginPath();c.ellipse(ob.x,ob.y+5,7,3,0,0,Math.PI*2);c.fill();c.font='16px '+FONT;c.textAlign='center';c.fillText(emoji,ob.x,ob.y+3);c.restore()};
+}
 
 function drawFoodItem(c,ob){
   c.save();
@@ -7221,7 +7279,7 @@ function consumeFood(food){
 
 function attachCosmeticItem(obj){
   const rk=CFG.WORLD_ROOMS[state.currentRoom];
-  const emojiMap={'Basketball':'\u{1F3C0}','Soccer Ball':'\u26BD','Football':'\u{1F3C8}','Tennis Ball':'\u{1F3BE}','Volleyball':'\u{1F3D0}','Pizza':'\u{1F355}','Salad':'\u{1F957}','Apple':'\u{1F34E}','Milk':'\u{1F95B}'};
+  const emojiMap={'Basketball':'\u{1F3C0}','Soccer Ball':'\u26BD','Football':'\u{1F3C8}','Tennis Ball':'\u{1F3BE}','Volleyball':'\u{1F3D0}','Pizza':'\u{1F355}','Salad':'\u{1F957}','Apple':'\u{1F34E}','Milk':'\u{1F95B}','Star Sticker':'\u2B50','Cookie':'\u{1F36A}','Juice Box':'\u{1F9C3}','Candy':'\u{1F36C}','Flower':'\u{1F338}','Bow':'\u{1F380}','Sunglasses':'\u{1F576}'};
   cosmeticHeldItem={emoji:emojiMap[obj.label]||obj._foodEmoji||'\u{1F4E6}',label:obj.label||'Item'};
   const idx=roomObjects.indexOf(obj);if(idx>=0)roomObjects.splice(idx,1);
   delete state.movedObjects[rk+'_'+obj.id];
@@ -7367,6 +7425,31 @@ function toggleGrab(){
     }
   }
 }
+function talkToInactiveChar(ic){
+  sfxInteract();
+  const charData=CHARACTERS.find(c=>c.id===ic.charId);
+  if(!charData)return;
+  const greetings=[
+    'Hi! I\'m '+charData.name+' '+charData.icon,
+    charData.name+' waves at you! \u{1F44B}',
+    charData.name+': Let\'s explore together!',
+    charData.name+': I love this place! '+charData.icon,
+    charData.name+' the '+charData.title+' says hello!'
+  ];
+  const nd=document.getElementById('npc-dialog'),nn=document.getElementById('npc-name'),nt=document.getElementById('npc-text');
+  nn.textContent=charData.name+' '+charData.icon;
+  nt.textContent=greetings[Math.random()*greetings.length|0];
+  nd.classList.add('show');
+  clearTimeout(npcDialogTimer);
+  npcDialogTimer=setTimeout(()=>nd.classList.remove('show'),2500);
+  const key='char_'+ic.charId;
+  if(!state.interactedObjects[key]){
+    state.interactedObjects[key]=1;
+    addCoin(player.x,player.y-40,2);
+    showToast('Met '+charData.name+'! +2 \u2B50');
+    saveGame();
+  }
+}
 function talkToNPC(npc){
   sfxInteract();
   // Check for completable active mission from this NPC
@@ -7441,6 +7524,8 @@ function acceptMission(npcName,tmpl){
 }
 function completeMission(npcName,tmpl){
   delete state.activeMissions[npcName];
+  if(!state.completedMissions)state.completedMissions=[];
+  state.completedMissions.push({npcName,title:tmpl.title,rewardCoins:tmpl.rewardCoins,completedAt:Date.now()});
   state.missionCounts[npcName]=(state.missionCounts[npcName]||0)+1;
   if(tmpl.rewardCoins)addCoin(player.x,player.y-40,tmpl.rewardCoins);
   if(tmpl.rewardItem&&!state.inventory.includes(tmpl.rewardItem)){
@@ -7473,12 +7558,17 @@ function updateStatusBar(){
 
 // ---- UI ----
 function updateCoinDisplay(){document.getElementById('coin-count').textContent=state.coins}
-function openInventory(){document.getElementById('inventory-panel').classList.add('open');renderInventory()}
+function openInventory(){document.getElementById('inventory-panel').classList.add('open');closeSettings();renderEquipmentMerged();renderInventory()}
 function closeInventory(){document.getElementById('inventory-panel').classList.remove('open')}
-function renderInventory(){const g=document.getElementById('inv-grid');g.innerHTML='';const owned=state.inventory.map(id=>ALL_ITEMS.find(s=>s.id===id)).filter(Boolean);for(const it of owned){const s=document.createElement('div');s.className='inv-slot filled';s.innerHTML=`<span style="font-size:26px">${it.icon}</span><span class="item-name">${it.name}</span>`;g.appendChild(s)}for(let i=0;i<Math.max(0,9-owned.length);i++){const s=document.createElement('div');s.className='inv-slot';s.innerHTML='<span style="color:#d1d5db;font-size:18px">?</span>';g.appendChild(s)}}
-function openEquipment(){document.getElementById('equip-panel').classList.add('open');renderEquipment()}
-function closeEquipment(){document.getElementById('equip-panel').classList.remove('open')}
-function renderEquipment(){const c=document.getElementById('equip-slots');c.innerHTML='';[{key:'hat',label:'Head',ei:'🎩'},{key:'cape',label:'Back',ei:'🧥'},{key:'shoes',label:'Feet',ei:'👢'},{key:'tool',label:'Hand',ei:'🖐️'},{key:'accessory',label:'Extra',ei:'✨'}].forEach(s=>{const eid=state.equipped[s.key],it=eid?ALL_ITEMS.find(si=>si.id===eid):null,ownSlot=state.inventory.map(id=>ALL_ITEMS.find(si=>si.id===id)).filter(si=>si&&si.slot===s.key);const d=document.createElement('div');d.className='equip-slot';d.innerHTML=`<div class="equip-slot-icon">${it?it.icon:s.ei}</div><div class="equip-slot-info"><div class="equip-slot-label">${s.label}</div><div class="equip-slot-name">${it?it.name:'Empty'}</div></div>`;if(it){const b=document.createElement('button');b.className='equip-btn unequip';b.textContent='Remove';b.onclick=()=>{state.equipped[s.key]=null;saveGame();renderEquipment()};d.appendChild(b)}else if(ownSlot.length){ownSlot.forEach(oi=>{const b=document.createElement('button');b.className='equip-btn equip';b.textContent=oi.icon;b.title=oi.name;b.onclick=()=>{state.equipped[s.key]=oi.id;saveGame();renderEquipment()};d.appendChild(b)})}c.appendChild(d)})}
+function renderInventory(){const g=document.getElementById('inv-grid');if(!g)return;g.innerHTML='';const owned=state.inventory.map(id=>ALL_ITEMS.find(s=>s.id===id)).filter(Boolean);for(const it of owned){const s=document.createElement('div');s.className='inv-slot filled';s.innerHTML=`<span style="font-size:26px">${it.icon}</span><span class="item-name">${it.name}</span>`;g.appendChild(s)}for(let i=0;i<Math.max(0,9-owned.length);i++){const s=document.createElement('div');s.className='inv-slot';s.innerHTML='<span style="color:#d1d5db;font-size:18px">?</span>';g.appendChild(s)}}
+function openEquipment(){openInventory()}
+function closeEquipment(){closeInventory()}
+function renderEquipmentMerged(){const c=document.getElementById('equip-slots-merged');if(!c)return;c.innerHTML='';[{key:'hat',label:'Head',ei:'\u{1F3A9}'},{key:'cape',label:'Back',ei:'\u{1F9E5}'},{key:'shoes',label:'Feet',ei:'\u{1F462}'},{key:'tool',label:'Hand',ei:'\u{1F590}\u{FE0F}'},{key:'accessory',label:'Extra',ei:'\u2728'}].forEach(s=>{const eid=state.equipped[s.key],it=eid?ALL_ITEMS.find(si=>si.id===eid):null,ownSlot=state.inventory.map(id=>ALL_ITEMS.find(si=>si.id===id)).filter(si=>si&&si.slot===s.key);const d=document.createElement('div');d.className='equip-slot';d.innerHTML=`<div class="equip-slot-icon">${it?it.icon:s.ei}</div><div class="equip-slot-info"><div class="equip-slot-label">${s.label}</div><div class="equip-slot-name">${it?it.name:'Empty'}</div></div>`;if(it){const b=document.createElement('button');b.className='equip-btn unequip';b.textContent='Remove';b.onclick=()=>{state.equipped[s.key]=null;saveGame();renderEquipmentMerged()};d.appendChild(b)}else if(ownSlot.length){ownSlot.forEach(oi=>{const b=document.createElement('button');b.className='equip-btn equip';b.textContent=oi.icon;b.title=oi.name;b.onclick=()=>{state.equipped[s.key]=oi.id;saveGame();renderEquipmentMerged()};d.appendChild(b)})}c.appendChild(d)})}
+function renderEquipment(){renderEquipmentMerged()}
+// Settings panel
+function openSettings(){document.getElementById('settings-panel').classList.add('open');closeInventory();renderSettings()}
+function closeSettings(){document.getElementById('settings-panel').classList.remove('open')}
+function renderSettings(){const c=document.getElementById('settings-list');if(!c)return;c.innerHTML='';const r=document.createElement('div');r.className='settings-row';r.innerHTML='<span class="settings-label">\u{1F3B5} Music</span>';const b=document.createElement('button');b.className='settings-toggle '+(state.musicOn?'on':'off');b.textContent=state.musicOn?'ON':'OFF';b.onclick=()=>{state.musicOn=!state.musicOn;if(state.musicOn){startBgm();showToast('Music on! \u{1F3B5}')}else{stopBgm();showToast('Music off \u{1F507}')}saveGame();renderSettings()};r.appendChild(b);c.appendChild(r)}
 let _tradeItems=SHOP_ITEMS;
 function openTradeDialog(items,title,msg){
   _tradeItems=items||SHOP_ITEMS;sfxInteract();
@@ -7494,18 +7584,58 @@ function closeTaskPanel(){document.getElementById('task-panel').classList.remove
 function renderTaskList(){
   const c=document.getElementById('task-list');c.innerHTML='';
   const keys=Object.keys(state.activeMissions);
-  if(keys.length===0){c.innerHTML='<p style="color:#9ca3af;text-align:center;padding:20px">Talk to people to get missions! 💬</p>';return}
+  const hasCompleted=state.completedMissions&&state.completedMissions.length>0;
+  const hasAnyChProgress=Object.values(state.challengeProgress||{}).some(cp=>cp&&(cp.step>0||cp.completed));
+  const hasMissionsDone=Object.values(state.missionCounts).some(cnt=>cnt>0);
+  if(keys.length===0&&!hasCompleted&&!hasAnyChProgress){c.innerHTML='<p style="color:#9ca3af;text-align:center;padding:20px">Talk to people to get missions! \u{1F4AC}</p>';return}
+  // Active missions
   for(const npcName of keys){
     const active=state.activeMissions[npcName];const tmpls=MISSION_TEMPLATES[npcName];if(!tmpls)continue;
     const t=tmpls[active.templateIdx];if(!t)continue;
     const prog=active.progress.done.length,pct=Math.min(100,(prog/t.need)*100);
     const rw={coins:t.rewardCoins,item:t.rewardItem};
     const d=document.createElement('div');d.className='task-item';
-    d.innerHTML=`<div class="task-title">${t.title}</div><div class="task-giver">From: ${npcName}</div><div class="task-desc">${t.desc}</div><div class="task-progress"><div class="task-progress-fill" style="width:${pct}%"></div></div><div class="task-reward">Reward: ${rw.coins} ⭐${rw.item?' + '+(ALL_ITEMS.find(i=>i.id===rw.item)||{}).icon:''}</div><div style="font-size:10px;color:#6b7280;margin-top:2px">${prog}/${t.need}</div>`;
+    d.innerHTML='<div class="task-title">'+t.title+'</div><div class="task-giver">From: '+npcName+'</div><div class="task-desc">'+t.desc+'</div><div class="task-progress"><div class="task-progress-fill" style="width:'+pct+'%"></div></div><div class="task-reward">Reward: '+rw.coins+' \u2B50'+(rw.item?' + '+((ALL_ITEMS.find(i=>i.id===rw.item)||{}).icon||''):'')+'</div><div style="font-size:10px;color:#6b7280;margin-top:2px">'+prog+'/'+t.need+'</div>';
     c.appendChild(d);
   }
-  const counts=Object.entries(state.missionCounts);
-  if(counts.length>0){const h=document.createElement('div');h.style.cssText='color:#9ca3af;font-size:10px;margin-top:10px;padding:6px;text-align:center';h.textContent='✅ Completed: '+counts.map(([n,c])=>c).reduce((a,b)=>a+b,0)+' total';c.appendChild(h)}
+  // Completed missions
+  if(hasCompleted){
+    const hdr=document.createElement('div');
+    hdr.style.cssText='font-size:11px;font-weight:700;color:#34d399;padding:10px 4px 4px;text-transform:uppercase;letter-spacing:.5px;border-top:2px solid #e5e7eb;margin-top:8px';
+    hdr.textContent='\u2705 Completed ('+state.completedMissions.length+')';
+    c.appendChild(hdr);
+    const shown=state.completedMissions.slice(-10).reverse();
+    for(const cm of shown){
+      const d=document.createElement('div');d.className='task-item completed';
+      d.innerHTML='<div class="task-title" style="text-decoration:line-through;opacity:.6">\u2705 '+cm.title+'</div><div class="task-giver" style="opacity:.5">From: '+cm.npcName+'</div>';
+      c.appendChild(d);
+    }
+  }
+  // Secret missions
+  if(hasMissionsDone||hasAnyChProgress){
+    const shdr=document.createElement('div');
+    shdr.style.cssText='font-size:11px;font-weight:700;color:#f59e0b;padding:10px 4px 4px;text-transform:uppercase;letter-spacing:.5px;border-top:2px solid #e5e7eb;margin-top:8px';
+    shdr.textContent='\u{1F52E} Secret Missions';
+    c.appendChild(shdr);
+    for(const rk of Object.keys(ROOM_CHALLENGES)){
+      const chDef=ROOM_CHALLENGES[rk];
+      const cp=state.challengeProgress[rk];
+      const roomName=CFG.ROOM_NAMES[rk]||rk;
+      const d=document.createElement('div');d.className='task-item';
+      if(cp&&cp.completed){
+        d.style.cssText='border-left:4px solid #34d399;opacity:.7';
+        d.innerHTML='<div class="task-title">\u2705 '+roomName+' Secret</div><div class="task-desc" style="opacity:.5">Challenge completed!</div>';
+      }else if(cp&&cp.step>0){
+        d.style.cssText='border-left:4px solid #f59e0b';
+        const pct=Math.min(100,(cp.step/chDef.steps.length)*100);
+        d.innerHTML='<div class="task-title">\u{1F52E} '+roomName+' Secret</div><div class="task-desc">'+chDef.riddle+'</div><div class="task-progress"><div class="task-progress-fill" style="width:'+pct+'%;background:linear-gradient(90deg,#f59e0b,#fbbf24)"></div></div><div style="font-size:10px;color:#f59e0b;margin-top:2px">Step '+cp.step+'/'+chDef.steps.length+' \u2014 '+(chDef.hints[cp.step]||'Keep going!')+'</div>';
+      }else{
+        d.style.cssText='border-left:4px solid #d1d5db;opacity:.45';
+        d.innerHTML='<div class="task-title">\u{1F512} '+roomName+'</div><div class="task-desc" style="color:#9ca3af">Visit to discover...</div>';
+      }
+      c.appendChild(d);
+    }
+  }
 }
 // ---- DESTINATION DIALOG ----
 function openDestinationDialog(){
@@ -7935,12 +8065,11 @@ function updateMissionTracker(){
 function setupUI(){
   document.getElementById('btn-inventory').onclick=openInventory;
   document.getElementById('close-inv').onclick=closeInventory;
-  document.getElementById('btn-equipment').onclick=openEquipment;
-  document.getElementById('close-equip').onclick=closeEquipment;
   document.getElementById('close-trade').onclick=closeTradeDialog;
   document.getElementById('btn-tasks').onclick=openTaskPanel;
   document.getElementById('close-tasks').onclick=closeTaskPanel;
-  document.getElementById('btn-dismiss').onclick=dismissFromSchool;
+  document.getElementById('btn-settings').onclick=openSettings;
+  document.getElementById('close-settings').onclick=closeSettings;
   document.getElementById('btn-map').onclick=openCityHub;
   document.getElementById('close-map').onclick=closeMap;
   document.getElementById('map-overlay').onclick=e=>{if(e.target.id==='map-overlay')closeMap()};
@@ -7955,7 +8084,6 @@ function setupUI(){
   document.getElementById('mission-dialog').onclick=e=>{if(e.target.id==='mission-dialog'){document.getElementById('mission-dialog').classList.remove('open');pendingMission=null}};
   document.getElementById('hint-btn').onclick=()=>{if(nearObject)interactObj(nearObject);else if(nearNPC)talkToNPC(nearNPC)};
   document.getElementById('trade-dialog').onclick=e=>{if(e.target.id==='trade-dialog')closeTradeDialog()};
-  document.getElementById('btn-music').onclick=()=>{state.musicOn=!state.musicOn;if(state.musicOn){startBgm();showToast('Music on! 🎵')}else{stopBgm();showToast('Music off 🔇')}saveGame()};
   document.getElementById('btn-restart').onclick=()=>{const d=document.getElementById('restart-dialog');d.style.display='flex'};
   document.getElementById('cancel-restart').onclick=()=>{document.getElementById('restart-dialog').style.display='none'};
   document.getElementById('confirm-restart').onclick=()=>{localStorage.removeItem(SAVE_KEY);location.reload()};
@@ -8558,8 +8686,6 @@ function init(){
   streetNPCInstances=snpcsInit.map((npc,i)=>({data:npc,x:W*(0.2+i*0.22),y:FLOOR_TOP+29+Math.random()*22,vx:npc.wander?(Math.random()>.5?.4:-.4):0,dir:1,bobT:Math.random()*100|0}));
   updateCoinDisplay();
   document.getElementById('room-label').textContent=CFG.ROOM_NAMES[CFG.WORLD_ROOMS[state.currentRoom]];
-  // Show bell only in school rooms
-  const bbInit=document.getElementById('btn-dismiss');if(bbInit)bbInit.style.display=state.currentRoom<=8?'flex':'none';
   setupInput();setupUI();
   buildCharSelect();
   document.getElementById('start-btn').onclick=()=>{

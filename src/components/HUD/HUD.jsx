@@ -15,11 +15,9 @@ export default function HUD() {
       <div id="room-label">{roomName}</div>
       <div id="btn-row">
         <button className="hud-btn" id="btn-map" style={{background:'linear-gradient(135deg,#06b6d4,#0891b2)',color:'#fff'}} title="Map">&#128506;</button>
-        <button className="hud-btn" id="btn-dismiss" title="Bell">&#128276;</button>
         <button className="hud-btn" id="btn-tasks" title="Tasks">&#128203;</button>
-        <button className="hud-btn" id="btn-music" title="Music">&#127925;</button>
-        <button className="hud-btn" id="btn-equipment" title="Equipment">&#128090;</button>
         <button className="hud-btn" id="btn-inventory" title="Backpack">&#127890;</button>
+        <button className="hud-btn" id="btn-settings" title="Settings">&#9881;</button>
         <button className="hud-btn" id="btn-restart" style={{background:'linear-gradient(135deg,#ef4444,#dc2626)',color:'#fff',fontSize:14}} title="Restart">&#128260;</button>
       </div>
     </div>

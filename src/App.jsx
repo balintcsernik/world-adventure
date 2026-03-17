@@ -7,8 +7,8 @@ import HUD from './components/HUD/HUD';
 import CityHub from './components/CityHub/CityHub';
 import GameLayout from './components/GameLayout';
 import InventoryPanel from './components/Panels/InventoryPanel';
-import EquipPanel from './components/Panels/EquipPanel';
 import TaskPanel from './components/Panels/TaskPanel';
+import SettingsPanel from './components/Panels/SettingsPanel';
 import TradeDialog from './components/Panels/TradeDialog';
 import MissionDialog from './components/Panels/MissionDialog';
 import DestinationDialog from './components/Panels/DestinationDialog';
@@ -28,8 +28,8 @@ function GameApp() {
       <HUD />
       <CityHub />
       <InventoryPanel />
-      <EquipPanel />
       <TaskPanel />
+      <SettingsPanel />
       <TradeDialog />
       <MissionDialog />
       <DestinationDialog />
