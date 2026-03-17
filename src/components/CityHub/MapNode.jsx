@@ -11,7 +11,7 @@ import React, { useState, useCallback } from 'react';
  *   onTap     () => void
  *   glowColor string
  */
-export default function MapNode({ position, label, imageAsset, isSelected, onTap, glowColor, children }) {
+export default function MapNode({ position, label, imageAsset, isSelected, onTap, glowColor, bgLandmark, children }) {
   const [isTapped, setIsTapped] = useState(false);
 
   const handleClick = useCallback(() => {
@@ -43,11 +43,15 @@ export default function MapNode({ position, label, imageAsset, isSelected, onTap
         }}
       />
 
-      {/* Building content — physical grounding via drop-shadow */}
-      <div className="map-node__content" style={{ position: 'relative' }}>
+      {/* Building content — hidden for landmarks baked into background image */}
+      <div className="map-node__content" style={{
+        position: 'relative',
+        ...(bgLandmark ? { visibility: 'hidden', height: 0, overflow: 'hidden' } : {}),
+      }}>
         {imageAsset}
-        {children}
       </div>
+      {/* Character pins always visible */}
+      {children}
 
       {/* Chunky wooden sign post */}
       <div className="map-node__sign">

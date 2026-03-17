@@ -42,6 +42,7 @@ function CityMapNode({ bldg, currentRoom, characters }) {
       onTap={handleTap}
       glowColor={bldg.glowColor}
       imageAsset={SvgBuilding ? <SvgBuilding w={bldg.buildW} h={bldg.buildH} /> : null}
+      bgLandmark={bldg.bgLandmark}
     >
       {characters.length > 0 && (
         <BuildingPins characters={characters} buildingIdx={bldg.idx} />
