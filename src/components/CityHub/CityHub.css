@@ -270,8 +270,7 @@
   #city-welcome p { font-size: 9px; }
   #city-dock-prompt { bottom: 52px; }
   #city-dock-prompt span { font-size: 8px; }
-  /* Scale down buildings layer on mobile */
-  .city-buildings-react { transform: scale(0.6); transform-origin: center center; }
+  /* Buildings are now bgLandmark — no scale needed, keeps labels aligned with background */
   /* Scale down map node signs */
   .map-node__sign-board { font-size: 8px; padding: 3px 8px; border-radius: 4px; border-width: 2px; border-bottom-width: 3px; }
   .map-node__sign-post { width: 4px; height: 12px; }
@@ -297,7 +296,7 @@
   #city-welcome p { font-size: 8px; }
   #city-dock-prompt { bottom: 42px; }
   #city-dock-prompt span { font-size: 7px; }
-  .city-buildings-react { transform: scale(0.5); transform-origin: center center; }
+  /* Buildings are now bgLandmark — no scale needed, keeps labels aligned with background */
   .char-portrait { padding: 2px !important; min-width: 30px !important; }
   .char-portrait canvas { width: 28px !important; height: 32px !important; }
   .char-portrait span { font-size: 5px !important; }
