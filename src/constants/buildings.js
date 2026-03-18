@@ -10,29 +10,29 @@ export const MAP_AREAS = [
 ];
 
 export const CITY_BUILDINGS = [
-  // School — center green field
-  {idx:0,name:'School',areaIdx:0,pctX:.46,pctY:.72,buildW:130,buildH:140,glowColor:'#fbbf24',
-   roofColor:'#ef4444',wallColor:'#fef3c7',accentColor:'#dc2626',doorColor:'#92400e',buildFn:'buildSchoolEl'},
-  // City — left side, near river
-  {idx:1,name:'City',areaIdx:1,pctX:.30,pctY:.54,buildW:120,buildH:140,glowColor:'#6366f1',
-   roofColor:'#6366f1',wallColor:'#ede9fe',accentColor:'#4338ca',doorColor:'#374151',buildFn:'buildCityEl'},
-  // Fun Zone — center-right, near farm area
-  {idx:2,name:'\u{1F3AC}Fun Zone',areaIdx:2,pctX:.60,pctY:.40,buildW:90,buildH:100,glowColor:'#ec4899',
-   roofColor:'#ec4899',wallColor:'#fce7f3',accentColor:'#be185d',doorColor:'#831843',buildFn:'buildFunEl'},
-  // Airport — upper center, near bridge
-  {idx:3,name:'Airport',areaIdx:3,pctX:.46,pctY:.36,buildW:110,buildH:90,glowColor:'#64748b',
-   roofColor:'#475569',wallColor:'#f1f5f9',accentColor:'#334155',doorColor:'#1e293b',buildFn:'buildAirportEl'},
-  // France — bottom-right, over Eiffel Tower in background
-  {idx:4,name:'France',areaIdx:4,pctX:.82,pctY:.68,buildW:65,buildH:130,glowColor:'#f472b6',
+  // School — center, red-roofed building on green field
+  {idx:0,name:'School',areaIdx:0,pctX:.42,pctY:.58,buildW:130,buildH:140,glowColor:'#fbbf24',
+   roofColor:'#ef4444',wallColor:'#fef3c7',accentColor:'#dc2626',doorColor:'#92400e',buildFn:'buildSchoolEl',bgLandmark:true},
+  // City — center-right, tall buildings
+  {idx:1,name:'City',areaIdx:1,pctX:.55,pctY:.45,buildW:120,buildH:140,glowColor:'#6366f1',
+   roofColor:'#6366f1',wallColor:'#ede9fe',accentColor:'#4338ca',doorColor:'#374151',buildFn:'buildCityEl',bgLandmark:true},
+  // Fun Zone — center-left, ferris wheel & carnival
+  {idx:2,name:'\u{1F3AC}Fun Zone',areaIdx:2,pctX:.30,pctY:.45,buildW:90,buildH:100,glowColor:'#ec4899',
+   roofColor:'#ec4899',wallColor:'#fce7f3',accentColor:'#be185d',doorColor:'#831843',buildFn:'buildFunEl',bgLandmark:true},
+  // Airport — top-center, airplane & control tower
+  {idx:3,name:'Airport',areaIdx:3,pctX:.52,pctY:.28,buildW:110,buildH:90,glowColor:'#64748b',
+   roofColor:'#475569',wallColor:'#f1f5f9',accentColor:'#334155',doorColor:'#1e293b',buildFn:'buildAirportEl',bgLandmark:true},
+  // France — bottom-right, Eiffel Tower
+  {idx:4,name:'France',areaIdx:4,pctX:.78,pctY:.62,buildW:65,buildH:130,glowColor:'#f472b6',
    roofColor:'#9d174d',wallColor:'#fce7f3',accentColor:'#be185d',doorColor:'#6b7280',buildFn:'buildFranceEl',bgLandmark:true},
-  // N. Pole — snow area, top-right
-  {idx:5,name:'\u{2744}\u{FE0F}N. Pole',areaIdx:5,pctX:.82,pctY:.32,buildW:95,buildH:95,glowColor:'#93c5fd',
+  // N. Pole — top-right, snowy mountains & cabin
+  {idx:5,name:'\u{2744}\u{FE0F}N. Pole',areaIdx:5,pctX:.82,pctY:.30,buildW:95,buildH:95,glowColor:'#93c5fd',
    roofColor:'#e2e8f0',wallColor:'#f0f9ff',accentColor:'#94a3b8',doorColor:'#475569',buildFn:'buildPoleEl',bgLandmark:true},
-  // Hungary — bottom-left, over Parliament in background
-  {idx:6,name:'Hungary',areaIdx:6,pctX:.15,pctY:.72,buildW:105,buildH:110,glowColor:'#dc2626',
+  // Hungary — bottom-left, Parliament building
+  {idx:6,name:'Hungary',areaIdx:6,pctX:.15,pctY:.68,buildW:105,buildH:110,glowColor:'#dc2626',
    roofColor:'#dc2626',wallColor:'#fef3c7',accentColor:'#16a34a',doorColor:'#92400e',buildFn:'buildHungaryEl',bgLandmark:true},
-  // Egypt — desert area, top-left
-  {idx:7,name:'Egypt',areaIdx:7,pctX:.13,pctY:.38,buildW:110,buildH:120,glowColor:'#f59e0b',
+  // Egypt — top-left, pyramids & desert
+  {idx:7,name:'Egypt',areaIdx:7,pctX:.13,pctY:.30,buildW:110,buildH:120,glowColor:'#f59e0b',
    roofColor:'#f59e0b',wallColor:'#fef3c7',accentColor:'#d97706',doorColor:'#78350f',buildFn:'buildEgyptEl',bgLandmark:true},
 ];
 
