@@ -19,20 +19,20 @@ export const CITY_BUILDINGS = [
   // Fun Zone — center-left, ferris wheel & carnival
   {idx:2,name:'\u{1F3AC}Fun Zone',areaIdx:2,pctX:.30,pctY:.45,buildW:90,buildH:100,glowColor:'#ec4899',
    roofColor:'#ec4899',wallColor:'#fce7f3',accentColor:'#be185d',doorColor:'#831843',buildFn:'buildFunEl',bgLandmark:true},
-  // Airport — top-center, airplane & control tower
-  {idx:3,name:'Airport',areaIdx:3,pctX:.52,pctY:.28,buildW:110,buildH:90,glowColor:'#64748b',
+  // Airport — top-center, on control tower
+  {idx:3,name:'Airport',areaIdx:3,pctX:.50,pctY:.25,buildW:110,buildH:90,glowColor:'#64748b',
    roofColor:'#475569',wallColor:'#f1f5f9',accentColor:'#334155',doorColor:'#1e293b',buildFn:'buildAirportEl',bgLandmark:true},
-  // France — bottom-right, Eiffel Tower
-  {idx:4,name:'France',areaIdx:4,pctX:.78,pctY:.62,buildW:65,buildH:130,glowColor:'#f472b6',
+  // France — bottom-right, on Eiffel Tower
+  {idx:4,name:'France',areaIdx:4,pctX:.75,pctY:.58,buildW:65,buildH:130,glowColor:'#f472b6',
    roofColor:'#9d174d',wallColor:'#fce7f3',accentColor:'#be185d',doorColor:'#6b7280',buildFn:'buildFranceEl',bgLandmark:true},
-  // N. Pole — top-right, snowy mountains & cabin
-  {idx:5,name:'\u{2744}\u{FE0F}N. Pole',areaIdx:5,pctX:.82,pctY:.30,buildW:95,buildH:95,glowColor:'#93c5fd',
+  // N. Pole — top-right, on ice/snow region
+  {idx:5,name:'\u{2744}\u{FE0F}N. Pole',areaIdx:5,pctX:.80,pctY:.28,buildW:95,buildH:95,glowColor:'#93c5fd',
    roofColor:'#e2e8f0',wallColor:'#f0f9ff',accentColor:'#94a3b8',doorColor:'#475569',buildFn:'buildPoleEl',bgLandmark:true},
-  // Hungary — bottom-left, Parliament building
-  {idx:6,name:'Hungary',areaIdx:6,pctX:.15,pctY:.68,buildW:105,buildH:110,glowColor:'#dc2626',
+  // Hungary — bottom-left, on Parliament building
+  {idx:6,name:'Hungary',areaIdx:6,pctX:.12,pctY:.63,buildW:105,buildH:110,glowColor:'#dc2626',
    roofColor:'#dc2626',wallColor:'#fef3c7',accentColor:'#16a34a',doorColor:'#92400e',buildFn:'buildHungaryEl',bgLandmark:true},
-  // Egypt — top-left, pyramids & desert
-  {idx:7,name:'Egypt',areaIdx:7,pctX:.13,pctY:.30,buildW:110,buildH:120,glowColor:'#f59e0b',
+  // Egypt — top-left, on pyramids
+  {idx:7,name:'Egypt',areaIdx:7,pctX:.14,pctY:.26,buildW:110,buildH:120,glowColor:'#f59e0b',
    roofColor:'#f59e0b',wallColor:'#fef3c7',accentColor:'#d97706',doorColor:'#78350f',buildFn:'buildEgyptEl',bgLandmark:true},
 ];
 
