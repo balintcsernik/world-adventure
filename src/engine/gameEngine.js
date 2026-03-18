@@ -7132,7 +7132,7 @@ function drawDecoShelf(c,ob){
   outlineRR(c,ob.x-hw,ob.y-hh,ob.w,ob.h,4,2);c.restore();
 }
 function makeSmallItemDraw(emoji){
-  return(c,ob)=>{c.save();c.fillStyle='rgba(0,0,0,.05)';c.beginPath();c.ellipse(ob.x,ob.y+5,7,3,0,0,Math.PI*2);c.fill();c.font='16px '+FONT;c.textAlign='center';c.fillText(emoji,ob.x,ob.y+3);c.restore()};
+  return(c,ob)=>{c.save();c.fillStyle='rgba(0,0,0,.05)';c.beginPath();c.ellipse(ob.x,ob.y+5,7,3,0,0,Math.PI*2);c.fill();c.fillStyle='#000';c.font='16px '+FONT;c.textAlign='center';c.fillText(emoji,ob.x,ob.y+3);c.restore()};
 }
 
 function drawFoodItem(c,ob){
